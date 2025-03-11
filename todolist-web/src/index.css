@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+button {
+  cursor:pointer
+}
+
+.appbar-button-custom {
+  @apply rounded-full hover:bg-[#42a5f5] dark:hover:bg-white/20 transition
+}
+
 :root {
 font-family: 'Roboto' 
 }
