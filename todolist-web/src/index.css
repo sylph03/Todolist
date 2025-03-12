@@ -1,15 +1,43 @@
 @import "tailwindcss";
-
 @custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+font-family: 'Roboto' 
+}
 
 button {
   cursor:pointer
 }
 
-.appbar-button-custom {
-  @apply rounded-full hover:bg-[#42a5f5] dark:hover:bg-white/20 transition
+/* Tùy chỉnh thanh cuộn */
+::-webkit-scrollbar {
+  width: 8px; /* Độ rộng thanh cuộn */
+  height: 8px; /* Dùng cho cuộn ngang */
 }
 
-:root {
-font-family: 'Roboto' 
+/* Thanh cuộn - nền */
+::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background: theme('colors.sky.100'); /* Màu nền thanh cuộn */
+}
+
+/* Thanh cuộn - phần kéo */
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: theme('colors.sky.300'); /* Màu phần kéo */
+}
+
+/* Hiệu ứng hover */
+::-webkit-scrollbar-thumb:hover {
+  cursor: poiter;
+  background: theme('colors.sky.400');
+
+}
+
+.appbar-button-custom {
+  @apply rounded-full hover:bg-white/20 transition
+}
+
+.button {
+  @apply flex items-center justify-center px-4 py-2.5 bg-sky-500 text-white shadow-md rounded-3xl dark:bg-gray-800 hover:opacity-85 transition-all duration-300
 }

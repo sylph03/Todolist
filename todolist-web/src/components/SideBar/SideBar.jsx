@@ -2,9 +2,9 @@ import React from 'react'
 
 const SideBar = () => {
   return (
-    <div className='w-65 p-4 bg-blue-300 dark:bg-gray-800 overflow-auto'>
+    <div className='min-w-68 p-4 bg-sky-500 dark:bg-gray-800 shadow-md hidden md:block'>
       sidebar
-      <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+      {/* <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /> */}
       sidebar
     </div>
   )
