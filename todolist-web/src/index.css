@@ -2,11 +2,37 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-font-family: 'Roboto' 
+  font-family: 'Roboto' 
 }
 
 button {
   cursor:pointer
+}
+
+
+
+@theme {
+
+  --spacing-SPACE_BOARD_CONTENT: 24px;
+  --spacing-HEIGHT_APPBAR: 56px;
+  --spacing-HEIGHT_BOARD_BAR: 44px;
+  --spacing-HEIGHT_BOARD_CONTENT: calc(100vh - var(--spacing-HEIGHT_APPBAR));
+  --spacing-HEIGHT_BOARD_COLUMN: calc(100vh - var(--spacing-HEIGHT_APPBAR) - var(--spacing-HEIGHT_BOARD_BAR) - 3*var(--spacing-SPACE_BOARD_CONTENT));
+  --spacing-WIDTH_SIDEBAR: 272px;
+  --spacing-PL_BOARD_CONTENT: calc(var(--spacing-WIDTH_SIDEBAR) + var(--spacing-SPACE_BOARD_CONTENT));
+  --spacing-WIDTH_BOARD_CONTENT: calc(100vw - var(--spacing-PL_BOARD_CONTENT) - var(--spacing-SPACE_BOARD_CONTENT));
+  --spacing-HEIGHT_COLUMN_TITLE: 40px;
+  --spacing-HEIGHT_COLUMN_CONTENT: calc(100% - var(--spacing-HEIGHT_COLUMN_TITLE));
+
+  --animate-fadeOutLeft: fadeOutLeft 0.3s ease forwards;
+  @keyframes fadeOutLeft {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
 }
 
 /* Tùy chỉnh thanh cuộn */
@@ -39,5 +65,5 @@ button {
 }
 
 .button {
-  @apply flex items-center justify-center px-4 py-2.5 bg-sky-500 text-white shadow-md rounded-3xl dark:bg-gray-800 hover:opacity-85 transition-all duration-300
+  @apply flex items-center justify-center px-4 py-2.5 bg-sky-500 text-white shadow-md rounded-3xl dark:bg-gray-800 hover:opacity-90 transition-all duration-300
 }

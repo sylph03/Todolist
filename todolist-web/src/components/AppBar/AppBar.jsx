@@ -4,7 +4,7 @@ import { ListTodo, Bell, User } from 'lucide-react'
 
 function AppBar() {
   return (
-    <div className="w-full h-14 bg-sky-500 dark:bg-gray-800 flex items-center justify-between px-4 shadow-md z-1">
+    <div className="w-full h-HEIGHT_APPBAR bg-sky-500 dark:bg-gray-800 flex items-center justify-between px-4 shadow-md z-2">
       {/* AppBar Left */}
       <div className="flex items-center font-semibold">
         <ListTodo className="size-6 text-white mr-2" />

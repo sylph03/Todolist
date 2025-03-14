@@ -8,12 +8,12 @@ function App() {
   return (
     <>
       <ThemeProvider>
-        <div className="h-screen dark:bg-gray-800 text-white dark:text-gray-100 flex flex-col">
+        <div className="h-screen w-screen dark:bg-gray-800 text-white dark:text-gray-100 flex flex-col">
           {/* Thanh AppBar trên cùng */}
           <AppBar />
 
           {/* Container chứa Sidebar + Nội dung chính */}
-          <div className="flex flex-1">
+          <div className="flex flex-1 h-full relative">
             {/* Sidebar bên trái */}
             <SideBar />
 
