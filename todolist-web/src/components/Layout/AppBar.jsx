@@ -1,6 +1,6 @@
 import React from 'react'
-import DarkModeToggler from '../ModeSelect/DarkModeToggler'
 import { ListTodo, Bell, User } from 'lucide-react'
+import DarkModeToggler from '~/components/UI/DarkModeToggler'
 
 function AppBar() {
   return (
