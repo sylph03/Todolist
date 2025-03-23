@@ -21,7 +21,7 @@ button {
   --spacing-WIDTH_SIDEBAR: 272px;
   --spacing-PL_BOARD_CONTENT: calc(var(--spacing-WIDTH_SIDEBAR) + var(--spacing-SPACE_BOARD_CONTENT));
   --spacing-WIDTH_BOARD_CONTENT: calc(100vw - var(--spacing-PL_BOARD_CONTENT) - var(--spacing-SPACE_BOARD_CONTENT));
-  --spacing-HEIGHT_COLUMN_TITLE: 40px;
+  --spacing-HEIGHT_COLUMN_TITLE: 45px;
   --spacing-HEIGHT_COLUMN_CONTENT: calc(100% - var(--spacing-HEIGHT_COLUMN_TITLE));
 
   --animate-fadeOutLeft: fadeOutLeft 0.3s ease forwards;
