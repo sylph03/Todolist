@@ -43,6 +43,12 @@ const SideBar = () => {
             <ChevronDown />
           </div>
         </div>
+        <div className='p-2 bg-white/20 rounded-lg cursor-pointer hover:bg-white/20'>
+          Today
+        </div>
+        <div className='p-2 rounded-lg cursor-pointer hover:bg-white/20'>
+          Tomorrow
+        </div>
       </div>
     </div>
   )
