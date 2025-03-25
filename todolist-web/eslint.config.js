@@ -36,6 +36,7 @@ export default [
 
       // Các quy tắc JavaScript
       'no-console': 1, // Cảnh báo khi sử dụng console.log (nên tránh sử dụng trong mã sản xuất)
+      'no-extra-boolean-cast': 0, // Cho phép ép kiểu boolean thừa, không cảnh báo lỗi
       'no-lonely-if': 1, // Cảnh báo khi có if đơn lẻ (nên sử dụng cú pháp hợp lý hơn)
       'no-trailing-spaces': 1, // Cảnh báo nếu có khoảng trắng thừa ở cuối dòng
       'no-multi-spaces': 1, // Cảnh báo nếu có nhiều khoảng trắng giữa các từ
