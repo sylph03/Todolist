@@ -15,9 +15,9 @@ const TaskColumn = ({ column }) => {
   }
   const orderdedCards = mapOrder(column?.cards, column?.cardOrderIds, '_id')
   return (
-    <div className='w-full h-full' ref={setNodeRef} style={dndKitColumnStyles} {...attributes} >
+    <div className='min-w-[380px] w-full h-full' ref={setNodeRef} style={dndKitColumnStyles} {...attributes} >
       <div className={`relative w-full h-full rounded-lg shadow-md ${column?.bgColumn}`} {...listeners}>
-        <div className={`flex items-center justify-center ${column?.bgTitleColumn} h-HEIGHT_COLUMN_TITLE rounded-t-lg font-bold uppercase`}>
+        <div className={`flex items-center justify-center ${column?.bgTitleColumn} h-HEIGHT_COLUMN_TITLE rounded-t-lg font-bold uppercase cursor-pointer`}>
           { column?.title }
         </div>
         <SortableContext items={orderdedCards?.map(card => card._id)} strategy={verticalListSortingStrategy}>

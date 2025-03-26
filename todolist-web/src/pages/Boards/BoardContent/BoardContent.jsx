@@ -13,7 +13,7 @@ const ACIVE_DRAG_ITEM_TYPE = {
   CARD: 'ACIVE_DRAG_ITEM_TYPE_CARD'
 }
 
-const BoardContent = ({ board }) => {
+const BoardContent = ({ board, isSidebarOpen }) => {
   // const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 10 } })
   // Yêu cầu chuột di chuyển 10 pixel trước khi kích hoạt kéo thả
   const mouseSensor = useSensor(MouseSensor, { activationConstraint: { distance: 10 } })
@@ -238,10 +238,10 @@ const BoardContent = ({ board }) => {
     // sensor: Cảm biến, collisionDetection: Thuật toán phát hiện va chạm, flickering: collisionDetection={closestCorners} + sai lệch dữ liệu
     <DndContext onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd} sensors={sensors} collisionDetection={collisionDetectionStrategy}>
       <div className='w-full h-full'>
-        <div className="md:pl-PL_BOARD_CONTENT p-SPACE_BOARD_CONTENT text-white dark:bg-gray-700 bg-sky-100 transition-all duration-300 flex flex-col gap-SPACE_BOARD_CONTENT overflow-y-hidden overflow-x-auto">
+        <div className={`${isSidebarOpen ? 'ml-ML_BOARD_CONTENT' : 'ml-4'} p-SPACE_BOARD_CONTENT text-white dark:bg-gray-700 bg-sky-100 transition-all duration-300 flex flex-col gap-5 md:gap-SPACE_BOARD_CONTENT overflow-y-hidden overflow-x-auto`}>
           <BoardActions/>
           <SortableContext items={orderedColumns?.map(column => column._id)} strategy={horizontalListSortingStrategy}>
-            <div className="flex gap-SPACE_BOARD_CONTENT h-HEIGHT_BOARD_COLUMN min-w-5xl md:min-w-7xl">
+            <div className="flex gap-5 md:gap-SPACE_BOARD_CONTENT h-HEIGHT_BOARD_COLUMN min-w-full w-fit">
               {orderedColumns?.map(column => (
                 <TaskColumn key={column._id} column={column}/>
               ))}

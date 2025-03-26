@@ -2,11 +2,11 @@ import React from 'react'
 import { ListTodo, Bell, User } from 'lucide-react'
 import DarkModeToggler from '~/components/UI/DarkModeToggler'
 
-function AppBar() {
+function AppBar({ toggleSidebar }) {
   return (
     <div className="w-full h-HEIGHT_APPBAR bg-sky-500 dark:bg-gray-800 flex items-center justify-between px-4 shadow-md z-2">
       {/* AppBar Left */}
-      <div className="flex items-center font-semibold">
+      <div className="flex items-center font-semibold cursor-pointer" onClick={toggleSidebar}>
         <ListTodo className="size-6 text-white mr-2" />
         ToDo
       </div>

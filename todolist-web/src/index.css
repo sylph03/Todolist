@@ -19,8 +19,8 @@ button {
   --spacing-HEIGHT_BOARD_CONTENT: calc(100vh - var(--spacing-HEIGHT_APPBAR));
   --spacing-HEIGHT_BOARD_COLUMN: calc(100vh - var(--spacing-HEIGHT_APPBAR) - var(--spacing-HEIGHT_BOARD_BAR) - 3*var(--spacing-SPACE_BOARD_CONTENT));
   --spacing-WIDTH_SIDEBAR: 272px;
-  --spacing-PL_BOARD_CONTENT: calc(var(--spacing-WIDTH_SIDEBAR) + var(--spacing-SPACE_BOARD_CONTENT));
-  --spacing-WIDTH_BOARD_CONTENT: calc(100vw - var(--spacing-PL_BOARD_CONTENT) - var(--spacing-SPACE_BOARD_CONTENT));
+  --spacing-ML_BOARD_CONTENT: calc(var(--spacing-WIDTH_SIDEBAR));
+  --spacing-WIDTH_BOARD_CONTENT: calc(100vw - var(--spacing-ML_BOARD_CONTENT) - var(--spacing-SPACE_BOARD_CONTENT));
   --spacing-HEIGHT_COLUMN_TITLE: 45px;
   --spacing-HEIGHT_COLUMN_CONTENT: calc(100% - var(--spacing-HEIGHT_COLUMN_TITLE));
 
@@ -31,6 +31,16 @@ button {
     }
     100% {
       transform: translateX(-100%);
+    }
+  }
+
+  --animate-fadeInLeft: fadeInLeft 0.3s ease forwards;
+  @keyframes fadeInLeft {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(0);
     }
   }
 }
@@ -65,5 +75,5 @@ button {
 }
 
 .button {
-  @apply flex items-center justify-center px-4 py-2.5 bg-sky-500 text-white shadow-md rounded-3xl dark:bg-gray-800 hover:opacity-90 transition-all duration-300
+  @apply flex items-center justify-center px-3 py-1.5 md:px-4 md:py-2.5 bg-sky-500 text-white shadow-md rounded-3xl dark:bg-gray-800 hover:opacity-90 transition-all duration-300
 }
