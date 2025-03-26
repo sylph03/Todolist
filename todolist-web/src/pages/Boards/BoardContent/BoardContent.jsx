@@ -5,7 +5,8 @@ import TaskCard from '~/components/Layout/TaskCard'
 import { mapOrder } from '~/utils/sort'
 import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors, DragOverlay, defaultDropAnimationSideEffects, closestCorners, pointerWithin, getFirstCollision } from '@dnd-kit/core'
 import { SortableContext, horizontalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
-import { cloneDeep } from 'lodash'
+import { cloneDeep, isEmpty } from 'lodash'
+import { generatePlaceholderCard } from '~/utils/formatters'
 
 const ACIVE_DRAG_ITEM_TYPE = {
   COLUMN: 'ACIVE_DRAG_ITEM_TYPE_COLUMN',
@@ -61,6 +62,10 @@ const BoardContent = ({ board }) => {
       if (nextActiveColumn) {
         // Xóa card ở column đang active
         nextActiveColumn.cards = nextActiveColumn.cards.filter(card => card._id !== activeDraggingCardId)
+        // Thêm Placehoder Card nếu column rỗng (do kéo hết card đi)
+        if (isEmpty(nextActiveColumn.cards)) {
+          nextActiveColumn.cards = [generatePlaceholderCard(nextActiveColumn)]
+        }
         // Cập nhật lại mảng cardOrderIds
         nextActiveColumn.cardOrderIds = nextActiveColumn.cards.map(card => card._id)
       }
@@ -75,6 +80,8 @@ const BoardContent = ({ board }) => {
         }
         // Thêm card đang kéo vào overColumn theo vị trí index mới
         nextOverColumn.cards = nextOverColumn.cards.toSpliced(newCardIndex, 0, rebuild_activateDraggingCardData)
+        // Xóa Placeholder Card nếu đang tồn tại
+        nextOverColumn.cards = nextOverColumn.cards.filter(card => !card.FE_PlaceholderCard)
         // Cập nhật lại mảng cardOrderIds
         nextOverColumn.cardOrderIds = nextOverColumn.cards.map(card => card._id)
       }
