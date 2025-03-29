@@ -7,18 +7,23 @@ const createNew = async (req, res, next) => {
       'any.required' : 'Title is required',
       'string.empty' : 'Title is not allowed to be empty',
       'string.min' : 'Title length must be at least 3 characters long',
-      'string.max' : 'Title length must be less than or equal to 255 characters long',
+      'string.max' : 'Title length must be less than or equal to 30 characters long',
       'string.trim' : 'Title must not have leading or trailing whitespace',
     }), 
-    description: Joi.string().required().min(3).max(255).trim().strict()
+    description: Joi.string().required().min(3).max(255).trim().strict().messages({
+      'any.required' : 'Title is required',
+      'string.empty' : 'Title is not allowed to be empty',
+      'string.min' : 'Title length must be at least 3 characters long',
+      'string.max' : 'Title length must be less than or equal to 255 characters long',
+      'string.trim' : 'Title must not have leading or trailing whitespace',
+    })
   })
 
   try {
-    console.log(req.body)
     // abortEarly: false Khi tìm thấy lỗi tiếp tục tìm lỗi để trả về
     await correctCondition.validateAsync(req.body, { abortEarly:false })
-    // next()
-    res.status(StatusCodes.CREATED).json({ message: 'POST from validation: API create new board' })
+    // Validation ok thì cho request đi sang controller
+    next()
   } catch (error) {
     console.log(error)
     res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
