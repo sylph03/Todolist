@@ -1,0 +1,23 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env", // Biên dịch code ES6+ thành code tương thích NodeJS hiện tại.
+      {
+        "targets": { 
+          "node": "current" 	// Tự động lấy đúng version node hiện tại bạn đang xài.
+        }
+      }
+    ]
+  ],
+  "plugins": [
+    ["@babel/plugin-transform-runtime"], // Tối ưu hóa việc sử dụng helpers, tránh trùng lặp code do Babel inject nhiều lần.
+    [
+      "module-resolver",
+      {
+        "alias": {
+          "~": "./src" // Cho phép bạn dùng import x from '~/...' thay vì ../../../ trong source code.
+        }
+      }
+    ]
+  ]
+}

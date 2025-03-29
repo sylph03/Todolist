@@ -1,0 +1,7 @@
+{
+  "compilerOptions": { // Phần cấu hình chính của TypeScript compiler (hoặc các tool đọc tsconfig.json).
+    "paths": { // Tạo alias (tên ngắn) cho đường dẫn thư mục.
+      "~/*": ["./src/*"], // Bất cứ khi nào bạn import ~ như một alias, nó sẽ hiểu là ./src.
+    },
+  }
+}
