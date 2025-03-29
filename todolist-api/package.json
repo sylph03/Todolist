@@ -16,7 +16,10 @@
     "async-exit-hook": "^2.0.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "mongodb": "^6.15.0"
+    "http-status-codes": "^2.3.0",
+    "joi": "^17.13.3",
+    "mongodb": "^6.15.0",
+    "nodemon": "^3.1.9"
   },
   "devDependencies": {
     "@babel/cli": "^7.27.0",
