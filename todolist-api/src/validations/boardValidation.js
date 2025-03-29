@@ -1,5 +1,6 @@
 import Joi from 'joi'
 import { StatusCodes } from 'http-status-codes'
+import ApiError from '~/utils/ApiError'
 
 const createNew = async (req, res, next) => {
   const correctCondition = Joi.object({
@@ -11,11 +12,11 @@ const createNew = async (req, res, next) => {
       'string.trim' : 'Title must not have leading or trailing whitespace',
     }), 
     description: Joi.string().required().min(3).max(255).trim().strict().messages({
-      'any.required' : 'Title is required',
-      'string.empty' : 'Title is not allowed to be empty',
-      'string.min' : 'Title length must be at least 3 characters long',
-      'string.max' : 'Title length must be less than or equal to 255 characters long',
-      'string.trim' : 'Title must not have leading or trailing whitespace',
+      'any.required' : 'Description is required',
+      'string.empty' : 'Description is not allowed to be empty',
+      'string.min' : 'Description length must be at least 3 characters long',
+      'string.max' : 'Description length must be less than or equal to 255 characters long',
+      'string.trim' : 'Description must not have leading or trailing whitespace',
     })
   })
 
@@ -25,10 +26,9 @@ const createNew = async (req, res, next) => {
     // Validation ok thì cho request đi sang controller
     next()
   } catch (error) {
-    console.log(error)
-    res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
-      errors: new Error(error).message
-    })
+    // const errorMessage = new Error(error).message
+    // const customError = new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage)
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY,  new Error(error).message))
   }
 }
 
