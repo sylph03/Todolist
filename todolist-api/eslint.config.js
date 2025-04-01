@@ -1,8 +1,8 @@
 // eslint.config.js
-import js from '@eslint/js'
-import babelParser from '@babel/eslint-parser'
+const js = require('@eslint/js');
+const babelParser = require('@babel/eslint-parser');
 
-export default [
+module.exports = [
   js.configs.recommended,
   {
     languageOptions: {
@@ -20,8 +20,8 @@ export default [
         module: 'readonly',
         require: 'readonly',
         console: 'readonly',
-        setTimeout: 'readonly'
-      }
+        setTimeout: 'readonly',
+      },
     },
     rules: {
       'no-console': 1,
@@ -42,10 +42,10 @@ export default [
       'keyword-spacing': 1,
       'comma-dangle': 1,
       'comma-spacing': 1,
-      'arrow-spacing': 1
+      'arrow-spacing': 1,
     },
     plugins: {
       // thêm plugin nếu cần
-    }
-  }
-]
+    },
+  },
+];
