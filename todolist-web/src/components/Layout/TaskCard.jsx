@@ -12,7 +12,7 @@ const TaskCard = ({ card }) => {
     border: isDragging ? '1px solid #00BCFF' : '1px solid transparent'
   }
   return (
-    <div className={`${card.FE_PlaceholderCard ? 'hidden' : 'block'} w-full rounded-lg shadow-md bg-white text-slate-800 cursor-pointer group`} ref={setNodeRef} style={dndKitCardStyles} {...attributes} {...listeners}>
+    <div className={`${card.FE_PlaceholderCard ? 'hidden' : 'block'} w-full rounded-lg shadow-md bg-white text-slate-800 cursor-pointer group hover:border-[#00BCFF]`} ref={setNodeRef} style={dndKitCardStyles} {...attributes} {...listeners}>
       {card?.cover && <img src={card.cover} className='object-cover w-full h-[247px]'/>}
       <div className='p-4 relative '>
         {card?.title}

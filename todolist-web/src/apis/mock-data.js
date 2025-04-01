@@ -2,6 +2,7 @@ export const mockData = {
   board: {
     _id: 'board-id-01',
     title: 'Today',
+    description: 'Board này dùng quản lý công việc về ngày hôm nay',
     columnOrderIds: ['column-id-01', 'column-id-02', 'column-id-03', 'column-id-04'], // Thứ tự sắp xếp / vị trí của các Columns trong 1 boards
     columns: [
       {

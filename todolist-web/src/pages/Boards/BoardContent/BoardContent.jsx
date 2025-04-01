@@ -238,7 +238,7 @@ const BoardContent = ({ board, isSidebarOpen }) => {
     // sensor: Cảm biến, collisionDetection: Thuật toán phát hiện va chạm, flickering: collisionDetection={closestCorners} + sai lệch dữ liệu
     <DndContext onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd} sensors={sensors} collisionDetection={collisionDetectionStrategy}>
       <div className='w-full h-full'>
-        <div className={`${isSidebarOpen ? 'ml-ML_BOARD_CONTENT' : 'ml-4'} p-SPACE_BOARD_CONTENT text-white dark:bg-gray-700 bg-sky-100 transition-all duration-300 flex flex-col gap-5 md:gap-SPACE_BOARD_CONTENT overflow-y-hidden overflow-x-auto`}>
+        <div className={`${isSidebarOpen ? 'ml-ML_BOARD_CONTENT' : 'ml-4'} p-SPACE_BOARD_CONTENT text-white dark:bg-gray-700 bg-sky-100 transition-all duration-300 flex flex-col gap-5 md:gap-SPACE_BOARD_CONTENT overflow-y-hidden overflow-x-auto scroll-container`}>
           <BoardActions/>
           <SortableContext items={orderedColumns?.map(column => column._id)} strategy={horizontalListSortingStrategy}>
             <div className="flex gap-5 md:gap-SPACE_BOARD_CONTENT h-HEIGHT_BOARD_COLUMN min-w-full w-fit">
@@ -249,7 +249,7 @@ const BoardContent = ({ board, isSidebarOpen }) => {
           </SortableContext>
           <DragOverlay dropAnimation={dropAnimation}>
             { !activeDragItemType && null }
-            { (activeDragItemType === ACIVE_DRAG_ITEM_TYPE.COLUMN) && <TaskColumn column={activeDragItemData}/> }
+            { (activeDragItemType === ACIVE_DRAG_ITEM_TYPE.COLUMN) && <TaskColumn column={activeDragItemData} cursor={'cursor-grabbing'}/> }
             { (activeDragItemType === ACIVE_DRAG_ITEM_TYPE.CARD) && <TaskCard card={activeDragItemData}/> }
           </DragOverlay>
         </div>
