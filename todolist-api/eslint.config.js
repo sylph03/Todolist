@@ -1,6 +1,6 @@
 // eslint.config.js
-const js = require('@eslint/js');
-const babelParser = require('@babel/eslint-parser');
+const js = require('@eslint/js')
+const babelParser = require('@babel/eslint-parser')
 
 module.exports = [
   js.configs.recommended,
@@ -11,7 +11,7 @@ module.exports = [
       parser: babelParser,
       parserOptions: {
         requireConfigFile: false,
-        allowImportExportEverywhere: true,
+        allowImportExportEverywhere: true
       },
       globals: {
         // Giả lập env: { es2020: true, node: true }
@@ -20,14 +20,14 @@ module.exports = [
         module: 'readonly',
         require: 'readonly',
         console: 'readonly',
-        setTimeout: 'readonly',
-      },
+        setTimeout: 'readonly'
+      }
     },
     rules: {
       'no-console': 1,
       'no-extra-boolean-cast': 0,
       'no-lonely-if': 1,
-      'no-unused-vars': 0,
+      'no-unused-vars': 1,
       'no-trailing-spaces': 1,
       'no-multi-spaces': 1,
       'no-multiple-empty-lines': 1,
@@ -42,10 +42,10 @@ module.exports = [
       'keyword-spacing': 1,
       'comma-dangle': 1,
       'comma-spacing': 1,
-      'arrow-spacing': 1,
+      'arrow-spacing': 1
     },
     plugins: {
       // thêm plugin nếu cần
-    },
-  },
-];
+    }
+  }
+]

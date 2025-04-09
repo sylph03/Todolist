@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, Search, Sparkles, ChevronDown, ChevronUp, FolderOpen, Plus, Ellipsis, EllipsisVertical, Pencil, Star, Trash2, X } from 'lucide-react'
+import { toast } from 'react-toastify'
 
 const projects = [
   {
-    id: 1, name: 'Today', isActive: true
+    id: 1, name: 'Today', description: 'Công việc hôm nay', isActive: true
   },
   {
     id: 2, name: 'Tomorrow', isActive: false
@@ -79,8 +80,7 @@ const projects = [
   },
   {
     id: 27, name: 'Project 25', isActive: false
-  },
-  
+  }
 ]
 
 const SideBar = ({ isOpen, toggleSidebar }) => {
@@ -132,8 +132,8 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
     if (plusButtonRef.current) {
       const rect = plusButtonRef.current.getBoundingClientRect()
       setFormPosition({
-        top: rect.top - 68,
-        left: rect.left + 58
+        top: rect.top - 30,
+        left: rect.right + 30
       })
     }
     setShowInput(!showInput)
@@ -144,16 +144,16 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
     if (optionsButtonRef.current[project.id]) {
       const rect = optionsButtonRef.current[project.id].getBoundingClientRect()
       const viewportHeight = window.innerHeight
-      const menuHeight = 142 // Approximate height of the options menu
+      const menuHeight = 138 // Approximate height of the options menu
 
       // Calculate position relative to viewport
-      let top = rect.top + 28
+      let top = rect.bottom + 5
       let left = rect.left
 
       // Check if menu would go below viewport
       if (top + menuHeight > viewportHeight) {
         // Position menu above the button
-        top = rect.top - menuHeight - 6
+        top = rect.top - menuHeight - 5
       }
 
       setOptionProjectPosition({ top, left })
@@ -190,6 +190,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
             </div>
 
             <button
+              onClick={()=>{toast.error('Vui lòng nhập tên bảng')}}
               className="w-full bg-sky-500 hover:bg-sky-600 text-white font-medium rounded-lg px-4 py-2 shadow-md transition-all duration-300 dark:bg-sky-600 dark:hover:bg-sky-500" >
               Tạo bảng
             </button>
@@ -293,6 +294,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
               {projects?.map((project) => (
                 <div
                   key={project.id}
+                  title={project?.description}
                   className={`relative group px-4 py-2 rounded-xl cursor-pointer transition duration-200 
                     ${project.isActive ? 'bg-white/20 dark:bg-gray-700' : 'bg-transparent dark:bg-gray-800'} 
                     hover:bg-white/20 dark:hover:bg-gray-700`}
