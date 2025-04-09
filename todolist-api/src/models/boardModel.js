@@ -1,7 +1,8 @@
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
-import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
+import { columnModel } from './columnModel'
+import { cardModel } from './cardModel'
 
 // Định nghĩa Collection (Name & Schema)
 const BOARD_COLLECTION_NAME = 'boards'
@@ -38,8 +39,26 @@ const findOneById = async (id) => {
 // Query tổng hợp (arrgregate) để lấy toàn bộ columns và cards thuộc về board
 const getDetails = async (id) => {
   try {
-    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({ _id: new ObjectId(String(id)) })
-    return result
+    // const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({ _id: new ObjectId(String(id)) })
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
+      { $match: {
+        _id: new ObjectId(String(id)),
+        _destroy: false
+      } },
+      { $lookup: {
+        from: columnModel.COLUMN_COLLECTION_NAME,
+        localField: '_id',
+        foreignField: 'boardId',
+        as: 'columns'
+      } },
+      { $lookup: {
+        from: cardModel.CARD_COLLECTION_NAME,
+        localField: '_id',
+        foreignField: 'boardId',
+        as: 'cards'
+      } }
+    ]).toArray()
+    return result[0] || null
   } catch (error) { throw new Error (error) }
 }
 

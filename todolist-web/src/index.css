@@ -14,14 +14,14 @@ button {
 @theme {
 
   --spacing-SPACE_BOARD_CONTENT: 24px;
-  --spacing-HEIGHT_APPBAR: 56px;
-  --spacing-HEIGHT_BOARD_BAR: 44px;
+  --spacing-HEIGHT_APPBAR: 50px;
+  --spacing-HEIGHT_BOARD_BAR: 40px;
   --spacing-HEIGHT_BOARD_CONTENT: calc(100vh - var(--spacing-HEIGHT_APPBAR));
   --spacing-HEIGHT_BOARD_COLUMN: calc(100vh - var(--spacing-HEIGHT_APPBAR) - var(--spacing-HEIGHT_BOARD_BAR) - 3*var(--spacing-SPACE_BOARD_CONTENT));
   --spacing-WIDTH_SIDEBAR: 272px;
   --spacing-ML_BOARD_CONTENT: calc(var(--spacing-WIDTH_SIDEBAR));
   --spacing-WIDTH_BOARD_CONTENT: calc(100vw - var(--spacing-ML_BOARD_CONTENT) - var(--spacing-SPACE_BOARD_CONTENT));
-  --spacing-HEIGHT_COLUMN_TITLE: 45px;
+  --spacing-HEIGHT_COLUMN_TITLE: 44px;
   --spacing-HEIGHT_COLUMN_CONTENT: calc(100% - var(--spacing-HEIGHT_COLUMN_TITLE));
 
   --animate-fadeOutLeft: fadeOutLeft 0.3s ease forwards;

@@ -9,8 +9,8 @@ export const mockData = {
         _id: 'column-id-01',
         boardId: 'board-id-01',
         title: 'Nhiệm vụ',
-        bgColumn: 'bg-red-100',
-        bgTitleColumn: 'bg-red-400',
+        bgColumn: 'bg-red-100 dark:bg-red-200',
+        bgTitleColumn: 'bg-red-400 dark:bg-red-400',
         cardOrderIds: ['card-id-01', 'card-id-02', 'card-id-03', 'card-id-04', 'card-id-05', 'card-id-06', 'card-id-07'],
         cards: [
           {
@@ -33,8 +33,8 @@ export const mockData = {
         _id: 'column-id-02',
         boardId: 'board-id-01',
         title: 'Chuẩn bị',
-        bgColumn: 'bg-orange-100',
-        bgTitleColumn: 'bg-orange-400',
+        bgColumn: 'bg-orange-100 dark:bg-orange-200',
+        bgTitleColumn: 'bg-orange-400 dark:bg-orange-400',
         cardOrderIds: ['card-id-08', 'card-id-09', 'card-id-10'],
         cards: [
           { _id: 'card-id-08', boardId: 'board-id-01', columnId: 'column-id-02', title: 'Title of card 08', description: null, cover: null },
@@ -46,8 +46,8 @@ export const mockData = {
         _id: 'column-id-03',
         boardId: 'board-id-01',
         title: 'Đang làm',
-        bgColumn: 'bg-yellow-100',
-        bgTitleColumn: 'bg-yellow-400',
+        bgColumn: 'bg-yellow-100 dark:bg-yellow-200',
+        bgTitleColumn: 'bg-yellow-400 dark:bg-yellow-400',
         cardOrderIds: ['card-id-11', 'card-id-12', 'card-id-13'],
         cards: [
           { _id: 'card-id-11', boardId: 'board-id-01', columnId: 'column-id-03', title: 'Title of card 11', description: null, cover: null },
@@ -59,8 +59,8 @@ export const mockData = {
         _id: 'column-id-04',
         boardId: 'board-id-01',
         title: 'Hoàn thành',
-        bgColumn: 'bg-green-100',
-        bgTitleColumn: 'bg-green-400',
+        bgColumn: 'bg-green-100 dark:bg-green-200',
+        bgTitleColumn: 'bg-green-400 dark:bg-green-400',
         cardOrderIds: ['card-id-11', 'card-id-12', 'card-id-13'],
         cards: [
           { _id: 'card-id-14', boardId: 'board-id-01', columnId: 'column-id-04', title: 'Title of card 14', description: null, cover: null },

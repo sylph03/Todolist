@@ -5,27 +5,41 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-
 import { CSS } from '@dnd-kit/utilities'
 
 const TaskColumn = ({ column, cursor }) => {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: column._id, data: { ...column } })
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({
+    id: column._id,
+    data: { ...column }
+  })
+
   const dndKitColumnStyles = {
-    // touchAction: 'none',
     transform: CSS.Translate.toString(transform),
     transition,
     height: '100%',
-    opacity: isDragging ? 0.5 : undefined
+    opacity: isDragging ? 0.5 : 1,
+    touchAction: 'none'
   }
-  const orderdedCards = mapOrder(column?.cards, column?.cardOrderIds, '_id')
+
+  const orderedCards = mapOrder(column?.cards, column?.cardOrderIds, '_id')
+
   return (
-    <div className='min-w-[380px] w-full h-full' ref={setNodeRef} style={dndKitColumnStyles} {...attributes} >
-      <div className={`relative w-full h-full rounded-lg shadow-md ${column?.bgColumn}`} {...listeners}>
-        <div className={`flex items-center justify-center ${column?.bgTitleColumn} h-HEIGHT_COLUMN_TITLE rounded-t-lg font-bold uppercase ${cursor ? cursor : 'cursor-grab' }`}>
-          { column?.title }
+    <div className="min-w-[300px] md:min-w-[360px] max-w-[480px] w-full h-full" ref={setNodeRef} style={dndKitColumnStyles} {...attributes} >
+      <div className={`relative w-full h-full rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 overflow-hidden transition-transform duration-300 ${column?.bgColumn ? column.bgColumn : 'bg-sky-100'}`} {...listeners} >
+        {/* Column Title */}
+        <div className={`flex items-center justify-center text-white text-sm md:text-base px-4 h-HEIGHT_COLUMN_TITLE font-semibold uppercase tracking-wide rounded-t-xl ${column?.bgTitleColumn ? column.bgTitleColumn : 'bg-sky-500'} ${cursor || 'cursor-grab'} hover:opacity-95 transition duration-200`} >
+          {column?.title}
         </div>
-        <SortableContext items={orderdedCards?.map(card => card._id)} strategy={verticalListSortingStrategy}>
-          <div className='w-full h-HEIGHT_COLUMN_CONTENT pr-1'>
-            <div className='py-4 pl-4 pr-3 space-y-4 overflow-y-auto overflow-x-hidden w-full h-full scroll-container'>
-              {orderdedCards?.map(card => (
-                <TaskCard key={card._id} card={card}/>
-              ))}
+
+        {/* Cards area */}
+        <SortableContext items={orderedCards?.map((card) => card._id)} strategy={verticalListSortingStrategy}>
+          <div className="w-full h-HEIGHT_COLUMN_CONTENT pr-0.5">
+            <div className="p-4 space-y-4 overflow-y-auto overflow-x-hidden w-full h-full scroll-container">
+              {orderedCards && orderedCards.length > 0 ? (orderedCards.map((card) => <TaskCard key={card._id} card={card} />)) : (<div className="text-gray-500 text-sm italic text-center pt-4">Không có công việc nào</div>)}
             </div>
           </div>
         </SortableContext>
@@ -35,3 +49,4 @@ const TaskColumn = ({ column, cursor }) => {
 }
 
 export default TaskColumn
+
