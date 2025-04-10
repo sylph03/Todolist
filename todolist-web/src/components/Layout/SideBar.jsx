@@ -138,27 +138,27 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
       if (showInput && formCreateProjectRef.current && !formCreateProjectRef.current.contains(event.target)) {
         // Nếu click vào nút Plus thì không đóng form
         if (plusButtonRef.current?.contains(event.target)) {
-          return;
+          return
         }
-        setShowInput(false);
+        setShowInput(false)
       }
 
       // Xử lý options project
       if (showOptionsProject && OptionProjectRef.current && !OptionProjectRef.current.contains(event.target)) {
         // Nếu click vào nút options của project tương ứng thì không đóng form
-        const currentProjectButton = optionsButtonRef.current[showOptionsProject];
+        const currentProjectButton = optionsButtonRef.current[showOptionsProject]
         if (currentProjectButton?.contains(event.target)) {
-          return;
+          return
         }
-        setShowOptionsProject(null);
+        setShowOptionsProject(null)
       }
-    };
+    }
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside)
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showInput, showOptionsProject]);
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showInput, showOptionsProject])
 
   // Xử lý sự kiện nhấn nút + (Plus)
   const handlePlusClick = (e) => {
@@ -204,7 +204,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
       {showInput && (
         <div
           ref={formCreateProjectRef}
-          className="z-50 fixed w-80 bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700" 
+          className="z-50 fixed w-80 bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700"
           style={{ top: formPosition?.top, left: formPosition?.left }} >
           <div className="text-gray-900 dark:text-gray-100 font-semibold text-lg text-center mb-5 relative">
             Tạo bảng
@@ -240,9 +240,9 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
 
       {/* Options project */}
       {showOptionsProject && (
-        <div 
+        <div
           ref={OptionProjectRef}
-          className="z-50 fixed bg-white dark:bg-gray-900 p-2 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 w-48" 
+          className="z-50 fixed bg-white dark:bg-gray-900 p-2 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 w-48"
           style={{ top: optionProjectPosition?.top, left: optionProjectPosition?.left }} >
           <div className="flex flex-col gap-1.5">
             <button className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700" >
