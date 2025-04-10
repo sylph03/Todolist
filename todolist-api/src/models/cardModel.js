@@ -25,7 +25,14 @@ const createNew = async (data) => {
   try {
     const validData = await validateBeforeCreate(data)
 
-    const createdCard = await GET_DB().collection(CARD_COLLECTION_NAME).insertOne(validData)
+    // Biến đổi một số dữ liệu liên quan tới ObjectId chuẩn chỉnh để lưu vào DB
+    const newCardtoAdd = {
+      ...validData,
+      boardId: new ObjectId(String(validData.boardId)),
+      columnId: new ObjectId(String(validData.columnId))
+    }
+
+    const createdCard = await GET_DB().collection(CARD_COLLECTION_NAME).insertOne(newCardtoAdd)
     return createdCard
   } catch (error) { throw new Error(error) }
 }

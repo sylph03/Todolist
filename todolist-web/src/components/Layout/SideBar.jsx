@@ -92,18 +92,22 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
   const optionsButtonRef = useRef({})
   const projectsContainerRef = useRef(null)
 
+  const formCreateProjectRef = useRef(null)
+  const OptionProjectRef = useRef(null)
+
+  // Xử lý dropdown khi cuộn
   useEffect(() => {
     const handleScroll = () => {
       if (showOptionsProject && optionsButtonRef.current[showOptionsProject]) {
         const rect = optionsButtonRef.current[showOptionsProject].getBoundingClientRect()
         const viewportHeight = window.innerHeight
-        const menuHeight = 142
+        const menuHeight = 138
 
-        let top = rect.top + 28
+        let top = rect.bottom + 5
         let left = rect.left
 
         if (top + menuHeight > viewportHeight) {
-          top = rect.top - menuHeight - 6
+          top = rect.top - menuHeight - 5
         }
         // Chỉ set state khi vị trí thay đổi
         setOptionProjectPosition(prev => {
@@ -127,18 +131,52 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
     }
   }, [showOptionsProject])
 
+  // Handle click outside forms
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Xử lý form tạo project
+      if (showInput && formCreateProjectRef.current && !formCreateProjectRef.current.contains(event.target)) {
+        // Nếu click vào nút Plus thì không đóng form
+        if (plusButtonRef.current?.contains(event.target)) {
+          return;
+        }
+        setShowInput(false);
+      }
+
+      // Xử lý options project
+      if (showOptionsProject && OptionProjectRef.current && !OptionProjectRef.current.contains(event.target)) {
+        // Nếu click vào nút options của project tương ứng thì không đóng form
+        const currentProjectButton = optionsButtonRef.current[showOptionsProject];
+        if (currentProjectButton?.contains(event.target)) {
+          return;
+        }
+        setShowOptionsProject(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showInput, showOptionsProject]);
+
+  // Xử lý sự kiện nhấn nút + (Plus)
   const handlePlusClick = (e) => {
     e.stopPropagation()
     if (plusButtonRef.current) {
       const rect = plusButtonRef.current.getBoundingClientRect()
-      setFormPosition({
-        top: rect.top - 30,
-        left: rect.right + 30
-      })
+      let top = rect.top - 30
+      let left = rect.right + 30
+      const formCreateProjectWidth = 320
+      if (left + formCreateProjectWidth > window.innerWidth) {
+        left = rect.right - formCreateProjectWidth/2
+      }
+      setFormPosition({ top, left })
     }
     setShowInput(!showInput)
   }
 
+  // Xử lý sự kiện nhấn nút ba chấm (Ellipsis)
   const handleOptionsProject = (e, project) => {
     e.stopPropagation()
     if (optionsButtonRef.current[project.id]) {
@@ -165,7 +203,9 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
     <>
       {showInput && (
         <div
-          className="z-50 fixed w-80 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700" style={{ top: formPosition?.top, left: formPosition?.left }} >
+          ref={formCreateProjectRef}
+          className="z-50 fixed w-80 bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700" 
+          style={{ top: formPosition?.top, left: formPosition?.left }} >
           <div className="text-gray-900 dark:text-gray-100 font-semibold text-lg text-center mb-5 relative">
             Tạo bảng
             <X className="absolute top-1/2 right-0 -translate-y-1/2 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors" size={26} onClick={() => setShowInput(false)} />
@@ -190,7 +230,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
             </div>
 
             <button
-              onClick={()=>{toast.error('Vui lòng nhập tên bảng')}}
+              onClick={() => { toast.error('Vui lòng nhập tên bảng')}}
               className="w-full bg-sky-500 hover:bg-sky-600 text-white font-medium rounded-lg px-4 py-2 shadow-md transition-all duration-300 dark:bg-sky-600 dark:hover:bg-sky-500" >
               Tạo bảng
             </button>
@@ -200,7 +240,10 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
 
       {/* Options project */}
       {showOptionsProject && (
-        <div className="z-50 fixed bg-white dark:bg-gray-900 p-2 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 w-48" style={{ top: optionProjectPosition?.top, left: optionProjectPosition?.left }} >
+        <div 
+          ref={OptionProjectRef}
+          className="z-50 fixed bg-white dark:bg-gray-900 p-2 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 w-48" 
+          style={{ top: optionProjectPosition?.top, left: optionProjectPosition?.left }} >
           <div className="flex flex-col gap-1.5">
             <button className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700" >
               <Pencil className="w-4 h-4" />

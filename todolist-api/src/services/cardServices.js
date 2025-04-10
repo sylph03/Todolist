@@ -1,5 +1,6 @@
 /* eslint-disable no-useless-catch */
 import { cardModel } from '~/models/cardModel'
+import { columnModel } from '~/models/columnModel'
 
 const createNew = async (reqBody) => {
   try {
@@ -18,6 +19,12 @@ const createNew = async (reqBody) => {
     // Bắn email, notification về cho admin khi có 1 cái board mới được tạo,...
 
     // Trả kết quả về, trong Service luôn phải có return
+
+    if (getNewCard) {
+      // Cập nhật mảng cardOrderIds trong collection column
+      await columnModel.pushCardOrderIds(getNewCard)
+    }
+
     return getNewCard
   } catch (error) { throw error }
 }
