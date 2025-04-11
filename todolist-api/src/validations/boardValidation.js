@@ -9,15 +9,9 @@ const createNew = async (req, res, next) => {
       'string.empty' : 'Title is not allowed to be empty',
       'string.min' : 'Title length must be at least 3 characters long',
       'string.max' : 'Title length must be less than or equal to 30 characters long',
-      'string.trim' : 'Title must not have leading or trailing whitespace',
-    }), 
-    description: Joi.string().required().min(3).max(255).trim().strict().messages({
-      'any.required' : 'Description is required',
-      'string.empty' : 'Description is not allowed to be empty',
-      'string.min' : 'Description length must be at least 3 characters long',
-      'string.max' : 'Description length must be less than or equal to 255 characters long',
-      'string.trim' : 'Description must not have leading or trailing whitespace',
-    })
+      'string.trim' : 'Title must not have leading or trailing whitespace'
+    }),
+    description: Joi.string().max(255).trim().strict().allow('').optional()
   })
 
   try {
@@ -28,7 +22,7 @@ const createNew = async (req, res, next) => {
   } catch (error) {
     // const errorMessage = new Error(error).message
     // const customError = new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, errorMessage)
-    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY,  new Error(error).message))
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
   }
 }
 

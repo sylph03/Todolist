@@ -2,6 +2,7 @@
 import { StatusCodes } from 'http-status-codes'
 import { cloneDeep } from 'lodash'
 import { boardModel } from '~/models/boardModel'
+import { columnModel } from '~/models/columnModel'
 import ApiError from '~/utils/ApiError'
 import { slugify } from '~/utils/formatters'
 
@@ -16,11 +17,34 @@ const createNew = async (reqBody) => {
     // Gọi tới tầng model để xử lý lưu bản ghi newBoard vào trong Database
     const createdBoard = await boardModel.createNew(newBoard)
 
-    // Lấy bản ghi board sau khi gọi (tùy mục đích dự án mà có cần bước này hay không)
-    const getNewBoard = await boardModel.findOneById(createdBoard.insertedId)
+    const boardId = createdBoard.insertedId
 
-    // Xử lý logic khác với các Collection khác tùy đặc thù dự án...
-    // Bắn email, notification về cho admin khi có 1 cái board mới được tạo,...
+    // Tạo 4 column mặc định với dữ liệu chi tiết
+    const defaultColumns = [
+      { title: 'Nhiệm vụ', bgColumn: 'bg-red-100 dark:bg-red-200', bgTitleColumn: 'bg-red-400 dark:bg-red-400' },
+      { title: 'Chuẩn bị', bgColumn: 'bg-orange-100 dark:bg-orange-200', bgTitleColumn: 'bg-orange-400 dark:bg-orange-400' },
+      { title: 'Đang làm', bgColumn: 'bg-yellow-100 dark:bg-yellow-200', bgTitleColumn: 'bg-yellow-400 dark:bg-yellow-400' },
+      { title: 'Hoàn thành', bgColumn: 'bg-green-100 dark:bg-green-200', bgTitleColumn: 'bg-green-400 dark:bg-green-400' }
+    ]
+
+    for (const column of defaultColumns) {
+      const newColumn = {
+        boardId: String(boardId),
+        title: column.title,
+        bgColumn: column.bgColumn,
+        bgTitleColumn: column.bgTitleColumn
+      }
+
+      const createdColumn = await columnModel.createNew(newColumn)
+      const getNewColumn = await columnModel.findOneById(createdColumn.insertedId)
+
+      if (getNewColumn) {
+        getNewColumn.cards = []
+        await boardModel.pushColumnOrderIds(getNewColumn)
+      }
+    }
+
+    const getNewBoard = await boardModel.findOneById(boardId)
 
     // Trả kết quả về, trong Service luôn phải có return
     return getNewBoard

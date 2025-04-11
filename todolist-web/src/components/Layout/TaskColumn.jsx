@@ -39,7 +39,7 @@ const TaskColumn = ({ column, cursor }) => {
         <SortableContext items={orderedCards?.map((card) => card._id)} strategy={verticalListSortingStrategy}>
           <div className="w-full h-HEIGHT_COLUMN_CONTENT pr-0.5">
             <div className="p-4 space-y-4 overflow-y-auto overflow-x-hidden w-full h-full scroll-container">
-              {orderedCards && orderedCards.length > 0 ? (orderedCards.map((card) => <TaskCard key={card._id} card={card} />)) : (<div className="text-gray-500 text-sm italic text-center pt-4">Không có công việc nào</div>)}
+              {/* {orderedCards && orderedCards.length > 0 ? (orderedCards.map((card) => <TaskCard key={card._id} card={card} />)) : (<div className="text-gray-500 dark:text-gray-700 text-sm italic text-center pt-4">Không có công việc nào</div>)} */}
             </div>
           </div>
         </SortableContext>
