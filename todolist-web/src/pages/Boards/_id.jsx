@@ -3,7 +3,7 @@ import AppBar from '~/components/Layout/AppBar'
 import SideBar from '~/components/Layout/SideBar'
 import BoardContent from './BoardContent/BoardContent'
 // import { mockData } from '~/apis/mock-data'
-import { createNewCardAPI, fetchBoardDetailsAPI } from '~/apis'
+import { createNewCardAPI, fetchBoardDetailsAPI, updateBoardDetailsAPI } from '~/apis'
 import { toast } from 'react-toastify'
 import { isEmpty } from 'lodash'
 import { generatePlaceholderCard } from '~/utils/formatters'
@@ -44,12 +44,24 @@ const Board = () => {
     setBoard(newBoard)
   }
 
+  // Gọi API và xử lý khi kéo thả column xong xuôi
+  const moveColumns = async (dndOrderedColumns) => {
+    const dndOrderedColumnsIds = dndOrderedColumns.map(column => column._id)
+    const newBoard = { ...board }
+    newBoard.columns = dndOrderedColumns
+    newBoard.columnOrderIds = dndOrderedColumnsIds
+    setBoard(newBoard)
+
+    // Gọi API update Board
+    await updateBoardDetailsAPI(newBoard._id, { columnOrderIds: dndOrderedColumnsIds })
+  }
+
   return (
     <div className="h-screen w-screen dark:bg-gray-800 text-white dark:text-gray-100 flex flex-col">
       <AppBar isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}/>
       <div className="flex flex-1 h-full relative">
         <SideBar board={board} isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}/>
-        <BoardContent createNewCard={createNewCard} board={board} isSidebarOpen={isSidebarOpen}/>
+        <BoardContent createNewCard={createNewCard} board={board} moveColumns={moveColumns} isSidebarOpen={isSidebarOpen}/>
       </div>
     </div>
   )

@@ -14,7 +14,7 @@ const ACIVE_DRAG_ITEM_TYPE = {
   CARD: 'ACIVE_DRAG_ITEM_TYPE_CARD'
 }
 
-const BoardContent = ({ board, isSidebarOpen, createNewCard }) => {
+const BoardContent = ({ board, isSidebarOpen, createNewCard, moveColumns }) => {
   // const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 10 } })
   // Yêu cầu chuột di chuyển 10 pixel trước khi kích hoạt kéo thả
   const mouseSensor = useSensor(MouseSensor, { activationConstraint: { distance: 10 } })
@@ -175,9 +175,10 @@ const BoardContent = ({ board, isSidebarOpen, createNewCard }) => {
 
         // Sử dụng arrayMove để sắp xếp lại mảng ban đầu
         const dndOrderedColumns = arrayMove(orderedColumns, oldColumnIndex, newColumnIndex)
-        // const dndOrderedColumnsIds = dndOrderedColumns.map(column => column._id)
-        // console.log(dndOrderedColumns)
-        // console.log(dndOrderedColumnsIds)
+
+        moveColumns(dndOrderedColumns)
+
+        // Tránh delay giao diện khi gọi API
         setOrderedColumns(dndOrderedColumns)
       }
     }
