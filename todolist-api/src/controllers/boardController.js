@@ -21,9 +21,9 @@ const getDetails = async (req, res, next) => {
 const update = async (req, res, next) => {
   try {
     const boardId = req.params.id
-    const updateBoard = await boardService.update(boardId, req.body)
+    const updatedBoard = await boardService.update(boardId, req.body)
     // Có kết quả trả về phía client
-    res.status(StatusCodes.OK).json(updateBoard)
+    res.status(StatusCodes.OK).json(updatedBoard)
   } catch (error) { next(error) }
 }
 

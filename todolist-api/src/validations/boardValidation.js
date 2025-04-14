@@ -32,7 +32,8 @@ const update = async (req, res, next) => {
   // Không dùng required() trong trường hợp update
   const correctCondition = Joi.object({
     title: Joi.string().min(3).max(30).trim().strict(),
-    description: Joi.string().max(255).trim().strict().allow('').optional()
+    description: Joi.string().max(255).trim().strict().allow('').optional(),
+    columnOrderIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([])
   })
 
   try {

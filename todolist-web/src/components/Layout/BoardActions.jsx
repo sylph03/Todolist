@@ -14,7 +14,7 @@ const BoardActions = ({ createNewCard, board }) => {
     { value: 'todo', label: 'Nhiệm vụ' },
     { value: 'prepare', label: 'Chuẩn bị' },
     { value: 'in-progress', label: 'Đang làm' },
-    { value: 'hoanThanh', label: 'Hoàn thành' }
+    { value: 'completed', label: 'Hoàn thành' }
   ]
 
   const hanleClickCreateCard = () => {
@@ -32,7 +32,7 @@ const BoardActions = ({ createNewCard, board }) => {
     setIsOpenStatusOption(false)
   }
 
-  const addNewCard = async () => {
+  const addNewCard = () => {
 
     if (!newCardTitle) {
       toast.error('Vui lòng nhập tên nhiệm vụ')
@@ -50,7 +50,7 @@ const BoardActions = ({ createNewCard, board }) => {
       cover: coverImage ? coverImage.name : ''
     }
 
-    await createNewCard(newCardData)
+    createNewCard(newCardData)
 
     setNewCardTitle('')
     setNewCardDescription('')

@@ -23,6 +23,12 @@ export const createNewColumnAPI = async (newColumnData) => {
   return response.data
 }
 
+export const updateColumnDetailsAPI = async (columnId, updateData) => {
+  const response = await axios.put(`${API_ROOT}/v1/columns/${columnId}`, updateData)
+  // axios trả kết quả về property của nó là data
+  return response.data
+}
+
 // Cards
 export const createNewCardAPI = async (newCardData) => {
   const response = await axios.post(`${API_ROOT}/v1/cards`, newCardData)

@@ -1,6 +1,5 @@
 import React from 'react'
 import TaskCard from './TaskCard'
-import { mapOrder } from '~/utils/sort'
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
@@ -25,7 +24,8 @@ const TaskColumn = ({ column, cursor }) => {
     touchAction: 'none'
   }
 
-  const orderedCards = mapOrder(column?.cards, column?.cardOrderIds, '_id')
+  // Cards đã được sắp xếp ở component cha cao nhất (boards/_id.jsx)
+  const orderedCards = column.cards
 
   return (
     <div className="min-w-[300px] md:min-w-[360px] max-w-[480px] w-full h-full" ref={setNodeRef} style={dndKitColumnStyles} {...attributes} >

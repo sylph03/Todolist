@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import BoardActions from '~/components/Layout/BoardActions'
 import TaskColumn from '~/components/Layout/TaskColumn'
 import TaskCard from '~/components/Layout/TaskCard'
-import { mapOrder } from '~/utils/sort'
 import { DndContext, useSensor, useSensors, DragOverlay, defaultDropAnimationSideEffects, closestCorners, pointerWithin, getFirstCollision } from '@dnd-kit/core'
 import { MouseSensor, TouchSensor } from '~/libs/DndKitSensors'
 import { SortableContext, horizontalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
@@ -14,7 +13,7 @@ const ACIVE_DRAG_ITEM_TYPE = {
   CARD: 'ACIVE_DRAG_ITEM_TYPE_CARD'
 }
 
-const BoardContent = ({ board, isSidebarOpen, createNewCard, moveColumns }) => {
+const BoardContent = ({ board, isSidebarOpen, createNewCard, moveColumns, moveCardInTheSameColumn }) => {
   // const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 10 } })
   // Yêu cầu chuột di chuyển 10 pixel trước khi kích hoạt kéo thả
   const mouseSensor = useSensor(MouseSensor, { activationConstraint: { distance: 10 } })
@@ -34,7 +33,8 @@ const BoardContent = ({ board, isSidebarOpen, createNewCard, moveColumns }) => {
   const lastOverId = useRef(null)
 
   useEffect(() => {
-    setOrderedColumns(mapOrder(board?.columns, board?.columnOrderIds, '_id'))
+    // Columns đã được sắp xếp ở component cha cao nhất (boards/_id.jsx)
+    setOrderedColumns(board.columns)
   }, [board])
 
   // Tìm column theo cardId
@@ -146,7 +146,7 @@ const BoardContent = ({ board, isSidebarOpen, createNewCard, moveColumns }) => {
 
       // Không tồn tại card trong column thì không làm gì hết
       if (!activeColumn || !overColumn) return
-
+      // Kéo thả card giữa 2 column khác nhau
       if (oldColumnDraggingCard._id !== overColumn._id) {
         moveCardBeetweenDifferentColumns(overColumn, overCardId, active, over, activeColumn, activeDraggingCardId, activeDraggingCardData)
       } else {
@@ -154,16 +154,21 @@ const BoardContent = ({ board, isSidebarOpen, createNewCard, moveColumns }) => {
         const oldCardIndex = oldColumnDraggingCard?.cards?.findIndex(card => card._id === activeDragItemId)
         const newCardIndex = overColumn?.cards?.findIndex(column => column._id === overCardId)
         const dndOrderedCards = arrayMove(oldColumnDraggingCard?.cards, oldCardIndex, newCardIndex)
+        const dndOrderedCardsIds = dndOrderedCards.map(card => card._id)
+
+        // Gọi state để tránh delay hoặc flickering giao diện lúc kéo thả cần phải chờ gọi API
         setOrderedColumns(prevColumns => {
           const nextColumns = cloneDeep(prevColumns)
           // Tìm tới cái column mà đang thả
           const targetColumn = nextColumns.find(column => column._id === overColumn._id)
           // Cập nhật lại 2 giá trị mới là card và cardOderIds trong targetColumn
           targetColumn.cards = dndOrderedCards
-          targetColumn.cardOrderIds = dndOrderedCards.map(card => card._id)
+          targetColumn.cardOrderIds = dndOrderedCardsIds
 
           return nextColumns
         })
+
+        moveCardInTheSameColumn(dndOrderedCards, dndOrderedCardsIds, oldColumnDraggingCard._id)
       }
     }
     // Xử lý thả column
