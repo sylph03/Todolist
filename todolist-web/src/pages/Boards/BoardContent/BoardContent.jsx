@@ -14,7 +14,7 @@ const ACIVE_DRAG_ITEM_TYPE = {
   CARD: 'ACIVE_DRAG_ITEM_TYPE_CARD'
 }
 
-const BoardContent = ({ board, isSidebarOpen }) => {
+const BoardContent = ({ board, isSidebarOpen, createNewCard }) => {
   // const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 10 } })
   // Yêu cầu chuột di chuyển 10 pixel trước khi kích hoạt kéo thả
   const mouseSensor = useSensor(MouseSensor, { activationConstraint: { distance: 10 } })
@@ -240,7 +240,7 @@ const BoardContent = ({ board, isSidebarOpen }) => {
     <DndContext onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd} sensors={sensors} collisionDetection={collisionDetectionStrategy}>
       <div className='w-full h-HEIGHT_BOARD_CONTENT'>
         <div className={`${isSidebarOpen ? 'ml-ML_BOARD_CONTENT' : 'ml-4'} h-full p-SPACE_BOARD_CONTENT text-white dark:bg-gray-700 bg-sky-200 transition-all duration-300 flex flex-col gap-5 md:gap-SPACE_BOARD_CONTENT overflow-y-hidden overflow-x-auto scroll-container max-w-full`}>
-          <BoardActions/>
+          <BoardActions createNewCard={createNewCard} board={board} />
           <SortableContext items={orderedColumns?.map(column => column._id)} strategy={horizontalListSortingStrategy}>
             <div className="flex gap-5 md:gap-SPACE_BOARD_CONTENT h-HEIGHT_BOARD_COLUMN min-w-full w-fit">
               {orderedColumns?.map(column => (

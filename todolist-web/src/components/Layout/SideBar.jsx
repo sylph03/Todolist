@@ -85,17 +85,17 @@ const projects = [
 ]
 
 const SideBar = ({ isOpen, toggleSidebar }) => {
-  const [showInput, setShowInput] = useState(false)
-  const [toggleFavoriteProject, setToggleFavoriteProject] = useState(false)
-  const [showOptionsProject, setShowOptionsProject] = useState(null)
-  const [optionProjectPosition, setOptionProjectPosition] = useState(null)
-  const [formPosition, setFormPosition] = useState(null)
-  const plusButtonRef = useRef(null)
-  const optionsButtonRef = useRef({})
-  const projectsContainerRef = useRef(null)
+  const [showInput, setShowInput] = useState(false) // Hiển thị form tạo board hay không
+  const [toggleFavoriteProject, setToggleFavoriteProject] = useState(false) // Hiển thị danh sách dự án đã đánh dấu hay không
+  const [showOptionsProject, setShowOptionsProject] = useState(null) // Hiển thị menu lựa chọn cho dự án đang nhấn (null vì có thể set nhiều dự án khác)
+  const [optionProjectPosition, setOptionProjectPosition] = useState(null) // Vị trí của menu lựa chọn dự án
+  const [formPosition, setFormPosition] = useState(null) // Vị trí của form tạo board
+  const plusButtonRef = useRef(null) // Tham chiếu nút tạo board (+)
+  const optionsButtonRef = useRef({}) // Tham chiếu nút lựa chọn menu dự án (⋮)
+  const projectsContainerRef = useRef(null) // Tham chiếu thẻ cha bọc dự án để quản lý thanh cuộn
 
-  const formCreateProjectRef = useRef(null)
-  const OptionProjectRef = useRef(null)
+  const formCreateProjectRef = useRef(null) // Tham chiếu form tạo board
+  const OptionProjectRef = useRef(null) // Tham chiếu menu lựa chọn dự án
 
   // Xử lý dropdown khi cuộn
   useEffect(() => {
@@ -125,12 +125,12 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
         }
       }
     }
-  
+
     const projectsContainer = projectsContainerRef.current
     if (projectsContainer) {
       projectsContainer.addEventListener('scroll', handleScroll)
     }
-  
+
     return () => {
       if (projectsContainer) {
         projectsContainer.removeEventListener('scroll', handleScroll)
@@ -174,7 +174,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
       const formCreateProjectWidth = 320
       const formCreateProjectHeight = 328
       if (top + formCreateProjectHeight > window.innerHeight) {
-        top = rect.top - formCreateProjectHeight;
+        top = rect.top - formCreateProjectHeight
       }
       if (left + formCreateProjectWidth > window.innerWidth) {
         left = rect.right - formCreateProjectWidth/2
@@ -184,31 +184,31 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
     setShowInput(!showInput)
   }
 
-  // Xử lý sự kiện nhấn nút ba chấm (Ellipsis)
+  // Xử lý sự kiện nhấn nút ⋮ (Ellipsis)
   const handleOptionsProject = (e, projectKey) => {
-    e.preventDefault();
-    e.stopPropagation();
-  
-    const keyString = `${projectKey.type}-${projectKey.id}`;
-  
+    e.preventDefault()
+    e.stopPropagation()
+
+    const keyString = `${projectKey.type}-${projectKey.id}`
+
     if (optionsButtonRef.current[keyString]) {
-      const rect = optionsButtonRef.current[keyString].getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-      const menuHeight = 138;
-  
-      let top = rect.bottom + 5;
-      let left = rect.left;
-  
+      const rect = optionsButtonRef.current[keyString].getBoundingClientRect()
+      const viewportHeight = window.innerHeight
+      const menuHeight = 138
+
+      let top = rect.bottom + 5
+      let left = rect.left
+
       if (top + menuHeight > viewportHeight) {
-        top = rect.top - menuHeight - 5;
+        top = rect.top - menuHeight - 5
       }
-  
-      setOptionProjectPosition({ top, left });
+
+      setOptionProjectPosition({ top, left })
     }
-  
+
     setShowOptionsProject((prev) => (
       prev && prev.type === projectKey.type && prev.id === projectKey.id ? null : projectKey
-    ));
+    ))
   }
 
 
@@ -294,11 +294,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
                 </div>
 
                 <div className="absolute right-2 p-1 top-1/2 -translate-y-1/2">
-                  { toggleFavoriteProject ?
-                    <ChevronDown className="w-5 h-5 text-gray-200 dark:text-gray-300 cursor-pointer hover:text-white transition duration-150" />
-                    :
-                    <ChevronUp className="w-5 h-5 text-gray-200 dark:text-gray-300 cursor-pointer hover:text-white transition duration-150" />
-                  }
+                  <ChevronUp className={`${toggleFavoriteProject ? 'animate-turnRight180' : 'animate-turnLeft180'} w-5 h-5 text-gray-200 dark:text-gray-300 cursor-pointer hover:text-white transition duration-150`} />
                 </div>
               </div>
               {/* Danh sách đã đánh dấu */}

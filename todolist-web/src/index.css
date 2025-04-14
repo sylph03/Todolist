@@ -43,6 +43,27 @@ button {
       transform: translateX(0);
     }
   }
+
+  --animate-turnRight180: turnRight180 0.5s ease forwards;
+  @keyframes turnRight180 {
+    0% { 
+      transform: rotate(0deg)
+    }
+    100% { 
+      transform: rotate(180deg)
+    }
+  }
+
+  --animate-turnLeft180: turnLeft180 0.5s ease forwards;
+  @keyframes turnLeft180 {
+    0% { 
+      transform: rotate(180deg)
+    }
+    100% { 
+      transform: rotate(0deg)
+    }
+  }
+  
 }
 
 /* Tùy chỉnh thanh cuộn */

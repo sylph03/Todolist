@@ -34,7 +34,7 @@ const CreateProjectForm = ({ formCreateProjectRef, setShowInput, formPosition })
 
         <button
           onClick={() => { toast.error('Vui lòng nhập tên bảng')}}
-          className="w-full bg-sky-500 hover:bg-sky-600 text-white font-medium rounded-lg px-4 py-2 shadow-md transition-all duration-300 dark:bg-sky-600 dark:hover:bg-sky-500" >
+          className="w-full bg-sky-500 hover:bg-sky-600 text-white font-medium rounded-lg px-4 py-2 shadow-md transition-all duration-300" >
           Tạo bảng
         </button>
       </div>
