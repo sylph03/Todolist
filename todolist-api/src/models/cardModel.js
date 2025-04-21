@@ -19,6 +19,8 @@ const CARD_COLLECTION_SCHEMA = Joi.object({
   _destroy: Joi.boolean().default(false)
 })
 
+const INVALID_UPDATE_FIELDS = ['_id', 'boardId', 'createdAt']
+
 const validateBeforeCreate = async (data) => {
   return await CARD_COLLECTION_SCHEMA.validateAsync(data, { abortEarly:false })
 }
@@ -39,9 +41,44 @@ const createNew = async (data) => {
   } catch (error) { throw new Error(error) }
 }
 
-const findOneById = async (id) => {
+const findOneById = async (cardId) => {
   try {
-    const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOne({ _id: new ObjectId(String(id)) })
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOne({ _id: new ObjectId(String(cardId)) })
+    return result
+  } catch (error) { throw new Error (error) }
+}
+
+const update = async (cardId, updateData) => {
+  try {
+    // Lọc những trường (field) không cho phép cập nhật linh tinh
+    Object.keys(updateData).forEach(fieldName => {
+      if (INVALID_UPDATE_FIELDS.includes(fieldName)) {
+        delete updateData[fieldName]
+      }
+    })
+
+    if (updateData.columnId) updateData.columnId = new ObjectId(String(updateData.columnId))
+
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(String(cardId)) },
+      { $set: updateData },
+      { returnDocument: 'after' } // Lấy bản ghi sau khi cập nhật
+    )
+
+    return result
+  } catch (error) { throw new Error(error) }
+}
+
+const deleteManyByColumnId = async (columnId) => {
+  try {
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).deleteMany({ columnId: new ObjectId(String(columnId)) })
+    return result
+  } catch (error) { throw new Error (error) }
+}
+
+const deleteOneById = async (cardId) => {
+  try {
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).deleteOne({ _id: new ObjectId(String(cardId)) })
     return result
   } catch (error) { throw new Error (error) }
 }
@@ -50,5 +87,8 @@ export const cardModel = {
   CARD_COLLECTION_NAME,
   CARD_COLLECTION_SCHEMA,
   createNew,
-  findOneById
+  findOneById,
+  update,
+  deleteManyByColumnId,
+  deleteOneById
 }

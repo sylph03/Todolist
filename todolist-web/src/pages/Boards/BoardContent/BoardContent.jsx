@@ -13,7 +13,7 @@ const ACIVE_DRAG_ITEM_TYPE = {
   CARD: 'ACIVE_DRAG_ITEM_TYPE_CARD'
 }
 
-const BoardContent = ({ board, isSidebarOpen, createNewCard, moveColumns, moveCardInTheSameColumn }) => {
+const BoardContent = ({ board, isSidebarOpen, createNewCard, moveColumns, moveCardInTheSameColumn, moveCardToDifferentColumn, deleteCardDetails }) => {
   // const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 10 } })
   // Yêu cầu chuột di chuyển 10 pixel trước khi kích hoạt kéo thả
   const mouseSensor = useSensor(MouseSensor, { activationConstraint: { distance: 10 } })
@@ -44,7 +44,10 @@ const BoardContent = ({ board, isSidebarOpen, createNewCard, moveColumns, moveCa
   }
 
   // Function chung xử lý cập nhật lại state trong trường hợp di chuyển Card giữa các column khác nhau
-  const moveCardBeetweenDifferentColumns = (overColumn, overCardId, active, over, aciveColumn, activeDraggingCardId, activeDraggingCardData) => {
+  const moveCardBeetweenDifferentColumns = (overColumn, overCardId, active, over, aciveColumn, activeDraggingCardId, activeDraggingCardData, triggerFrom) => {
+
+    let nextColumnsSnapshot = null
+
     setOrderedColumns(prevColumns => {
       // Tìm vị trí của overCard trong column đích được thả
       const overCardIndex = overColumn?.cards?.findIndex(card => card._id === overCardId)
@@ -87,8 +90,25 @@ const BoardContent = ({ board, isSidebarOpen, createNewCard, moveColumns, moveCa
         nextOverColumn.cardOrderIds = nextOverColumn.cards.map(card => card._id)
       }
 
+      // Đoạn code này đang được gọi bên trong hàm setOrderedColumns, điều này vi phạm nguyên tắc của React vì:
+      // Khi gọi setOrderedColumns, React đang trong quá trình render
+      // Trong khi đó, moveCardToDifferentColumn lại cập nhật state của component cha (Board)
+      // React không cho phép cập nhật state của component cha trong khi đang render component con
+      // if (triggerFrom === 'handleDragEnd') {
+      //   moveCardToDifferentColumn(activeDraggingCardId, oldColumnDraggingCard._id, nextOverColumn._id, nextColumns)
+      // }
+
+      nextColumnsSnapshot = nextColumns
+
       return nextColumns
     })
+
+    // 👉 Gọi hàm sau khi state set xong, tránh vi phạm luật render
+    if (triggerFrom === 'handleDragEnd') {
+      setTimeout(() => {
+        moveCardToDifferentColumn(activeDraggingCardId, oldColumnDraggingCard._id, overColumn._id, nextColumnsSnapshot)
+      }, 0)
+    }
   }
 
   const handleDragStart = (event) => {
@@ -123,7 +143,7 @@ const BoardContent = ({ board, isSidebarOpen, createNewCard, moveColumns, moveCa
 
     // Xử lý logic kéo card nhưng chưa thả qua 2 column khác nhau
     if (activeColumn._id !== overColumn._id) {
-      moveCardBeetweenDifferentColumns(overColumn, overCardId, active, over, activeColumn, activeDraggingCardId, activeDraggingCardData)
+      moveCardBeetweenDifferentColumns(overColumn, overCardId, active, over, activeColumn, activeDraggingCardId, activeDraggingCardData, 'handleDragOver')
     }
 
   }
@@ -148,7 +168,7 @@ const BoardContent = ({ board, isSidebarOpen, createNewCard, moveColumns, moveCa
       if (!activeColumn || !overColumn) return
       // Kéo thả card giữa 2 column khác nhau
       if (oldColumnDraggingCard._id !== overColumn._id) {
-        moveCardBeetweenDifferentColumns(overColumn, overCardId, active, over, activeColumn, activeDraggingCardId, activeDraggingCardData)
+        moveCardBeetweenDifferentColumns(overColumn, overCardId, active, over, activeColumn, activeDraggingCardId, activeDraggingCardData, 'handleDragEnd')
       } else {
         // Thả card trong cùng column
         const oldCardIndex = oldColumnDraggingCard?.cards?.findIndex(card => card._id === activeDragItemId)
@@ -250,7 +270,7 @@ const BoardContent = ({ board, isSidebarOpen, createNewCard, moveColumns, moveCa
           <SortableContext items={orderedColumns?.map(column => column._id)} strategy={horizontalListSortingStrategy}>
             <div className="flex gap-5 md:gap-SPACE_BOARD_CONTENT h-HEIGHT_BOARD_COLUMN min-w-full w-fit">
               {orderedColumns?.map(column => (
-                <TaskColumn key={column._id} column={column}/>
+                <TaskColumn key={column._id} column={column} deleteCardDetails={deleteCardDetails}/>
               ))}
             </div>
           </SortableContext>

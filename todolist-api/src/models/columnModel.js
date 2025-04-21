@@ -1,7 +1,7 @@
 import Joi from 'joi'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 import { GET_DB } from '~/config/mongodb'
-import { ObjectId, returnDocument } from 'mongodb'
+import { ObjectId } from 'mongodb'
 
 // Define Collection (name & schema)
 const COLUMN_COLLECTION_NAME = 'columns'
@@ -60,6 +60,19 @@ const pushCardOrderIds = async (card) => {
   } catch (error) { throw new Error(error) }
 }
 
+// Lấy phần tử cardId ra khỏi mảng cardOrderIds
+const pullCardOrderIds = async (card) => {
+  try {
+    const result = await GET_DB().collection(COLUMN_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(String(card.columnId)) },
+      { $pull: { cardOrderIds: new ObjectId(String(card._id)) } },
+      { returnDocument: 'after' } // Lấy bản ghi sau khi cập nhật
+    )
+
+    return result
+  } catch (error) { throw new Error(error) }
+}
+
 const update = async (columnId, updateData) => {
   try {
     // Lọc những trường (field) không cho phép cập nhật linh tinh
@@ -68,6 +81,11 @@ const update = async (columnId, updateData) => {
         delete updateData[fieldName]
       }
     })
+
+    // Đối với những dữ liệu liên quan đến ObjectId, biến đổi ở đây
+    if (updateData.cardOrderIds) {
+      updateData.cardOrderIds = updateData.cardOrderIds.map(_id => (new ObjectId(String(_id))))
+    }
 
     const result = await GET_DB().collection(COLUMN_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(String(columnId)) },
@@ -79,11 +97,20 @@ const update = async (columnId, updateData) => {
   } catch (error) { throw new Error(error) }
 }
 
+const deleteOneById = async (columnId) => {
+  try {
+    const result = await GET_DB().collection(COLUMN_COLLECTION_NAME).deleteOne({ _id: new ObjectId(String(columnId)) })
+    return result
+  } catch (error) { throw new Error (error) }
+}
+
 export const columnModel = {
   COLUMN_COLLECTION_NAME,
   COLUMN_COLLECTION_SCHEMA,
   createNew,
   findOneById,
   pushCardOrderIds,
-  update
+  update,
+  deleteOneById,
+  pullCardOrderIds
 }

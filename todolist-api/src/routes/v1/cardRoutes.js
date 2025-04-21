@@ -7,4 +7,7 @@ const Router = express.Router()
 Router.route('/')
   .post(cardValidation.createNew, cardController.createNew)
 
+Router.route('/:id')
+  .delete(cardValidation.deleteItem, cardController.deleteItem)
+
 export const cardRouter = Router

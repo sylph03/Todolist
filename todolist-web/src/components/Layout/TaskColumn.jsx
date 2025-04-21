@@ -3,7 +3,7 @@ import TaskCard from './TaskCard'
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-const TaskColumn = ({ column, cursor }) => {
+const TaskColumn = ({ column, cursor, deleteCardDetails }) => {
   const {
     attributes,
     listeners,
@@ -29,9 +29,9 @@ const TaskColumn = ({ column, cursor }) => {
 
   return (
     <div className="min-w-[300px] md:min-w-[360px] max-w-[480px] w-full h-full" ref={setNodeRef} style={dndKitColumnStyles} {...attributes} >
-      <div className={`relative w-full h-full rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 overflow-hidden transition-transform duration-300 ${column?.bgColumn ? column.bgColumn : 'bg-sky-100'}`} {...listeners} >
+      <div className={`relative w-full h-full rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 overflow-hidden transition-transform duration-300 ${column?.bgColumn ? column.bgColumn : 'bg-sky-100'}`} >
         {/* Column Title */}
-        <div className={`flex items-center justify-center text-white text-sm md:text-base px-4 h-HEIGHT_COLUMN_TITLE font-semibold uppercase tracking-wide rounded-t-xl ${column?.bgTitleColumn ? column.bgTitleColumn : 'bg-sky-500'} ${cursor || 'cursor-grab'} hover:opacity-95 transition duration-200`} >
+        <div {...listeners} className={`flex items-center justify-center text-white text-sm md:text-base px-4 h-HEIGHT_COLUMN_TITLE font-semibold uppercase tracking-wide rounded-t-xl ${column?.bgTitleColumn ? column.bgTitleColumn : 'bg-sky-500'} ${cursor || 'cursor-grab'} hover:opacity-95 transition duration-200`} >
           {column?.title}
         </div>
 
@@ -40,7 +40,7 @@ const TaskColumn = ({ column, cursor }) => {
           <div className="w-full h-HEIGHT_COLUMN_CONTENT pr-0.5">
             <div className="p-4 space-y-4 overflow-y-auto overflow-x-hidden w-full h-full scroll-container">
               {/* {orderedCards && orderedCards.length > 0 ? (orderedCards.map((card) => <TaskCard key={card._id} card={card} />)) :} */}
-              {orderedCards.map((card) => <TaskCard key={card._id} card={card} />)}
+              {orderedCards.map((card) => <TaskCard key={card._id} card={card} deleteCardDetails={deleteCardDetails} />)}
             </div>
           </div>
         </SortableContext>

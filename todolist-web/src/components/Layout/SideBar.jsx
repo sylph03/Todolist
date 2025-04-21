@@ -88,8 +88,10 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
   const [showInput, setShowInput] = useState(false) // Hiển thị form tạo board hay không
   const [toggleFavoriteProject, setToggleFavoriteProject] = useState(false) // Hiển thị danh sách dự án đã đánh dấu hay không
   const [showOptionsProject, setShowOptionsProject] = useState(null) // Hiển thị menu lựa chọn cho dự án đang nhấn (null vì có thể set nhiều dự án khác)
+
   const [optionProjectPosition, setOptionProjectPosition] = useState(null) // Vị trí của menu lựa chọn dự án
   const [formPosition, setFormPosition] = useState(null) // Vị trí của form tạo board
+
   const plusButtonRef = useRef(null) // Tham chiếu nút tạo board (+)
   const optionsButtonRef = useRef({}) // Tham chiếu nút lựa chọn menu dự án (⋮)
   const projectsContainerRef = useRef(null) // Tham chiếu thẻ cha bọc dự án để quản lý thanh cuộn

@@ -7,6 +7,6 @@ import { ToastContainer } from 'react-toastify'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />
-    <ToastContainer position="bottom-right" theme="light" newestOnTop closeOnClick/>
+    <ToastContainer position="top-center" theme="light" newestOnTop closeOnClick/>
   </StrictMode>
 )

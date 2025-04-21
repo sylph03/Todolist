@@ -9,6 +9,17 @@ const createNew = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const deleteItem = async (req, res, next) => {
+  try {
+    const cardId = req.params.id
+    const result = await cardService.deleteItem(cardId)
+    // Có kết quả trả về phía client
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) { next(error) }
+}
+
+
 export const cardController = {
-  createNew
+  createNew,
+  deleteItem
 }

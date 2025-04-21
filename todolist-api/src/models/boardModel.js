@@ -78,6 +78,19 @@ const pushColumnOrderIds = async (column) => {
   } catch (error) { throw new Error(error) }
 }
 
+// Lấy phần tử columnId ra khỏi mảng columnOrderIds
+const pullColumnOrderIds = async (column) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(String(column.boardId)) },
+      { $pull: { columnOrderIds: new ObjectId(String(column._id)) } },
+      { returnDocument: 'after' } // Lấy bản ghi sau khi cập nhật
+    )
+
+    return result
+  } catch (error) { throw new Error(error) }
+}
+
 const update = async (boardId, updateData) => {
   try {
     // Lọc những trường (field) không cho phép cập nhật linh tinh
@@ -86,6 +99,11 @@ const update = async (boardId, updateData) => {
         delete updateData[fieldName]
       }
     })
+
+    // Đối với những dữ liệu liên quan đến ObjectId, biến đổi ở đây
+    if (updateData.columnOrderIds) {
+      updateData.columnOrderIds = updateData.columnOrderIds.map(_id => (new ObjectId(String(_id))))
+    }
 
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(String(boardId)) },
@@ -104,5 +122,6 @@ export const boardModel = {
   findOneById,
   getDetails,
   pushColumnOrderIds,
-  update
+  update,
+  pullColumnOrderIds
 }
