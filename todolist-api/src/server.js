@@ -21,9 +21,18 @@ const START_SERVER = () => {
   // Middleware xử lý lỗi tập trung
   app.use(errorHandlingMiddleware)
 
-  app.listen(env.APP_PORT, env.APP_HOST, () => {
-    console.log(`server is running http://${env.APP_HOST}:${env.APP_PORT}`)
-  })
+  if (env.BUILD_MODE === 'production') {
+    // Môi trường Production (đang support Render.com)
+    app.listen(process.env.PORT, () => {
+      console.log(`Production: server is running at ${process.env.PORT}`)
+    })
+  } else {
+    // Môi trường Local Dev
+    app.listen(env.APP_PORT, env.APP_HOST, () => {
+      console.log(`Local: server is running http://${env.APP_HOST}:${env.APP_PORT}`)
+    })
+  }
+
 
   // Thực hiện các tác vụ cleanup trước khi dừng server
   // Có vẻ chỉ hiển thị console.log() ở CLOSE_DB() và console.log('Disconnected from MongoDB Cloud Atlas!') trên terminal unbuntu (WSL)

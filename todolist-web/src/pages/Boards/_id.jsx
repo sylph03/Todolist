@@ -14,8 +14,6 @@ const Board = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [board, setBoard] = useState(null)
 
-  console.log(board)
-
   useEffect(() => {
     // Tạm fix cứng boardId, sau sẽ sử dụng react-router-dom để lấy chuẩn boardId từ url
     const boardId = '67f923d9b0287286d736dbb7'
