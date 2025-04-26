@@ -52,7 +52,14 @@ const pushCardOrderIds = async (card) => {
   try {
     const result = await GET_DB().collection(COLUMN_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(String(card.columnId)) },
-      { $push: { cardOrderIds: new ObjectId(String(card._id)) } },
+      {
+        $push: {
+          cardOrderIds: {
+            $each: [new ObjectId(String(card._id))],
+            $position: 0
+          }
+        }
+      },
       { returnDocument: 'after' } // Lấy bản ghi sau khi cập nhật
     )
 
