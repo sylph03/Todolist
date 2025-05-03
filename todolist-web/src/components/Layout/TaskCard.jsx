@@ -5,7 +5,7 @@ import { SquarePen } from 'lucide-react'
 import OptionListCard from '../Card/OptionListCard'
 import { useConfirm } from '~/Context/ConfirmProvider'
 
-const TaskCard = ({ card, deleteCardDetails }) => {
+const TaskCard = ({ card }) => {
 
   const [textAreaWidth, setTextAreaWidth] = useState(null)
   const [textArea, setTextArea] = useState(card?.title)
@@ -189,7 +189,7 @@ const TaskCard = ({ card, deleteCardDetails }) => {
               className="fixed transition-all"
               style={{ top: optionsCardPosition?.top, left: optionsCardPosition?.left }}
             >
-              <OptionListCard card={card} showPopup={showPopup} deleteCardDetails={deleteCardDetails} />
+              <OptionListCard card={card} showPopup={showPopup} />
             </div>
           </div>
         </div>

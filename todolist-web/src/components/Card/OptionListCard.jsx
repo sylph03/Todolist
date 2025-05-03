@@ -1,8 +1,16 @@
 import { CreditCard, MoveRight, Archive, Trash2 } from 'lucide-react'
 import OptionItemCard from './OptionItemCard'
 import { useConfirm } from '~/Context/ConfirmProvider'
+import { deleteCardDetailsAPI } from '~/apis'
+import { cloneDeep, isEmpty } from 'lodash'
+import { generatePlaceholderCard } from '~/utils/formatters'
+import { updateCurrentActiveBoard, selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { useDispatch, useSelector } from 'react-redux'
+import { toast } from 'react-toastify'
 
-const OptionListCard = ({ card, deleteCardDetails }) => {
+const OptionListCard = ({ card }) => {
+  const dispatch = useDispatch()
+  const board = useSelector(selectCurrentActiveBoard)
 
   const { confirm } = useConfirm()
 
@@ -25,7 +33,29 @@ const OptionListCard = ({ card, deleteCardDetails }) => {
       modal: true
     })
     if (result) {
-      deleteCardDetails(card._id)
+      // Cannot assign to read only property 'cards' of object
+      // Trường hợp Immutability ở đây đã đụng tới giá trị cards đang được coi là chỉ đọc read only (nested object - can thiệp sâu dữ liệu)
+      // const newBoard = { ...board }
+      const newBoard = cloneDeep(board)
+      const targetColumn = newBoard.columns.find(column => column.cardOrderIds.includes(card._id))
+
+      if (targetColumn) {
+        targetColumn.cards = targetColumn.cards.filter(c => c._id !== card._id)
+        targetColumn.cardOrderIds = targetColumn.cardOrderIds.filter(_id => _id !== card._id)
+
+        if (isEmpty(targetColumn.cards)) {
+          const placeholderCard = generatePlaceholderCard(targetColumn)
+          targetColumn.cards = [placeholderCard]
+          targetColumn.cardOrderIds = [placeholderCard._id]
+        }
+        // setBoard(newBoard)
+        dispatch(updateCurrentActiveBoard(newBoard))
+
+      }
+
+      deleteCardDetailsAPI(card._id).then(res => {
+        toast.success(res?.deleteResult)
+      })
     } else {
       console.log('Hủy xóa!')
     }

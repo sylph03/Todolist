@@ -24,7 +24,7 @@ button {
   --spacing-HEIGHT_COLUMN_TITLE: 44px;
   --spacing-HEIGHT_COLUMN_CONTENT: calc(100% - var(--spacing-HEIGHT_COLUMN_TITLE));
 
-  --animate-fadeOutLeft: fadeOutLeft 0.3s ease forwards;
+  --animate-fadeOutLeft: fadeOutLeft 0.3s ease-in-out forwards;
   @keyframes fadeOutLeft {
     0% {
       transform: translateX(0);
@@ -41,6 +41,30 @@ button {
     }
     100% {
       transform: translateX(0);
+    }
+  }
+
+  --animate-fadeInDown: fadeInDown 0.3s ease-out forwards;
+  @keyframes fadeInDown {
+    0% {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  --animate-fadeOutUp: fadeOutUp 0.3s ease-out forwards;
+  @keyframes fadeOutUp {
+    0% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-20px);
     }
   }
 

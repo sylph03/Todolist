@@ -3,7 +3,7 @@ import TaskCard from './TaskCard'
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-const TaskColumn = ({ column, cursor, deleteCardDetails }) => {
+const TaskColumn = ({ column, cursor }) => {
   const {
     attributes,
     listeners,
@@ -40,7 +40,7 @@ const TaskColumn = ({ column, cursor, deleteCardDetails }) => {
           <div className="w-full h-HEIGHT_COLUMN_CONTENT pr-0.5">
             <div className="p-4 space-y-4 overflow-y-auto overflow-x-hidden w-full h-full scroll-container">
               {/* {orderedCards && orderedCards.length > 0 ? (orderedCards.map((card) => <TaskCard key={card._id} card={card} />)) :} */}
-              {orderedCards.map((card) => <TaskCard key={card._id} card={card} deleteCardDetails={deleteCardDetails} />)}
+              {orderedCards.map((card) => <TaskCard key={card._id} card={card} />)}
             </div>
           </div>
         </SortableContext>

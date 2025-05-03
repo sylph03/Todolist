@@ -1,8 +1,16 @@
 import React, { useState } from 'react'
 import { Plus, Search, Archive, CircleCheck, ChevronUp } from 'lucide-react'
 import { toast } from 'react-toastify'
+import { createNewCardAPI } from '~/apis'
+import { cloneDeep } from 'lodash'
+import { updateCurrentActiveBoard, selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { useDispatch, useSelector } from 'react-redux'
 
-const BoardActions = ({ createNewCard, board }) => {
+
+const BoardActions = () => {
+  const dispatch = useDispatch()
+  const board = useSelector(selectCurrentActiveBoard)
+
   const [isOpenStatusOption, setIsOpenStatusOption] = useState(false)
   const [isShowFormCreateCard, setIsShowFormCreateCard] = useState(false)
   const [newCardTitle, setNewCardTitle] = useState('')
@@ -32,7 +40,7 @@ const BoardActions = ({ createNewCard, board }) => {
     setIsOpenStatusOption(false)
   }
 
-  const addNewCard = () => {
+  const addNewCard = async () => {
 
     if (!newCardTitle) {
       toast.error('Vui lòng nhập tên nhiệm vụ')
@@ -50,7 +58,27 @@ const BoardActions = ({ createNewCard, board }) => {
       cover: coverImage ? coverImage.name : ''
     }
 
-    createNewCard(newCardData)
+    const createdCard = await createNewCardAPI(newCardData)
+    // Cập nhật state board
+    // Tự set lại state board thay vì gọi fetch BoardApi
+    // Dính lỗi object is not extensible bởi dù đã copy/clone ra giá trị newBoard nhưng bản chất của spread operation là Shallow Copy/Clone,
+    // nên dính quy tắc của Immutability trong redux toolkit không dùng được hàm push/unshift, trường hợp này dùng Deep Copy/Clone toàn bộ Board (cách khác là dùng concat() thay vì push/unshift)
+    // const newBoard = { ...board }
+    const newBoard = cloneDeep(board)
+    const columnToUpdate = newBoard.columns.find(column => column._id === createdCard.columnId)
+    if (columnToUpdate) {
+      if (columnToUpdate.cards.some(card => card.FE_PlaceholderCard)) {
+        columnToUpdate.cards = [createdCard]
+        columnToUpdate.cardOrderIds = [createdCard._id]
+      } else {
+        // Column đã có data thì push vào đầu mảng
+        columnToUpdate.cards.unshift(createdCard)
+        columnToUpdate.cardOrderIds.unshift(createdCard._id)
+      }
+      toast.success('Thêm nhiệm vụ mới thành công!')
+    }
+    // setBoard(newBoard)
+    dispatch(updateCurrentActiveBoard(newBoard))
 
     setNewCardTitle('')
     setNewCardDescription('')
