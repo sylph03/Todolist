@@ -7,20 +7,22 @@ import { updateBoardDetailsAPI, updateColumnDetailsAPI, moveCardToDifferentColum
 import { fetchBoardDetailsAPI, updateCurrentActiveBoard, selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { cloneDeep } from 'lodash'
+import { useParams } from 'react-router-dom'
 
 const Board = () => {
   const dispatch = useDispatch()
   const board = useSelector(selectCurrentActiveBoard)
+
+  const { boardId } = useParams()
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   // Dùng state của Redux thay vì state component
   // const [board, setBoard] = useState(null)
 
   useEffect(() => {
-    // Tạm fix cứng boardId, sau sẽ sử dụng react-router-dom để lấy chuẩn boardId từ url
-    const boardId = '67f923d9b0287286d736dbb7'
-
+    // Call API
     dispatch(fetchBoardDetailsAPI(boardId))
-  }, [dispatch])
+  }, [dispatch, boardId])
 
   // const createNewColumn = async (newColumnData) => {
   //   const createdColumn = await createNewColumnAPI({
