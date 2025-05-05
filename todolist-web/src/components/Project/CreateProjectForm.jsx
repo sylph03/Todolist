@@ -19,7 +19,7 @@ const CreateProjectForm = ({ formCreateProjectRef, setShowInput, formPosition })
           <label htmlFor="board-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" >
             Tên bảng <span className="text-red-500">*</span>
           </label>
-          <input id="board-name" type="text" placeholder="Nhập tên bảng..." className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 transition" />
+          <input id="board-name" type="text" placeholder="Nhập tên bảng..." className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 hover:border-sky-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 dark:focus:ring-sky-400 transition" />
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1.5">
             👋 Tiêu đề bảng là bắt buộc
           </p>
@@ -29,12 +29,12 @@ const CreateProjectForm = ({ formCreateProjectRef, setShowInput, formPosition })
           <label htmlFor="board-description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" >
             Mô tả
           </label>
-          <input id="board-description" type="text" placeholder="Thêm mô tả cho bảng..." className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 transition" />
+          <input id="board-description" type="text" placeholder="Thêm mô tả cho bảng..." className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3 py-2 hover:border-sky-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 dark:focus:ring-sky-400 transition" />
         </div>
 
         <button
           onClick={() => { toast.error('Vui lòng nhập tên bảng')}}
-          className="w-full bg-sky-500 hover:bg-sky-600 text-white font-medium rounded-lg px-4 py-2 shadow-md transition-all duration-300" >
+          className="interceptor-loading w-full bg-sky-500 hover:bg-sky-600 text-white font-medium rounded-lg px-4 py-2 shadow-md transition-all duration-300" >
           Tạo bảng
         </button>
       </div>

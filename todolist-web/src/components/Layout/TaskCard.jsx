@@ -72,9 +72,8 @@ const TaskCard = ({ card }) => {
 
 
   // Xử lý khi nhấn nút edit ở card
-  const handleEditClick = (e) => {
-    e.stopPropagation() // Ngăn sự kiện kéo khi click
-    e.preventDefault()
+  const handleEditClick = () => {
+    // e.stopPropagation() // Ngăn sự kiện kéo khi click
     updatePopupPosition()
 
     setShowPopup(prev => !prev)

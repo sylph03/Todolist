@@ -114,7 +114,7 @@ const BoardActions = () => {
         </div>
 
         {/* Thanh tìm kiếm */}
-        <div className="flex items-center bg-white dark:bg-gray-600 rounded-lg px-3 py-2 shadow-md hover:shadow-lg transition-all duration-200 focus-within:ring-2 focus-within:ring-sky-500 dark:focus-within:ring-2 dark:focus-within:ring-gray-500 max-w-full md:max-w-[250px] w-full">
+        <div className="flex items-center bg-white dark:bg-gray-600 rounded-lg px-3 py-2 shadow-md hover:shadow-lg transition-all duration-200 focus-within:ring-1 focus-within:ring-sky-500 dark:focus-within:ring-1 dark:focus-within:ring-gray-500 max-w-full md:max-w-[250px] w-full">
           <Search className="text-gray-400 dark:text-gray-300 w-5 h-5" />
           <input
             type="text"
@@ -145,7 +145,7 @@ const BoardActions = () => {
                     onChange={e => setNewCardTitle(e.target.value)}
                     type="text"
                     placeholder="Nhập tên nhiệm vụ..."
-                    className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-sky-500 focus:outline-none shadow-sm transition duration-300"
+                    className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:border-sky-500 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none shadow-sm transition duration-300"
                   />
                 </div>
 
@@ -158,7 +158,7 @@ const BoardActions = () => {
                     onChange={e => setNewCardDescription(e.target.value)}
                     placeholder="Thêm mô tả cho nhiệm vụ..."
                     rows="5"
-                    className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-sky-500 focus:outline-none shadow-sm resize-none transition duration-300"
+                    className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:border-sky-500 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none shadow-sm resize-none transition duration-300"
                   />
                 </div>
               </div>
@@ -174,7 +174,7 @@ const BoardActions = () => {
                       onClick={() => setIsOpenStatusOption(!isOpenStatusOption)}
                       className={`group ${
                         isOpenStatusOption ? 'border-sky-400 dark:border-sky-400' : ''
-                      } w-full cursor-pointer rounded-lg border-1 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 py-2 pl-4 pr-10 text-gray-800 dark:text-gray-100 hover:border-sky-400 transition-all duration-300`}
+                      } w-full cursor-pointer rounded-lg border-1 border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 py-2 pl-4 pr-10 text-gray-800 dark:text-gray-100 hover:border-sky-500 transition-all duration-300`}
                     >
                       {options.find((opt) => opt.value === selected)?.label}
                       <ChevronUp
@@ -211,7 +211,7 @@ const BoardActions = () => {
                     Ảnh bìa
                   </label>
                   <div className="flex items-center gap-3">
-                    <label className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-300 cursor-pointer hover:border-sky-400 transition duration-200">
+                    <label className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-300 cursor-pointer hover:border-sky-500 transition duration-200">
                       Chọn ảnh bìa?
                       <input type="file" className="hidden" onChange={e => setCoverImage(e.target.files[0])} />
                     </label>
@@ -228,7 +228,7 @@ const BoardActions = () => {
               >
                 Hủy
               </button>
-              <button onClick={addNewCard} className="px-6 py-2 rounded-lg bg-sky-500 hover:bg-sky-600 text-white font-semibold shadow-lg transition-all duration-300">
+              <button onClick={addNewCard} className="interceptor-loading px-6 py-2 rounded-lg bg-sky-500 hover:bg-sky-600 text-white font-semibold shadow-lg transition-all duration-300">
                 Tạo nhiệm vụ
               </button>
             </div>

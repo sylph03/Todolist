@@ -10,16 +10,14 @@ import { store } from '~/redux/store'
 import { BrowserRouter } from 'react-router-dom'
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <BrowserRouter basename='/'>
-      <Provider store={store}>
-        <ThemeProvider>
-          <ConfirmProvider>
-            <App />
-            <ToastContainer position="top-center" theme="light" newestOnTop closeOnClick/>
-          </ConfirmProvider>
-        </ThemeProvider>
-      </Provider>
-    </BrowserRouter>
-  </StrictMode>
+  <BrowserRouter basename='/'>
+    <Provider store={store}>
+      <ThemeProvider>
+        <ConfirmProvider>
+          <App />
+          <ToastContainer position="top-center" theme="light" newestOnTop closeOnClick/>
+        </ConfirmProvider>
+      </ThemeProvider>
+    </Provider>
+  </BrowserRouter>
 )

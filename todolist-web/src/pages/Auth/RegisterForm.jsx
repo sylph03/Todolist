@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import FieldErrorAlert from '~/components/UI/FieldErrorAlert'
 import {
@@ -9,12 +9,21 @@ import {
   PASSWORD_RULE,
   PASSWORD_RULE_MESSAGE
 } from '~/utils/validators'
+import { toast } from 'react-toastify'
+import { registerUserAPI } from '~/apis'
 
 const RegisterForm = () => {
   const { register, handleSubmit, formState: { errors }, watch } = useForm()
+  const navigate = useNavigate()
 
   const submitRegister = (data) => {
-    console.log('submit register: ', data)
+    const { email, password } = data
+    toast.promise(
+      registerUserAPI({ email, password }),
+      { pending: 'Đang tiến hành đăng ký...' }
+    ). then(user => {
+      navigate(`/login?registeredEmail=${user.email}`)
+    })
   }
 
   return (
@@ -23,14 +32,14 @@ const RegisterForm = () => {
       <form onSubmit={handleSubmit(submitRegister)} className="space-y-5">
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-            Email:
+            Email <span className="text-red-500">*</span>
           </label>
           <input
             id="email"
             className={`w-full px-4 py-2 border rounded-lg transition duration-200 focus:outline-none ${
               errors['email']
                 ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-400 hover:border-red-500'
-                : 'border-gray-300 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 hover:border-blue-400'
+                : 'border-gray-300 focus:border-sky-400 focus:ring-1 focus:ring-sky-400 hover:border-sky-400'
             }`}
             placeholder="Nhập email"
             {...register('email', {
@@ -45,7 +54,7 @@ const RegisterForm = () => {
         </div>
         <div>
           <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-            Mật khẩu:
+            Mật khẩu <span className="text-red-500">*</span>
           </label>
           <input
             type="password"
@@ -53,7 +62,7 @@ const RegisterForm = () => {
             className={`w-full px-4 py-2 border rounded-lg transition duration-200 focus:outline-none ${
               errors['password']
                 ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-400 hover:border-red-500'
-                : 'border-gray-300 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 hover:border-blue-400'
+                : 'border-gray-300 focus:border-sky-400 focus:ring-1 focus:ring-sky-400 hover:border-sky-400'
             }`}
             placeholder="Nhập mật khẩu"
             {...register('password', {
@@ -68,7 +77,7 @@ const RegisterForm = () => {
         </div>
         <div>
           <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-            Xác nhận mật khẩu:
+            Xác nhận mật khẩu <span className="text-red-500">*</span>
           </label>
           <input
             type="password"
@@ -76,7 +85,7 @@ const RegisterForm = () => {
             className={`w-full px-4 py-2 border rounded-lg transition duration-200 focus:outline-none ${
               errors['confirmPassword']
                 ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-400 hover:border-red-500'
-                : 'border-gray-300 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 hover:border-blue-400'
+                : 'border-gray-300 focus:border-sky-400 focus:ring-1 focus:ring-sky-400 hover:border-sky-400'
             }`}
             placeholder="Nhập lại mật khẩu"
             {...register('confirmPassword', {
@@ -90,14 +99,14 @@ const RegisterForm = () => {
         </div>
         <button
           type="submit"
-          className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition duration-200 transform hover:scale-105"
+          className="interceptor-loading w-full py-2 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-lg transition duration-200 transform"
         >
           Đăng ký
         </button>
       </form>
       <p className="mt-4 text-center text-sm text-gray-600">
         Đã có tài khoản?{' '}
-        <Link to="/login" className="text-blue-500 hover:underline font-medium">
+        <Link to="/login" className="text-sky-500 hover:underline font-medium">
           Đăng nhập
         </Link>
       </p>

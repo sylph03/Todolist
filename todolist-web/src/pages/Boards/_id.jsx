@@ -8,6 +8,7 @@ import { fetchBoardDetailsAPI, updateCurrentActiveBoard, selectCurrentActiveBoar
 import { useDispatch, useSelector } from 'react-redux'
 import { cloneDeep } from 'lodash'
 import { useParams } from 'react-router-dom'
+import PageLoadingSpinner from '~/components/UI/Loading/PageLoadingSpinner'
 
 const Board = () => {
   const dispatch = useDispatch()
@@ -111,10 +112,7 @@ const Board = () => {
 
   if (!board) {
     return (
-      <div className="flex flex-col justify-center items-center h-screen bg-white dark:bg-gray-900 transition-colors duration-500">
-        <div className="w-16 h-16 border-4 border-sky-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="mt-4 text-lg font-semibold text-gray-700 dark:text-gray-300">Loading...</p>
-      </div>
+      <PageLoadingSpinner caption={'Loading Board...'}/>
     )
   }
 

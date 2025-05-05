@@ -166,9 +166,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
   }, [showInput, showOptionsProject])
 
   // Xử lý sự kiện nhấn nút + (Plus)
-  const handlePlusClick = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
+  const handlePlusClick = () => {
     if (plusButtonRef.current) {
       const rect = plusButtonRef.current.getBoundingClientRect()
       let top = rect.top - 30
@@ -187,9 +185,10 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
   }
 
   // Xử lý sự kiện nhấn nút ⋮ (Ellipsis)
+  // Chưa hiểu tại sao thêm e thì mới hiển thị đúng @@
   const handleOptionsProject = (e, projectKey) => {
-    e.preventDefault()
-    e.stopPropagation()
+    // e.preventDefault()
+    // e.stopPropagation()
 
     const keyString = `${projectKey.type}-${projectKey.id}`
 
