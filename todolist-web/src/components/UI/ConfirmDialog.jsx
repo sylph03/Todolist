@@ -22,14 +22,14 @@ const ConfirmDialog = ({ title, message, handleConfirm, handleCancel, modal = tr
           <div className="flex justify-end gap-4">
             <button
               onClick={handleCancel}
-              className="px-5 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 active:scale-95 transition"
+              className="px-4 py-1.5 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 active:scale-95 transition"
             >
               Hủy
             </button>
 
             <button
               onClick={handleConfirm}
-              className="px-5 py-2 rounded-md bg-sky-500 text-white hover:bg-sky-600 active:scale-95 transition"
+              className="px-4 py-1.5 rounded-md bg-sky-500 text-white hover:bg-sky-600 active:scale-95 transition"
             >
               Xác nhận
             </button>

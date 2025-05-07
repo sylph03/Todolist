@@ -38,7 +38,7 @@ const TaskColumn = ({ column, cursor }) => {
         {/* Cards area */}
         <SortableContext items={orderedCards?.map((card) => card._id)} strategy={verticalListSortingStrategy}>
           <div className="w-full h-HEIGHT_COLUMN_CONTENT pr-0.5">
-            <div className="p-4 space-y-4 overflow-y-auto overflow-x-hidden w-full h-full scroll-container">
+            <div className="p-4 space-y-4 overflow-y-auto overflow-x-hidden w-full h-full">
               {/* {orderedCards && orderedCards.length > 0 ? (orderedCards.map((card) => <TaskCard key={card._id} card={card} />)) :} */}
               {orderedCards.map((card) => <TaskCard key={card._id} card={card} />)}
             </div>

@@ -2,7 +2,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  font-family: 'Roboto' 
+  font-family: 'Roboto',
 }
 
 button {

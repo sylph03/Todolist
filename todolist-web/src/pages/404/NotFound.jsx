@@ -1,9 +1,10 @@
 import React from 'react'
+import { ArrowLeft } from 'lucide-react'
 
 const NotFound = () => {
   return (
     <div
-      className="h-screen w-full bg-cover bg-center bg-no-repeat flex flex-col items-center justify-center text-center relative bg-[url(https://i.pinimg.com/originals/12/72/f7/1272f7e73de47c19e405c542fb9e4b69.gif)]"
+      className="h-screen w-full bg-cover bg-center bg-no-repeat flex flex-col items-center justify-center text-center relative bg-[url(https://i.pinimg.com/originals/4d/0a/cb/4d0acb2f9981ff25b9e793b82f3e8f51.gif)]"
     >
       <div className="relative z-10 px-4">
         <h1 className="text-white text-sm uppercase tracking-widest">404</h1>
@@ -13,9 +14,10 @@ const NotFound = () => {
         </p>
         <a
           href="/"
-          className="mt-6 inline-block text-white font-semibold hover:underline"
+          className="mt-6 inline-flex items-center gap-2 text-white font-semibold hover:underline"
         >
-          ← Back to home
+          <ArrowLeft className="size-4" />
+          Quay lại trang chủ
         </a>
       </div>
     </div>
