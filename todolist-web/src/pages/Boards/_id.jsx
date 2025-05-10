@@ -118,7 +118,7 @@ const Board = () => {
 
   return (
     <div className="h-screen w-screen dark:bg-gray-800 text-white dark:text-gray-100 flex flex-col">
-      <AppBar isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}/>
+      <AppBar />
       <div className="flex flex-1 h-full relative">
         <SideBar board={board} isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}/>
         <BoardContent

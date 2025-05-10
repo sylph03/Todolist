@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Settings as SettingsIcon, Shield } from 'lucide-react'
+import { Settings as SettingsIcon, Shield, User } from 'lucide-react'
 import AccountTab from './AccountTab'
+import SecurityTab from './SecurityTab'
+import AppBar from '~/components/Layout/AppBar'
 
 const TABS = {
   ACCOUNT: 'account',
@@ -23,93 +25,48 @@ const Settings = () => {
   }, [getDefaultTabFromURL])
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="flex items-center gap-3 mb-8">
-          <SettingsIcon className="w-8 h-8 text-sky-600" />
-          <h2 className="text-2xl font-bold text-gray-900">Cài đặt</h2>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-sm">
-          <div className="flex border-b border-gray-200 px-6">
-            <Link
-              to="/settings/account"
-              className={`px-4 py-4 text-sm font-medium flex items-center gap-2 ${
-                activeTab === TABS.ACCOUNT
-                  ? 'border-b-2 border-sky-500 text-sky-500'
-                  : 'text-gray-500 hover:text-sky-500'
-              }`}
-            >
-              <SettingsIcon className="w-4 h-4" />
-              Tài khoản
-            </Link>
-            <Link
-              to="/settings/security"
-              className={`px-4 py-4 text-sm font-medium flex items-center gap-2 ${
-                activeTab === TABS.SECURITY
-                  ? 'border-b-2 border-sky-500 text-sky-500'
-                  : 'text-gray-500 hover:text-sky-500'
-              }`}
-            >
-              <Shield className="w-4 h-4" />
-              Bảo mật
-            </Link>
+    <div className="h-screen bg-gray-50 dark:bg-gray-700 flex flex-col overflow-hidden">
+      <AppBar />
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6">
+          <div className="flex items-center gap-3 mb-6">
+            <SettingsIcon className="w-6 h-6 text-sky-600 dark:text-sky-300" />
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Cài đặt</h2>
           </div>
 
-          <div className="p-6">
-            {activeTab === TABS.ACCOUNT && <AccountTab />}
-            {activeTab === TABS.SECURITY && (
-              <div className="space-y-6">
-                <div className="flex items-center gap-3 mb-6">
-                  <Shield className="w-6 h-6 text-sky-600" />
-                  <h3 className="text-xl font-semibold text-gray-900">Bảo mật</h3>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-6">
-                  <h4 className="text-lg font-medium text-gray-900 mb-4">Đổi mật khẩu</h4>
-                  <form className="space-y-4">
-                    <div>
-                      <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                        Mật khẩu hiện tại
-                      </label>
-                      <input
-                        type="password"
-                        id="currentPassword"
-                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg hover:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:border-sky-500 outline-none transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                        Mật khẩu mới
-                      </label>
-                      <input
-                        type="password"
-                        id="newPassword"
-                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg hover:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:border-sky-500 outline-none transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                        Xác nhận mật khẩu mới
-                      </label>
-                      <input
-                        type="password"
-                        id="confirmPassword"
-                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg hover:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:border-sky-500 outline-none transition-colors"
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      className="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold px-6 py-3 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
-                    >
-                      Cập nhật mật khẩu
-                    </button>
-                  </form>
-                </div>
-              </div>
-            )}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-600">
+            <div className="flex border-b border-gray-200 dark:border-gray-600">
+              <Link
+                to="/settings/account"
+                className={`px-5 py-3 text-sm font-medium flex items-center gap-2 transition-colors duration-200 ${
+                  activeTab === TABS.ACCOUNT
+                    ? 'border-b-2 border-sky-500 text-sky-500 dark:text-sky-300 dark:border-sky-300'
+                    : 'text-gray-500 dark:text-gray-300 hover:text-sky-500 dark:hover:text-sky-300'
+                }`}
+              >
+                <User className="w-4 h-4" />
+                Tài khoản
+              </Link>
+              <Link
+                to="/settings/security"
+                className={`px-5 py-3 text-sm font-medium flex items-center gap-2 transition-colors duration-200 ${
+                  activeTab === TABS.SECURITY
+                    ? 'border-b-2 border-sky-500 text-sky-500 dark:text-sky-300 dark:border-sky-300'
+                    : 'text-gray-500 dark:text-gray-300 hover:text-sky-500 dark:hover:text-sky-300'
+                }`}
+              >
+                <Shield className="w-4 h-4" />
+                Bảo mật
+              </Link>
+            </div>
+
+            <div className="p-5">
+              {activeTab === TABS.ACCOUNT && <AccountTab />}
+              {activeTab === TABS.SECURITY && <SecurityTab />}
+            </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   )
 }

@@ -13,7 +13,7 @@ const CreateProjectForm = ({ formCreateProjectRef, setShowInput, formPosition })
         Tạo bảng
         <X 
           className="absolute top-1/2 right-0 -translate-y-1/2 p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-200" 
-          size={24} 
+          size={28} 
           onClick={() => setShowInput(false)} 
         />
       </div>

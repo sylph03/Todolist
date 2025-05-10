@@ -32,6 +32,15 @@ const Profile = () => {
     }
   }
 
+  const handleMenuClick = (e) => {
+    e.stopPropagation()
+    setMenuOpen(!menuOpen)
+  }
+
+  const handleMenuItemClick = () => {
+    setMenuOpen(false)
+  }
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (menuRef.current && !menuRef.current.contains(event.target) && 
@@ -45,14 +54,9 @@ const Profile = () => {
     }
   }, [])
 
-  const handleMenuClick = (e) => {
-    e.stopPropagation()
-    setMenuOpen(!menuOpen)
-  }
-
   return (
     <>
-      <button
+      <div
         ref={buttonRef}
         className={`p-0.5 rounded-full transition relative ${
           menuOpen ? 'ring-2 ring-white/40 dark:ring-gray-500' : 'hover:ring-2 hover:ring-white/40 dark:hover:ring-gray-500'
@@ -73,23 +77,25 @@ const Profile = () => {
           >
             <Link
               to='/settings/account'
+              onClick={handleMenuItemClick}
               className="w-full flex items-center gap-2 px-4 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition">
               <User className="size-4" />
               <span className="text-sm">Hồ sơ</span>
             </Link>
             <Link
               to='/settings'
+              onClick={handleMenuItemClick}
               className="w-full flex items-center gap-2 px-4 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition">
               <Settings className="size-4" />
               <span className="text-sm">Cài đặt</span>
             </Link>
-            <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-2 rounded-md hover:text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+            <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-2 rounded-md hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition">
               <LogOut className="size-4" />
               <span className="text-sm">Đăng xuất</span>
             </button>
           </div>
         )}
-      </button>
+      </div>
     </>
   )
 }

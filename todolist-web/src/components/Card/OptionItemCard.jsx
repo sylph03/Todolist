@@ -4,7 +4,7 @@ const OptionItemCard = ({ icon, label, isDanger, onClick }) => {
       onClick={onClick}
       className={`
         ${isDanger 
-          ? 'text-red-500 dark:text-red-400' 
+          ? 'text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20' 
           : 'text-black dark:text-gray-200'
         }
         bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700
