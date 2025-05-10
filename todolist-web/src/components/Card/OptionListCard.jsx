@@ -50,7 +50,6 @@ const OptionListCard = ({ card }) => {
         }
         // setBoard(newBoard)
         dispatch(updateCurrentActiveBoard(newBoard))
-
       }
 
       deleteCardDetailsAPI(card._id).then(res => {
@@ -62,10 +61,10 @@ const OptionListCard = ({ card }) => {
   }
 
   const options = [
-    { icon: <CreditCard />, label: 'Mở thẻ', onClick: handleOpenCard },
-    { icon: <MoveRight />, label: 'Di chuyển', onClick: handleMoveCard },
-    { icon: <Archive />, label: 'Lưu trữ', onClick: handleArchiveCard },
-    { icon: <Trash2 />, label: 'Xóa', onClick: handleDeleteCard, isDanger: true }
+    { icon: <CreditCard className="w-4 h-4 text-gray-600 dark:text-gray-300" />, label: 'Mở thẻ', onClick: handleOpenCard },
+    { icon: <MoveRight className="w-4 h-4 text-gray-600 dark:text-gray-300" />, label: 'Di chuyển', onClick: handleMoveCard },
+    { icon: <Archive className="w-4 h-4 text-gray-600 dark:text-gray-300" />, label: 'Lưu trữ', onClick: handleArchiveCard },
+    { icon: <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />, label: 'Xóa', onClick: handleDeleteCard, isDanger: true }
   ]
 
   return (
@@ -81,9 +80,13 @@ const OptionListCard = ({ card }) => {
       ))}
 
       <div
-        className="flex items-center justify-center px-3 py-1.5 rounded-md w-fit font-medium cursor-pointer
-                   bg-sky-500 text-white border border-sky-500
-                   hover:bg-sky-600 transition-colors duration-200"
+        className="flex items-center justify-center px-4 py-2 rounded-md w-fit font-medium cursor-pointer
+                   bg-gradient-to-r from-sky-500 to-blue-500 dark:from-sky-600 dark:to-blue-600 text-white
+                   hover:from-sky-600 hover:to-blue-600 dark:hover:from-sky-700 dark:hover:to-blue-700
+                   active:from-sky-700 active:to-blue-700 dark:active:from-sky-800 dark:active:to-blue-800
+                   transition-all duration-200 ease-in-out
+                   shadow-sm hover:shadow-md dark:shadow-gray-900/50
+                   dark:border dark:border-gray-700"
       >
         Lưu
       </div>

@@ -71,7 +71,6 @@ authorizedAxiosInstance.interceptors.response.use((response) => {
         })
         .catch((_error) => {
           // Nếu nhận bất kì lỗi nào từ api refresh token thì logout luôn
-          console.log(axiosReduxStore)
           axiosReduxStore.dispatch(logoutUserAPI(false))
 
           // return để tránh một lỗi bị gọi 2 lần API lougout nếu như API refreshTokenAPI trả về lỗi

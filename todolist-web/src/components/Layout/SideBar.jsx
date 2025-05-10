@@ -227,19 +227,19 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
       {showOptionsProject && (
         <div
           ref={OptionProjectRef}
-          className="z-50 fixed bg-white dark:bg-gray-900 p-2 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 w-48"
+          className="z-50 fixed bg-white dark:bg-gray-900 p-2 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 w-48 animate-fadeIn"
           style={{ top: optionProjectPosition?.top, left: optionProjectPosition?.left }} >
           <div className="flex flex-col gap-1.5">
-            <button className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700" >
+            <button className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 ease-in-out" >
               <Pencil className="w-4 h-4" />
               <span>Đổi tên</span>
             </button>
             <button
-              className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition" >
+              className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 ease-in-out" >
               <Star className="w-4 h-4" />
               <span>Yêu thích</span>
             </button>
-            <button className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-red-500 hover:bg-red-100 dark:hover:bg-gray-700" >
+            <button className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 ease-in-out" >
               <Trash2 className="w-4 h-4" />
               <span>Xoá</span>
             </button>
@@ -247,23 +247,23 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
         </div>
       )}
 
-      {!isOpen && <div className='h-full min-w-4 max-w-4 bg-sky-500 absolute top-0 bottom-0 dark:bg-gray-800'>
-        <ChevronRight className='z-1 absolute border border-white dark:border-gray-400 shadow-md bg-sky-500 rounded-full bottom-1/2 left-1/4 cursor-pointer hover:bg-sky-400 dark:bg-gray-800 dark:hover:bg-gray-700' onClick={toggleSidebar}/>
+      {!isOpen && <div className='h-full min-w-4 max-w-4 bg-sky-500 absolute top-0 bottom-0 dark:bg-gray-800 transition-all duration-300'>
+        <ChevronRight className='z-1 absolute border border-white dark:border-gray-400 shadow-md bg-sky-500 rounded-full bottom-1/2 left-1/4 cursor-pointer hover:bg-sky-400 dark:bg-gray-800 dark:hover:bg-gray-700 transition-all duration-200' onClick={toggleSidebar}/>
       </div>}
-      <div className={`z-1 absolute top-0 bottom-0 h-full max-w-WIDTH_SIDEBAR min-w-WIDTH_SIDEBAR bg-sky-500 dark:bg-gray-800 shadow-md ${isOpen ? 'animate-fadeInLeft' : 'animate-fadeOutLeft'}`}>
+      <div className={`z-1 absolute top-0 bottom-0 h-full max-w-WIDTH_SIDEBAR min-w-WIDTH_SIDEBAR bg-gradient-to-b from-sky-500 to-sky-600 dark:from-gray-800 dark:to-gray-900 shadow-lg ${isOpen ? 'animate-fadeInLeft' : 'animate-fadeOutLeft'}`}>
 
         {/* Không gian làm việc */}
-        <div className="flex flex-wrap items-center justify-between w-full px-4 py-3 bg-sky-500 dark:bg-[#1e293b] border-b border-sky-400 dark:border-slate-700 transition-colors duration-300">
+        <div className="flex flex-wrap items-center justify-between w-full px-4 py-3 bg-sky-500/50 dark:bg-[#1e293b]/50 backdrop-blur-sm border-b border-sky-400/30 dark:border-slate-700/30 transition-all duration-300">
           <div className="flex items-center gap-3 cursor-pointer group">
-            <img src="https://inkythuatso.com/uploads/thumbnails/800/2023/03/9-anh-dai-dien-trang-inkythuatso-03-15-27-03.jpg" alt="User Avatar" className="h-9 w-9 rounded-full object-cover shadow-md group-hover:ring-2 group-hover:ring-white/40 dark:group-hover:ring-slate-400 transition" />
-            <span className="font-semibold text-white dark:text-slate-100 text-base transition">
+            <img src="https://inkythuatso.com/uploads/thumbnails/800/2023/03/9-anh-dai-dien-trang-inkythuatso-03-15-27-03.jpg" alt="User Avatar" className="h-9 w-9 rounded-full object-cover shadow-md ring-2 ring-white/20 group-hover:ring-white/40 dark:ring-slate-400/20 dark:group-hover:ring-slate-400/40 transition-all duration-300" />
+            <span className="font-semibold text-white dark:text-slate-100 text-base transition-all duration-300 group-hover:text-white/90">
               Không gian làm việc
             </span>
           </div>
 
           {/* Right: Toggle Sidebar */}
           <button
-            className="p-2 rounded-md hover:bg-white/20 dark:hover:bg-slate-600/40 transition-all duration-200" onClick={toggleSidebar} aria-label="Toggle Sidebar" >
+            className="p-2 rounded-md hover:bg-white/20 dark:hover:bg-slate-600/40 transition-all duration-200 active:scale-95" onClick={toggleSidebar} aria-label="Toggle Sidebar" >
             {isOpen ? (
               <ChevronLeft className="w-5 h-5 text-white dark:text-slate-100" />
             ) : (
@@ -273,34 +273,34 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
         </div>
 
         <div className='h-[calc(100%-65px)] pr-0.5 mt-0.5'>
-          <div className="flex flex-col gap-2 overflow-y-auto overflow-x-hidden h-full" ref={projectsContainerRef}>
+          <div className="flex flex-col gap-2 overflow-y-auto overflow-x-hidden h-full scrollbar-thin scrollbar-thumb-sky-400/30 dark:scrollbar-thumb-gray-600/30 scrollbar-track-transparent" ref={projectsContainerRef}>
             {/* Ô tìm kiếm */}
             <div className='px-3 pt-2'>
-              <div className="flex items-center bg-sky-500 dark:bg-gray-800 rounded-lg px-3 py-2 transition duration-200 ease-in-out hover:bg-white/20 focus-within:bg-white/20 dark:focus-within:bg-gray-700 dark:hover:bg-gray-700 w-full group">
-                <Search className="text-white dark:text-gray-400 w-5 h-5 flex-shrink-0" />
+              <div className="flex items-center bg-white/10 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg px-3 py-2 transition-all duration-200 ease-in-out hover:bg-white/20 focus-within:bg-white/20 dark:focus-within:bg-gray-700/50 dark:hover:bg-gray-700/50 w-full group">
+                <Search className="text-white/80 dark:text-gray-400 w-5 h-5 flex-shrink-0 transition-all duration-200 group-focus-within:text-white dark:group-focus-within:text-gray-300" />
                 <input
                   type="text"
                   placeholder="Tìm kiếm ..."
-                  className="ml-3 bg-transparent outline-none text-white dark:text-gray-100 placeholder-white dark:placeholder-gray-400 w-full text-sm sm:text-base"
+                  className="ml-3 bg-transparent outline-none text-white dark:text-gray-100 placeholder-white/70 dark:placeholder-gray-400 w-full text-sm sm:text-base transition-all duration-200"
                 />
               </div>
             </div>
 
             {/* Đã đánh dấu */}
-            <div className={`px-3 ${toggleFavoriteProject ? 'pb-3 mb-1 border-b border-sky-400 dark:border-slate-700' : ''} flex flex-col gap-2`}>
-              <div onClick={() => setToggleFavoriteProject(prev => !prev)} className="relative flex items-center justify-between px-3 py-2  rounded-lg cursor-pointer group transition duration-200 hover:bg-white/20 dark:hover:bg-gray-700">
+            <div className={`px-3 ${toggleFavoriteProject ? 'pb-3 mb-1 border-b border-sky-400/30 dark:border-slate-700/30' : ''} flex flex-col gap-2`}>
+              <div onClick={() => setToggleFavoriteProject(prev => !prev)} className="relative flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer group transition-all duration-200 hover:bg-white/20 dark:hover:bg-gray-700/50">
                 <div className="flex items-center gap-2 text-white dark:text-gray-100">
-                  <Sparkles className="w-5 h-5" />
+                  <Sparkles className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" />
                   <span className="text-sm sm:text-base font-medium">Đã đánh dấu</span>
                 </div>
 
                 <div className="absolute right-2 p-1 top-1/2 -translate-y-1/2">
-                  <ChevronUp className={`${toggleFavoriteProject ? 'animate-turnRight180' : 'animate-turnLeft180'} w-5 h-5 text-gray-200 dark:text-gray-300 cursor-pointer hover:text-white transition duration-150`} />
+                  <ChevronUp className={`${toggleFavoriteProject ? 'animate-turnRight180' : 'animate-turnLeft180'} w-5 h-5 text-gray-200 dark:text-gray-300 cursor-pointer hover:text-white transition-all duration-200`} />
                 </div>
               </div>
               {/* Danh sách đã đánh dấu */}
               {toggleFavoriteProject &&
-                <div className="flex flex-col gap-2 w-full max-w-full">
+                <div className="flex flex-col gap-2 w-full max-w-full animate-fadeIn">
                   {projects?.map((project) => (
                     project.favorite && (
                       <ProjectItem
@@ -319,24 +319,25 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
 
             {/* Dự án */}
             <div className='px-3 pb-2 flex flex-col gap-2'>
-              <div className="relative px-3 py-2 rounded-lg cursor-pointer group transition duration-200 hover:bg-white/20 dark:hover:bg-gray-700">
+              <div className="relative px-3 py-2 rounded-lg cursor-pointer group transition-all duration-200 hover:bg-white/20 dark:hover:bg-gray-700/50">
                 <div className="flex items-center gap-2 text-white dark:text-gray-100 pr-15">
-                  <FolderOpen className="w-5 h-5" />
+                  <FolderOpen className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" />
                   <span className="text-sm sm:text-base font-medium">Dự án</span>
                 </div>
 
                 <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
                   <div
-                    className="opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={(e) => e.stopPropagation()} // Ngăn click làm ảnh hưởng cha
+                    className="opacity-0 group-hover:opacity-100 transition-all duration-200"
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    <Ellipsis className="w-7 h-7 p-1 dark:text-gray-300 text-gray-200 hover:text-white cursor-pointer" />
+                    <Ellipsis className="w-7 h-7 p-1 dark:text-gray-300 text-gray-200 hover:text-white cursor-pointer transition-all duration-200 hover:scale-110" />
                   </div>
                   <div
                     onClick={handlePlusClick}
                     ref={plusButtonRef}
+                    className="transition-all duration-200 hover:scale-110"
                   >
-                    <Plus className={`w-7 h-7 p-1 dark:text-gray-300 cursor-pointer text-gray-200 hover:text-white ${showInput ? 'text-white dark:text-white' : 'text-gray-200'}`} />
+                    <Plus className={`w-7 h-7 p-1 dark:text-gray-300 cursor-pointer text-gray-200 hover:text-white transition-all duration-200 ${showInput ? 'text-white dark:text-white rotate-45' : 'text-gray-200'}`} />
                   </div>
                 </div>
               </div>

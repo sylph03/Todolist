@@ -5,6 +5,7 @@ import Auth from './pages/Auth/Auth'
 import Board from './pages/Boards/_id'
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { selectCurrentUser } from './redux/user/userSlice'
+import Settings from './pages/Settings/Settings'
 
 // Chỉ định route cần đăng nhập
 // <Outlet /> của react-router-dom để hiển thị các child route
@@ -26,12 +27,16 @@ function App() {
         <Navigate to="/boards/67f923d9b0287286d736dbb7" replace={true} />
       } />
 
-      // ProtectedRoute (Những route chỉ truy cập sau khi đã login)
+      {/* ProtectedRoute (Những route chỉ truy cập sau khi đã login) */}
       <Route element={<ProtectedRoute user={currentUser}/>}>
         {/* <Outlet /> của react-router-dom sẽ chạy vào các child route trong này  */}
 
         {/* Board Details */}
         <Route path='/boards/:boardId' element={<Board/>} />
+
+        {/* User Setting */}
+        <Route path='/settings/account' element={<Settings/>} />
+        <Route path='/settings/security' element={<Settings/>} />
       </Route>
 
       {/* Authentication */}

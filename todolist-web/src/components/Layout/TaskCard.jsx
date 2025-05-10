@@ -43,8 +43,8 @@ const TaskCard = ({ card }) => {
   const updatePopupPosition = useCallback(() => {
     if (contentCardRef.current) {
       const rect = contentCardRef.current.getBoundingClientRect()
-      const heightOptionsCard = 222
-      const widthOptionsCard = 127
+      const heightOptionsCard = 226
+      const widthOptionsCard = 120
       const heightCard = rect.height
 
       if (rect.width !== textAreaWidth) {
@@ -131,7 +131,22 @@ const TaskCard = ({ card }) => {
   return (
     <>
       <div
-        className={`${card.FE_PlaceholderCard ? 'hidden' : 'block'} border border-transparent w-full rounded-xl cursor-pointer bg-white text-slate-800 shadow-md hover:shadow-lg transition-all duration-75 ease-in-out hover:scale-[1.01] group`}
+        className={`
+          ${card.FE_PlaceholderCard ? 'hidden' : 'block'} 
+          border border-gray-200 dark:border-gray-700
+          w-full rounded-xl 
+          cursor-pointer 
+          bg-white dark:bg-gray-800
+          text-slate-800 dark:text-gray-200
+          shadow-sm dark:shadow-gray-900/30
+          hover:shadow-md dark:hover:shadow-gray-900/50
+          hover:border-gray-300 dark:hover:border-gray-600
+          transition-all 
+          duration-200 
+          ease-in-out 
+          hover:scale-[1.01] 
+          group
+        `}
         ref={setNodeRef}
         style={dndKitCardStyles}
         {...attributes}
@@ -139,21 +154,46 @@ const TaskCard = ({ card }) => {
       >
         <div className='w-full' ref={contentCardRef}>
           {/* Ảnh bìa */}
-          {card?.cover && (<img src={card.cover} alt="cover" className="object-cover w-full h-[247px] rounded-t-xl" /> )}
+          {card?.cover && (
+            <img 
+              src={card.cover} 
+              alt="cover" 
+              className="object-cover w-full h-[247px] rounded-t-xl" 
+            />
+          )}
 
           {/* Nội dung */}
           <div className="p-4 relative text-sm leading-relaxed font-medium">
             {card?.title}
             {/* Nút chỉnh sửa */}
-            <div data-no-dnd="true" onClick={handleEditClick} className="absolute top-2 right-2 p-2 rounded-full transition-all hidden group-hover:block hover:bg-gray-100" title="Chỉnh sửa" > <SquarePen className="size-4.5" /></div>
+            <div 
+              data-no-dnd="true" 
+              onClick={handleEditClick} 
+              className="
+                absolute 
+                top-2 
+                right-2 
+                p-2 
+                rounded-full 
+                transition-all 
+                hidden 
+                group-hover:block 
+                hover:bg-gray-100 
+                dark:hover:bg-gray-700
+                active:bg-gray-200
+                dark:active:bg-gray-600
+              " 
+              title="Chỉnh sửa"
+            > 
+              <SquarePen className="size-4.5 text-gray-600 dark:text-gray-400" />
+            </div>
           </div>
         </div>
       </div>
 
       {showPopup && (
-        <div className="fixed inset-0 h-screen w-screen bg-black/50 dark:bg-black/40 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 h-screen w-screen bg-black/50 dark:bg-black/60 z-50 flex items-center justify-center">
           <div ref={popupRef} className="relative">
-
             {/* Text Area Popup */}
             <div
               className="fixed transition-all"
@@ -175,9 +215,16 @@ const TaskCard = ({ card }) => {
                 className={`
                   ${card?.cover ? 'rounded-b-xl' : 'rounded-xl'}
                   p-4 w-full
-                  bg-white text-black
+                  bg-white dark:bg-gray-800
+                  text-black dark:text-gray-200
                   focus:outline-none
+                  focus:ring-2
+                  focus:ring-sky-500
+                  dark:focus:ring-sky-500
+                  focus:ring-opacity-50
                   transition-all duration-200
+                  placeholder-gray-400
+                  dark:placeholder-gray-500
                 `}
                 style={{ width: textAreaWidth ? `${textAreaWidth}px` : 'auto' }}
               />

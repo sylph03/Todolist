@@ -3,17 +3,19 @@ import { User, Settings, LogOut } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import { logoutUserAPI, selectCurrentUser } from '~/redux/user/userSlice'
 import { useConfirm } from '~/Context/ConfirmProvider'
+import { Link } from 'react-router-dom'
 
 const Profile = () => {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef(null)
+  const buttonRef = useRef(null)
 
   const dispatch = useDispatch()
   const currentUser = useSelector(selectCurrentUser)
 
   const { confirm } = useConfirm()
 
-  const hanleLogout = async () => {
+  const handleLogout = async () => {
     const result = await confirm({
       title: 'Đăng xuất khỏi tài khoản của bạn?',
       message: '',
@@ -32,7 +34,8 @@ const Profile = () => {
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+      if (menuRef.current && !menuRef.current.contains(event.target) && 
+          buttonRef.current && !buttonRef.current.contains(event.target)) {
         setMenuOpen(false)
       }
     }
@@ -42,38 +45,51 @@ const Profile = () => {
     }
   }, [])
 
+  const handleMenuClick = (e) => {
+    e.stopPropagation()
+    setMenuOpen(!menuOpen)
+  }
+
   return (
     <>
       <button
+        ref={buttonRef}
         className={`p-0.5 rounded-full transition relative ${
           menuOpen ? 'ring-2 ring-white/40 dark:ring-gray-500' : 'hover:ring-2 hover:ring-white/40 dark:hover:ring-gray-500'
         }`}
-        onClick={() => setMenuOpen(!menuOpen)}
+        onClick={handleMenuClick}
       >
         <img
           src={currentUser?.avatar || 'https://inkythuatso.com/uploads/thumbnails/800/2023/03/9-anh-dai-dien-trang-inkythuatso-03-15-27-03.jpg'}
           alt="User Avatar"
           className="h-8 w-8 rounded-full object-cover"
         />
+        {/* Dropdown Menu */}
+        {menuOpen && (
+          <div 
+            ref={menuRef} 
+            className="absolute right-0 top-11 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 shadow-lg rounded-lg p-2 w-44 z-50"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Link
+              to='/settings/account'
+              className="w-full flex items-center gap-2 px-4 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+              <User className="size-4" />
+              <span className="text-sm">Hồ sơ</span>
+            </Link>
+            <Link
+              to='/settings'
+              className="w-full flex items-center gap-2 px-4 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+              <Settings className="size-4" />
+              <span className="text-sm">Cài đặt</span>
+            </Link>
+            <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-2 rounded-md hover:text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+              <LogOut className="size-4" />
+              <span className="text-sm">Đăng xuất</span>
+            </button>
+          </div>
+        )}
       </button>
-
-      {/* Dropdown Menu */}
-      {menuOpen && (
-        <div ref={menuRef} className="absolute right-0 top-11 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 shadow-lg rounded-lg p-2 w-44 z-30">
-          <button className="w-full flex items-center gap-2 px-4 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-            <User className="size-4" />
-            <span className="text-sm">Hồ sơ</span>
-          </button>
-          <button className="w-full flex items-center gap-2 px-4 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-            <Settings className="size-4" />
-            <span className="text-sm">Cài đặt</span>
-          </button>
-          <button onClick={hanleLogout} className="w-full flex items-center gap-2 px-4 py-2 rounded-md hover:text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-            <LogOut className="size-4" />
-            <span className="text-sm">Đăng xuất</span>
-          </button>
-        </div>
-      )}
     </>
   )
 }

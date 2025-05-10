@@ -125,7 +125,7 @@ const refreshToken = async (clientRefreshToken) => {
       userInfo,
       env.ACCESS_TOKEN_SECRET_SIGNATURE,
       // 5 // 5 giây
-      // env.ACCESS_TOKEN_LIFE
+      env.ACCESS_TOKEN_LIFE
     )
 
     return { accessToken }

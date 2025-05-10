@@ -88,6 +88,17 @@ button {
     }
   }
   
+  --animate-fadeIn: fadeIn 0.3s ease-out forwards;
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
 /* Tùy chỉnh thanh cuộn */
@@ -99,20 +110,31 @@ button {
 /* Thanh cuộn - nền */
 ::-webkit-scrollbar-track {
   border-radius: 10px;
-  background: theme('colors.sky.100'); /* Màu nền thanh cuộn */
+  background: rgb(224 242 254); /* Màu nền thanh cuộn */
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: rgb(31 41 55);
 }
 
 /* Thanh cuộn - phần kéo */
 ::-webkit-scrollbar-thumb {
   border-radius: 10px;
-  background: theme('colors.sky.300'); /* Màu phần kéo */
+  background: rgb(125 211 252); /* Màu phần kéo */
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgb(75 85 99);
 }
 
 /* Hiệu ứng hover */
 ::-webkit-scrollbar-thumb:hover {
-  cursor: poiter;
-  background: theme('colors.sky.400');
+  cursor: pointer;
+  background: rgb(56 189 248);
+}
 
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgb(107 114 128);
 }
 
 .appbar-button-custom {

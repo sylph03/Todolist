@@ -4,22 +4,24 @@ import DarkModeToggler from '~/components/UI/DarkModeToggler'
 import Profile from '../Appbar/Profile'
 
 function AppBar({ toggleSidebar }) {
-
   return (
-    <div className="w-full h-HEIGHT_APPBAR min-h-HEIGHT_APPBAR bg-sky-500 dark:bg-gray-800 flex items-center justify-between px-4 shadow-md z-20">
+    <div className="w-full h-HEIGHT_APPBAR min-h-HEIGHT_APPBAR bg-gradient-to-r from-sky-500 to-sky-600 dark:from-gray-800 dark:to-gray-900 flex items-center justify-between px-6 shadow-lg z-20 transition-all duration-300">
       {/* AppBar Left */}
-      <div className="flex items-center font-semibold cursor-pointer" onClick={toggleSidebar}>
+      <div 
+        className="flex items-center justify-center font-semibold text-white cursor-pointer hover:opacity-80 transition-opacity duration-200" 
+        onClick={toggleSidebar}
+      >
         <ListTodo className="size-6 text-white mr-2" />
-        ToDo
+        <span className="text-lg font-bold tracking-wide">ToDo</span>
       </div>
 
       {/* AppBar Right */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
         <DarkModeToggler />
-        <button className="rounded-full appbar-button-custom p-2">
-          <Bell className="size-4.5 text-white dark:text-gray-300" />
+        <button className="rounded-full appbar-button-custom p-2 hover:bg-white/10 transition-colors duration-200">
+          <Bell className="size-5 text-white dark:text-gray-300" />
         </button>
-        <Profile/>
+        <Profile />
       </div>
     </div>
   )

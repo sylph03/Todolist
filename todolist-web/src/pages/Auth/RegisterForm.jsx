@@ -2,6 +2,7 @@ import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import FieldErrorAlert from '~/components/UI/FieldErrorAlert'
+import { UserPlus } from 'lucide-react'
 import {
   EMAIL_RULE,
   EMAIL_RULE_MESSAGE,
@@ -27,8 +28,15 @@ const RegisterForm = () => {
   }
 
   return (
-    <div className="w-md p-8 bg-white rounded-2xl shadow-lg">
-      <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">Đăng ký</h2>
+    <div className="w-full max-w-md p-8 bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100">
+      <div className="flex flex-col items-center mb-8">
+        {/* <div className="w-16 h-16 bg-sky-100 rounded-full flex items-center justify-center mb-4">
+          <UserPlus className="w-8 h-8 text-sky-600" />
+        </div> */}
+        <h2 className="text-3xl font-bold text-gray-800">Đăng ký</h2>
+        {/* <p className="text-gray-500 mt-2">Tạo tài khoản mới của bạn</p> */}
+      </div>
+
       <form onSubmit={handleSubmit(submitRegister)} className="space-y-5">
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
@@ -36,7 +44,7 @@ const RegisterForm = () => {
           </label>
           <input
             id="email"
-            className={`w-full px-4 py-2 border rounded-lg transition duration-200 focus:outline-none ${
+            className={`w-full px-4 py-2.5 border rounded-lg transition duration-200 focus:outline-none ${
               errors['email']
                 ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-400 hover:border-red-500'
                 : 'border-gray-300 focus:border-sky-400 focus:ring-1 focus:ring-sky-400 hover:border-sky-400'
@@ -59,7 +67,7 @@ const RegisterForm = () => {
           <input
             type="password"
             id="password"
-            className={`w-full px-4 py-2 border rounded-lg transition duration-200 focus:outline-none ${
+            className={`w-full px-4 py-2.5 border rounded-lg transition duration-200 focus:outline-none ${
               errors['password']
                 ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-400 hover:border-red-500'
                 : 'border-gray-300 focus:border-sky-400 focus:ring-1 focus:ring-sky-400 hover:border-sky-400'
@@ -82,7 +90,7 @@ const RegisterForm = () => {
           <input
             type="password"
             id="confirmPassword"
-            className={`w-full px-4 py-2 border rounded-lg transition duration-200 focus:outline-none ${
+            className={`w-full px-4 py-2.5 border rounded-lg transition duration-200 focus:outline-none ${
               errors['confirmPassword']
                 ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-400 hover:border-red-500'
                 : 'border-gray-300 focus:border-sky-400 focus:ring-1 focus:ring-sky-400 hover:border-sky-400'
@@ -99,14 +107,14 @@ const RegisterForm = () => {
         </div>
         <button
           type="submit"
-          className="interceptor-loading w-full py-2 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-lg transition duration-200 transform"
+          className="interceptor-loading w-full py-3 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-lg transition duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg"
         >
           Đăng ký
         </button>
       </form>
-      <p className="mt-4 text-center text-sm text-gray-600">
+      <p className="mt-6 text-center text-sm text-gray-600">
         Đã có tài khoản?{' '}
-        <Link to="/login" className="text-sky-500 hover:underline font-medium">
+        <Link to="/login" className="text-sky-500 hover:text-sky-600 font-medium hover:underline transition-colors duration-200">
           Đăng nhập
         </Link>
       </p>
