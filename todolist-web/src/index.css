@@ -2,14 +2,16 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  font-family: 'Roboto',
+  font-family: 'Roboto';
+}
+
+html, body {
+  overflow: hidden;
 }
 
 button {
-  cursor:pointer
+  cursor: pointer;
 }
-
-
 
 @theme {
 

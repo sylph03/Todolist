@@ -136,8 +136,8 @@ const AccountTab = () => {
               className={`w-full px-4 py-2.5 border rounded-lg outline-none transition-colors ${
                 isEditing
                   ? errors['displayName']
-                    ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-400 hover:border-red-500'
-                    : 'border-gray-300 focus:border-sky-400 focus:ring-1 focus:ring-sky-400 hover:border-sky-400'
+                    ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-400 hover:border-red-500 text-gray-900 dark:text-white'
+                    : 'border-gray-300 focus:border-sky-400 focus:ring-1 focus:ring-sky-400 hover:border-sky-400 text-gray-900 dark:text-white'
                   : 'bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 border-gray-300 dark:border-gray-600 cursor-not-allowed'
               }`}
               {...register('displayName', {

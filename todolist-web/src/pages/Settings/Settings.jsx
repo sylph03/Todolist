@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Settings as SettingsIcon, Shield, User } from 'lucide-react'
+import { UserCircle, Shield, User } from 'lucide-react'
 import AccountTab from './AccountTab'
 import SecurityTab from './SecurityTab'
 import AppBar from '~/components/Layout/AppBar'
@@ -30,8 +30,8 @@ const Settings = () => {
       <main className="flex-1 overflow-y-auto">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6">
           <div className="flex items-center gap-3 mb-6">
-            <SettingsIcon className="w-6 h-6 text-sky-600 dark:text-sky-300" />
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Cài đặt</h2>
+            <UserCircle className="w-6 h-6 text-sky-600 dark:text-sky-300" />
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Hồ sơ</h2>
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-600">

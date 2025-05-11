@@ -250,7 +250,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
       {!isOpen && <div className='h-full min-w-4 max-w-4 bg-sky-500 absolute top-0 bottom-0 dark:bg-gray-800 transition-all duration-300'>
         <ChevronRight className='z-1 absolute border border-white dark:border-gray-400 shadow-md bg-sky-500 rounded-full bottom-1/2 left-1/4 cursor-pointer hover:bg-sky-400 dark:bg-gray-800 dark:hover:bg-gray-700 transition-all duration-200' onClick={toggleSidebar}/>
       </div>}
-      <div className={`z-1 absolute top-0 bottom-0 h-full max-w-WIDTH_SIDEBAR min-w-WIDTH_SIDEBAR bg-gradient-to-b from-sky-500 to-sky-600 dark:from-gray-800 dark:to-gray-900 shadow-lg ${isOpen ? 'animate-fadeInLeft' : 'animate-fadeOutLeft'}`}>
+      <div className={`z-1 absolute top-0 bottom-0 h-full max-w-WIDTH_SIDEBAR min-w-WIDTH_SIDEBAR bg-gradient-to-b from-sky-500 to-sky-600 dark:from-gray-800 dark:to-gray-900 shadow-lg transition-all duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
 
         {/* Không gian làm việc */}
         <div className="flex flex-wrap items-center justify-between w-full px-4 py-3 bg-sky-500/50 dark:bg-[#1e293b]/50 backdrop-blur-sm border-b border-sky-400/30 dark:border-slate-700/30 transition-all duration-300">
