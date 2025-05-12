@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import DarkModeToggler from '~/components/UI/DarkModeToggler'
 import Profile from '../Appbar/Profile'
 
-function AppBar() {
+const AppBar = () => {
   return (
     <div className="w-full h-HEIGHT_APPBAR min-h-HEIGHT_APPBAR bg-gradient-to-r from-sky-500 to-sky-600 dark:from-gray-800 dark:to-gray-900 flex items-center justify-between px-6 shadow-lg z-20 transition-all duration-300">
       {/* AppBar Left */}

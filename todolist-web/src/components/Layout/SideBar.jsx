@@ -87,6 +87,7 @@ const projects = [
 ]
 
 const SideBar = ({ isOpen, toggleSidebar }) => {
+
   const currentUser = useSelector(selectCurrentUser)
 
   const [showInput, setShowInput] = useState(false) // Hiển thị form tạo board hay không
