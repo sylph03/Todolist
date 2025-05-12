@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import Appbar from '~/components/Layout/Appbar'
+import Appbar from '~/components/Layout/AppBar'
 import { Plus, LayoutGrid, Search, Star, Sparkles, Clock, ChevronRight, Users, Settings, FolderOpen, Calendar, BookOpen, Archive, CheckCircle } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import PageLoadingSpinner from '~/components/UI/Loading/PageLoadingSpinner'
