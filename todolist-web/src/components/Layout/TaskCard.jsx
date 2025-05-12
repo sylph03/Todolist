@@ -155,10 +155,10 @@ const TaskCard = ({ card }) => {
         <div className='w-full' ref={contentCardRef}>
           {/* Ảnh bìa */}
           {card?.cover && (
-            <img 
-              src={card.cover} 
-              alt="cover" 
-              className="object-cover w-full h-[247px] rounded-t-xl" 
+            <img
+              src={card.cover}
+              alt="cover"
+              className="object-cover w-full h-[247px] rounded-t-xl"
             />
           )}
 
@@ -166,25 +166,25 @@ const TaskCard = ({ card }) => {
           <div className="p-4 relative text-sm leading-relaxed font-medium">
             {card?.title}
             {/* Nút chỉnh sửa */}
-            <div 
-              data-no-dnd="true" 
-              onClick={handleEditClick} 
+            <div
+              data-no-dnd="true"
+              onClick={handleEditClick}
               className="
-                absolute 
-                top-2 
-                right-2 
-                p-2 
-                rounded-full 
-                transition-all 
-                hidden 
-                group-hover:block 
-                hover:bg-gray-100 
+                absolute
+                top-2
+                right-2
+                p-2
+                rounded-full
+                transition-all
+                hidden
+                group-hover:block
+                hover:bg-gray-100
                 dark:hover:bg-gray-700
                 active:bg-gray-200
                 dark:active:bg-gray-600
-              " 
+              "
               title="Chỉnh sửa"
-            > 
+            >
               <SquarePen className="size-4.5 text-gray-600 dark:text-gray-400" />
             </div>
           </div>

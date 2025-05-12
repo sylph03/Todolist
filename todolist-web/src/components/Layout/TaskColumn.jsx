@@ -56,8 +56,8 @@ const TaskColumn = ({ column, cursor }) => {
     <div className="min-w-[300px] md:min-w-[360px] max-w-[480px] w-full h-full px-1" ref={setNodeRef} style={dndKitColumnStyles} {...attributes}>
       <div className={`relative w-full h-full rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 overflow-hidden transition-all duration-300 hover:shadow-xl ${column?.bgColumn ? column.bgColumn : 'bg-sky-50 dark:bg-gray-800'}`}>
         {/* Column Title */}
-        <div 
-          {...listeners} 
+        <div
+          {...listeners}
           className={`flex items-center justify-between text-white text-sm md:text-base px-6 h-HEIGHT_COLUMN_TITLE font-semibold uppercase tracking-wide rounded-t-xl ${column?.bgTitleColumn ? column.bgTitleColumn : 'bg-sky-500'} ${cursor || 'cursor-grab'} hover:opacity-95 transition duration-200`}
         >
           <span className="truncate">{column?.title}</span>

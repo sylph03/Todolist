@@ -6,6 +6,7 @@ import Board from './pages/Boards/_id'
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { selectCurrentUser } from './redux/user/userSlice'
 import Settings from './pages/Settings/Settings'
+import Boards from './pages/Boards'
 
 // Chỉ định route cần đăng nhập
 // <Outlet /> của react-router-dom để hiển thị các child route
@@ -24,7 +25,7 @@ function App() {
       <Route path='/' element={
         // Ở đây cần replace giá trị true để nó thay thế route /, có thể hiểu là route / sẽ không còn nằm trong history của Browser
         // Dễ hiểu bằng cách nhấn Home từ trang 404 xong quay lại bằng back của trình duyệt giữa 2 trường hợp có replace hoặc không có
-        <Navigate to="/boards/67f923d9b0287286d736dbb7" replace={true} />
+        <Navigate to="/boards" replace={true} />
       } />
 
       {/* ProtectedRoute (Những route chỉ truy cập sau khi đã login) */}
@@ -33,6 +34,7 @@ function App() {
 
         {/* Board Details */}
         <Route path='/boards/:boardId' element={<Board/>} />
+        <Route path='/boards' element={<Boards/>} />
 
         {/* User Setting */}
         <Route path='/settings/account' element={<Settings/>} />

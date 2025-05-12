@@ -43,7 +43,7 @@ const Profile = () => {
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if (menuRef.current && !menuRef.current.contains(event.target) && 
+      if (menuRef.current && !menuRef.current.contains(event.target) &&
           buttonRef.current && !buttonRef.current.contains(event.target)) {
         setMenuOpen(false)
       }
@@ -70,8 +70,8 @@ const Profile = () => {
         />
         {/* Dropdown Menu */}
         {menuOpen && (
-          <div 
-            ref={menuRef} 
+          <div
+            ref={menuRef}
             className="absolute right-0 top-11 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 shadow-lg rounded-lg p-2 w-44 z-50"
             onClick={(e) => e.stopPropagation()}
           >

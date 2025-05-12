@@ -81,7 +81,7 @@ const BoardActions = () => {
         const createdCard = await createNewCardAPI(newCardData)
         const newBoard = cloneDeep(board)
         const columnToUpdate = newBoard.columns.find(column => column._id === createdCard.columnId)
-        
+
         if (columnToUpdate) {
           if (columnToUpdate.cards[0]?.FE_PlaceholderCard) {
             columnToUpdate.cards = [createdCard]
@@ -91,7 +91,7 @@ const BoardActions = () => {
             columnToUpdate.cardOrderIds.unshift(createdCard._id)
           }
         }
-        
+
         dispatch(updateCurrentActiveBoard(newBoard))
         handleClickCancelFormCreateCard()
       })(),
@@ -105,14 +105,14 @@ const BoardActions = () => {
 
   return (
     <>
-      <div className="flex flex-row justify-between items-center w-full h-HEIGHT_BOARD_BAR sticky top-0 left-0 z-10 bg-inherit gap-3 px-1 backdrop-blur-sm">
+      <div className="flex flex-row justify-between items-center w-full h-HEIGHT_BOARD_BAR sticky top-0 left-0 z-10 bg-inherit gap-3 px-1">
         {/* Các nút chức năng */}
         <div className="flex gap-3 w-full md:justify-start">
           {/* Nút Thêm nhiệm vụ */}
-          <button 
-            onClick={hanleClickCreateCard} 
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-600 text-white font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95" 
-            title="Thêm nhiệm vụ" 
+          <button
+            onClick={hanleClickCreateCard}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-600 text-white font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95"
+            title="Thêm nhiệm vụ"
             aria-label="Thêm nhiệm vụ"
           >
             <Plus className="w-5 h-5" />
@@ -120,9 +120,9 @@ const BoardActions = () => {
           </button>
 
           {/* Nút Lưu nhiệm vụ */}
-          <button 
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95 dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-white" 
-            title="Lưu nhiệm vụ" 
+          <button
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95 dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-white"
+            title="Lưu nhiệm vụ"
             aria-label="Lưu nhiệm vụ"
           >
             <Archive className="w-5 h-5" />
@@ -130,9 +130,9 @@ const BoardActions = () => {
           </button>
 
           {/* Nút Đã hoàn thành */}
-          <button 
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95" 
-            title="Xem nhiệm vụ đã hoàn thành" 
+          <button
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95"
+            title="Xem nhiệm vụ đã hoàn thành"
             aria-label="Đã hoàn thành"
           >
             <CircleCheck className="w-5 h-5" />
@@ -157,7 +157,7 @@ const BoardActions = () => {
         <div className="fixed inset-0 bg-black/50 dark:bg-black/40 flex justify-center items-center z-50 p-4 animate-fadeIn">
           <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 p-8 rounded-2xl shadow-2xl w-full max-w-2xl transition-all duration-300 animate-slideUp relative">
             {/* Close button */}
-            <button 
+            <button
               onClick={handleClickCancelFormCreateCard}
               className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
               aria-label="Đóng form"
@@ -253,12 +253,12 @@ const BoardActions = () => {
                     </label>
                     <div className="flex items-center gap-3">
                       <div className="flex-1 relative">
-                        <label className="block h-[90px] px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-300 cursor-pointer hover:border-sky-500 transition duration-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-center gap-2 relative overflow-hidden">
+                        <label className="h-[90px] px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-300 cursor-pointer hover:border-sky-500 transition duration-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-center gap-2 relative overflow-hidden">
                           {imagePreview ? (
                             <>
-                              <img 
-                                src={imagePreview} 
-                                alt="Preview" 
+                              <img
+                                src={imagePreview}
+                                alt="Preview"
                                 className="absolute inset-0 w-full h-full object-cover"
                               />
                               <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200">
@@ -271,11 +271,11 @@ const BoardActions = () => {
                               <span>Chọn ảnh bìa</span>
                             </>
                           )}
-                          <input 
-                            type="file" 
-                            className="hidden" 
+                          <input
+                            type="file"
+                            className="hidden"
                             accept="image/*"
-                            onChange={handleImageChange} 
+                            onChange={handleImageChange}
                           />
                         </label>
                         {imagePreview && (
@@ -302,7 +302,7 @@ const BoardActions = () => {
                 >
                   Hủy
                 </button>
-                <button 
+                <button
                   type="submit"
                   className="interceptor-loading flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-semibold shadow-lg transition-all duration-300 hover:shadow-xl active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
                 >

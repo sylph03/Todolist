@@ -5,7 +5,6 @@ import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 import FieldErrorAlert from '~/components/UI/FieldErrorAlert'
 import { PASSWORD_RULE, PASSWORD_RULE_MESSAGE, FIELD_REQUIRED_MESSAGE } from '~/utils/validators'
-import authorizedAxiosInstance from '~/utils/authorizeAxios'
 import { API_ROOT } from '~/utils/constants'
 import { useDispatch } from 'react-redux'
 import { useConfirm } from '~/Context/ConfirmProvider'
@@ -22,7 +21,7 @@ const SecurityTab = () => {
 
     const res = await toast.promise(
       dispatch(updateUserAPI({ currentPassword, newPassword })),
-      { pending: 'Đang cập nhật mật khẩu...'}
+      { pending: 'Đang cập nhật mật khẩu...' }
     )
 
     if (!res.error) {

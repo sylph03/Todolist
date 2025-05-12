@@ -9,6 +9,7 @@ import { WEBSITE_DOMAINS } from '~/utils/constants'
 import { BrevoProvider } from '~/providers/BrevoProvider'
 import { JwtProvider } from '~/providers/JWTProvider'
 import { env } from '~/config/environment'
+import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 
 const createNew = async (reqBody) => {
   try {
@@ -132,12 +133,12 @@ const refreshToken = async (clientRefreshToken) => {
   } catch (error) { throw error }
 }
 
-const update = async (userId, reqBody) => {
+const update = async (userId, reqBody, userAvatarFile) => {
   try {
     const existUser = await userModel.findOneById(userId)
     if (!existUser) throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy tài khoản!')
     if (!existUser.isActive) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Tài khoản của bạn chưa kích hoạt!')
-    
+
     // Khởi tạo kết quả updated User ban đầu là rỗng
     let updateUser = {}
 
@@ -151,7 +152,16 @@ const update = async (userId, reqBody) => {
       updateUser = await userModel.update(userId, {
         password: bcryptjs.hashSync(reqBody.newPassword, 8)
       })
-    } else {
+    }
+    else if (userAvatarFile) {
+      // Trường hợp upload file lên Cloudinary
+      const uploadResult = await CloudinaryProvider.streamUpload(userAvatarFile.buffer, 'users')
+      // Lưu lại url (secure_url) của file vào DB
+      updateUser = await userModel.update(userId, {
+        avatar: uploadResult.secure_url
+      })
+    }
+    else {
       // Trường hợp update thông tin chung (displayName)
       updateUser = await userModel.update(userId, reqBody)
     }

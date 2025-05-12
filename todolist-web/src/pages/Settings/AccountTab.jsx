@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Pencil, Mail, User, Camera } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import FieldErrorAlert from '~/components/UI/FieldErrorAlert'
-import { FIELD_REQUIRED_MESSAGE } from '~/utils/validators'
+import { FIELD_REQUIRED_MESSAGE, singleFileValidator } from '~/utils/validators'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { updateUserAPI } from '~/redux/user/userSlice'
@@ -13,10 +13,10 @@ const AccountTab = () => {
   const currentUser = useSelector(selectCurrentUser)
 
   const [isEditing, setIsEditing] = useState(false)
-  
+
   const { register, handleSubmit, formState: { errors }, reset } = useForm({
     defaultValues: {
-      displayName: currentUser?.displayName,
+      displayName: currentUser?.displayName
     }
   })
 
@@ -28,13 +28,13 @@ const AccountTab = () => {
 
     toast.promise(
       dispatch(updateUserAPI({ displayName })),
-      { pending: 'Đang cập nhật thông tin...'}
-      ).then(res => {
-        // Đoạn này phải kiểm tra không có lỗi thì mới thực hiện các hành động cần thiết
-        if (!res.error) {
-          toast.success('Cập nhật thông tin thành công!')
-        }
-      })
+      { pending: 'Đang cập nhật thông tin...' }
+    ).then(res => {
+      // Đoạn này phải kiểm tra không có lỗi thì mới thực hiện các hành động cần thiết
+      if (!res.error) {
+        toast.success('Cập nhật thông tin thành công!')
+      }
+    })
 
     setIsEditing(false)
   }
@@ -42,6 +42,34 @@ const AccountTab = () => {
   const handleCancel = () => {
     reset() // Reset form về giá trị mặc định
     setIsEditing(false)
+  }
+
+  const uploadAvatar = (e) => {
+    const error = singleFileValidator(e.target?.files[0])
+    if (error) {
+      toast.error(error)
+      return
+    }
+
+    // Sử dụng FormData để xử lý dữ liệu liên quan tới file khi gọi API
+    let reqData = new FormData()
+    reqData.append('avatar', e.target?.files[0])
+    // Cách để log dữ liệu thông qua FormData
+    // for (const [key, value] of reqData.entries()) {
+    //   console.log(key, value)
+    // }
+
+    // Gọi API để upload avatar
+    toast.promise(
+      dispatch(updateUserAPI(reqData)),
+      { pending: 'Đang cập nhật ảnh đại diện...' }
+    ).then(res => {
+      if (!res.error) {
+        toast.success('Cập nhật ảnh đại diện thành công!')
+      }
+      // Lưu ý, dù lỗi hay thành công thì phải clear giá trị của file input, nếu không sẽ không thể chọn lại file
+      e.target.value = ''
+    })
   }
 
   return (
@@ -68,6 +96,7 @@ const AccountTab = () => {
                 type="file"
                 accept="image/*"
                 className="hidden"
+                onChange={uploadAvatar}
                 aria-label="Thay đổi ảnh đại diện"
               />
             </label>

@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 const NotFound = () => {
   return (
     <div
-      className="h-screen w-full bg-cover bg-center bg-no-repeat flex flex-col items-center justify-center text-center relative bg-[url(https://i.pinimg.com/originals/4d/0a/cb/4d0acb2f9981ff25b9e793b82f3e8f51.gif)]"
+      className="h-screen w-full bg-cover bg-center bg-no-repeat flex flex-col items-center justify-center text-center relative bg-[url('/src/assets/404/bg-404.gif')]"
     >
       <div className="relative z-10 px-4 sm:px-6 md:px-8 max-w-2xl mx-auto">
         <h1 className="text-white text-4xl sm:text-5xl md:text-6xl font-bold tracking-widest animate-bounce drop-shadow-lg">404</h1>

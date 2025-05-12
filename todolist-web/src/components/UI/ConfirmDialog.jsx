@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 
-const ConfirmDialog = ({ 
-  title, 
-  message, 
-  handleConfirm, 
-  handleCancel, 
+const ConfirmDialog = ({
+  title,
+  message,
+  handleConfirm,
+  handleCancel,
   modal = true,
   confirmText = 'Xác nhận',
   cancelText = 'Hủy',
@@ -40,14 +40,14 @@ const ConfirmDialog = ({
   }
 
   return (
-    <div 
+    <div
       className={`${modal ? 'fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm': 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50'}`}
       style={{
         opacity: isVisible ? 1 : 0,
         transition: 'opacity 0.2s ease-in-out'
       }}
     >
-      <div 
+      <div
         className="flex items-center justify-center z-50"
         style={{
           transform: isVisible ? 'scale(1)' : 'scale(0.95)',

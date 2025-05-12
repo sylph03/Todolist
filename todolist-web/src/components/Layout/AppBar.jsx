@@ -8,7 +8,7 @@ function AppBar() {
   return (
     <div className="w-full h-HEIGHT_APPBAR min-h-HEIGHT_APPBAR bg-gradient-to-r from-sky-500 to-sky-600 dark:from-gray-800 dark:to-gray-900 flex items-center justify-between px-6 shadow-lg z-20 transition-all duration-300">
       {/* AppBar Left */}
-      <Link 
+      <Link
         to="/"
         className="flex items-center justify-center font-semibold text-white cursor-pointer hover:opacity-80 transition-opacity duration-200"
       >

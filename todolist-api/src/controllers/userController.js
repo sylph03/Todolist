@@ -61,6 +61,7 @@ const refreshToken = async (req, res, next) => {
       maxAge: ms('14 days')
     })
     res.status(StatusCodes.OK).json(result)
+  // eslint-disable-next-line no-unused-vars
   } catch (error) {
     next(new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Phiên đã hết hạn! Vui lòng đăng nhập lại'))
   }
@@ -69,7 +70,8 @@ const refreshToken = async (req, res, next) => {
 const update = async (req, res, next) => {
   try {
     const userId = req.jwtDecoded._id
-    const updatedUser = await userService.update(userId, req.body)
+    const userAvatarFile = req.file
+    const updatedUser = await userService.update(userId, req.body, userAvatarFile)
 
     res.status(StatusCodes.OK).json(updatedUser)
   } catch (error) { next(error) }
