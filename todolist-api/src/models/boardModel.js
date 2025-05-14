@@ -25,11 +25,15 @@ const validateBeforeCreate = async (data) => {
   return await BOARD_COLLECTION_SCHEMA.validateAsync(data, { abortEarly:false })
 }
 
-const createNew = async (data) => {
+const createNew = async (userId, data) => {
   try {
     const validData = await validateBeforeCreate(data)
+    const newBoardToAdd = {
+      ...validData,
+      ownerIds: [new ObjectId(String(userId))]
+    }
 
-    const createdBoard = await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(validData)
+    const createdBoard = await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(newBoardToAdd)
     return createdBoard
   } catch (error) { throw new Error(error) }
 }
@@ -42,14 +46,22 @@ const findOneById = async (id) => {
 }
 
 // Query tổng hợp (arrgregate) để lấy toàn bộ columns và cards thuộc về board
-const getDetails = async (id) => {
+const getDetails = async (userId, boardId) => {
   try {
+    const queryConditions = [
+      { _id: new ObjectId(String(boardId)) },
+      // Điều kiện 1: Board chưa bị xóa
+      { _destroy: false },
+      // Điều kiện 2: userId đang thực hiện request phải thuộc vào một trong 2 mảng ownerIds hoặc memberIds, sử dụng toán tử $all của mongodb
+      { $or: [
+        { ownerIds: { $all: [new ObjectId(String(userId))] } },
+        { memberIds: { $all: [new ObjectId(String(userId))] } }
+      ] }
+    ]
+
     // const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({ _id: new ObjectId(String(id)) })
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
-      { $match: {
-        _id: new ObjectId(String(id)),
-        _destroy: false
-      } },
+      { $match: { $and: queryConditions } },
       { $lookup: {
         from: columnModel.COLUMN_COLLECTION_NAME,
         localField: '_id',
@@ -133,7 +145,8 @@ const getBoards = async (userId, page, itemsPerPage) => {
       [
         { $match: { $and: queryConditions } },
         // sort title của board theo A-Z (B hoa trước a thường)
-        { $sort: { title: 1 } },
+        // { $sort: { title: 1 } },
+        { $sort: { createdAt: -1 } }, // sắp xếp mới nhất lên đầu
         // $facet để xử lý nhiều luồng trong một query
         { $facet: {
           // Luồng thứ 1: Query boards
@@ -146,7 +159,7 @@ const getBoards = async (userId, page, itemsPerPage) => {
         } }
       ],
       // Khai báo thêm thuộc tính collation locale 'en' để fix vụ B hoa đứng trước a thường
-      { collation: { locale: 'en' } }
+      // { collation: { locale: 'en' } }
     ).toArray()
 
     const res = query[0]

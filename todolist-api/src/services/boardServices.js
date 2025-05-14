@@ -8,7 +8,7 @@ import ApiError from '~/utils/ApiError'
 import { slugify } from '~/utils/formatters'
 import { DEFAULT_PAGE, DEFAULT_ITEMS_PER_PAGE } from '~/utils/constants'
 
-const createNew = async (reqBody) => {
+const createNew = async (userId, reqBody) => {
   try {
     // Xử lý logic dữ liệu tùy đặc thù dự án
     const newBoard = {
@@ -17,16 +17,16 @@ const createNew = async (reqBody) => {
     }
 
     // Gọi tới tầng model để xử lý lưu bản ghi newBoard vào trong Database
-    const createdBoard = await boardModel.createNew(newBoard)
+    const createdBoard = await boardModel.createNew(userId, newBoard)
 
     const boardId = createdBoard.insertedId
 
     // Tạo 4 column mặc định với dữ liệu chi tiết
     const defaultColumns = [
-      { title: 'Nhiệm vụ', bgColumn: 'bg-red-100 dark:bg-red-200', bgTitleColumn: 'bg-red-400 dark:bg-red-400' },
-      { title: 'Chuẩn bị', bgColumn: 'bg-orange-100 dark:bg-orange-200', bgTitleColumn: 'bg-orange-400 dark:bg-orange-400' },
-      { title: 'Đang làm', bgColumn: 'bg-yellow-100 dark:bg-yellow-200', bgTitleColumn: 'bg-yellow-400 dark:bg-yellow-400' },
-      { title: 'Hoàn thành', bgColumn: 'bg-green-100 dark:bg-green-200', bgTitleColumn: 'bg-green-400 dark:bg-green-400' }
+      { title: 'Nhiệm vụ', bgColumn: 'bg-red-100 dark:bg-red-900/20', bgTitleColumn: 'bg-red-500 dark:bg-red-600' },
+      { title: 'Chuẩn bị', bgColumn: 'bg-orange-100 dark:bg-orange-900/20', bgTitleColumn: 'bg-orange-500 dark:bg-orange-600' },
+      { title: 'Đang làm', bgColumn: 'bg-yellow-100 dark:bg-yellow-900/20', bgTitleColumn: 'bg-yellow-500 dark:bg-yellow-600' },
+      { title: 'Hoàn thành', bgColumn: 'bg-green-100 dark:bg-green-900/20', bgTitleColumn: 'bg-green-500 dark:bg-green-600' }
     ]
 
     for (const column of defaultColumns) {
@@ -55,9 +55,9 @@ const createNew = async (reqBody) => {
   }
 }
 
-const getDetails = async (boardId) => {
+const getDetails = async (userId, boardId) => {
   try {
-    const board = await boardModel.getDetails(boardId)
+    const board = await boardModel.getDetails(userId, boardId)
     if (!board) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found!')
     }

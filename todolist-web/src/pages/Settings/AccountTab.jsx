@@ -76,12 +76,12 @@ const AccountTab = () => {
     <div className="space-y-6">
       {/* Profile Section */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-600">
-        <div className="flex items-center gap-8">
+        <div className="flex items-center flex-col md:flex-row gap-8">
           {/* Avatar */}
           <div className="relative group">
             <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700">
               <img
-                src={`${currentUser?.avatar ? currentUser.avatar : 'https://inkythuatso.com/uploads/thumbnails/800/2023/03/9-anh-dai-dien-trang-inkythuatso-03-15-27-03.jpg'}`}
+                src={`${currentUser?.avatar ? currentUser.avatar : 'src/assets/images/default-avatar.png'}`}
                 alt="User avatar"
                 className="w-full h-full object-cover transition-transform group-hover:scale-105"
               />

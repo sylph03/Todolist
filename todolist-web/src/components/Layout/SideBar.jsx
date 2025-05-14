@@ -5,6 +5,8 @@ import CreateProjectForm from '../Project/CreateProjectForm'
 import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { Link } from 'react-router-dom'
+import { FORM_CREATE_PROJECT_WIDTH, FORM_CREATE_PROJECT_HEIGHT, OPTIONS_PROJECT_HEIGHT } from '~/utils/constants'
+
 const projects = [
   {
     id: 1, name: 'Today', description: 'Công việc hôm nay', isActive: true, favorite: true
@@ -114,13 +116,12 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
         if (button) {
           const rect = button.getBoundingClientRect()
           const viewportHeight = window.innerHeight
-          const menuHeight = 138
 
           let top = rect.bottom + 5
           let left = rect.left
 
-          if (top + menuHeight > viewportHeight) {
-            top = rect.top - menuHeight - 5
+          if (top + OPTIONS_PROJECT_HEIGHT > viewportHeight) {
+            top = rect.top - OPTIONS_PROJECT_HEIGHT - 5
           }
 
           setOptionProjectPosition(prev => {
@@ -176,13 +177,12 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
       const rect = plusButtonRef.current.getBoundingClientRect()
       let top = rect.top - 30
       let left = rect.right + 30
-      const formCreateProjectWidth = 320
-      const formCreateProjectHeight = 328
-      if (top + formCreateProjectHeight > window.innerHeight) {
-        top = rect.top - formCreateProjectHeight
+      
+      if (top + FORM_CREATE_PROJECT_HEIGHT > window.innerHeight) {
+        top = rect.top - FORM_CREATE_PROJECT_HEIGHT
       }
-      if (left + formCreateProjectWidth > window.innerWidth) {
-        left = rect.right - formCreateProjectWidth/2
+      if (left + FORM_CREATE_PROJECT_WIDTH > window.innerWidth) {
+        left = rect.right - FORM_CREATE_PROJECT_WIDTH/2
       }
       setFormPosition({ top, left })
     }
@@ -200,13 +200,12 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
     if (optionsButtonRef.current[keyString]) {
       const rect = optionsButtonRef.current[keyString].getBoundingClientRect()
       const viewportHeight = window.innerHeight
-      const menuHeight = 138
 
       let top = rect.bottom + 5
       let left = rect.left
 
-      if (top + menuHeight > viewportHeight) {
-        top = rect.top - menuHeight - 5
+      if (top + OPTIONS_PROJECT_HEIGHT > viewportHeight) {
+        top = rect.top - OPTIONS_PROJECT_HEIGHT - 5
       }
 
       setOptionProjectPosition({ top, left })

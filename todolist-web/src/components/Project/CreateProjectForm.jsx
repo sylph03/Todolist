@@ -1,8 +1,21 @@
 import React from 'react'
 import { X } from 'lucide-react'
 import { toast } from 'react-toastify'
+import { createNewBoardAPI } from '~/apis'
+import { useForm } from 'react-hook-form'
+import FieldErrorAlert from '~/components/UI/FieldErrorAlert'
 
-const CreateProjectForm = ({ formCreateProjectRef, setShowInput, formPosition }) => {
+const CreateProjectForm = ({ formCreateProjectRef, setShowInput, formPosition, affterCreatedNewBoard }) => {
+  const { register, handleSubmit, reset, formState: { errors } } = useForm()
+
+  const submitCreateProject = async (data) => {
+    // const { title, description } = data
+    createNewBoardAPI(data).then(() => {
+      setShowInput(false)
+      // Thông báo component cha để xử lý
+      affterCreatedNewBoard()
+    })
+  }
 
   return (
     <div
@@ -18,40 +31,42 @@ const CreateProjectForm = ({ formCreateProjectRef, setShowInput, formPosition })
         />
       </div>
 
-      <div className="space-y-4">
+      <form onSubmit={handleSubmit(submitCreateProject)} className="space-y-4">
         <div>
           <label htmlFor="board-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5" >
             Tên bảng <span className="text-red-500">*</span>
           </label>
           <input
-            id="board-name"
             type="text"
             placeholder="Nhập tên bảng..."
-            className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3.5 py-2 hover:border-sky-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 dark:focus:ring-sky-400 transition-colors duration-200"
+            className={`w-full rounded-lg border bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3.5 py-2 focus:outline-none transition-colors duration-200
+              ${errors['title']
+                ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-400 hover:border-red-500'
+                : 'border-gray-300 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 hover:border-sky-500'
+              }`}
+            {...register('title', { required: '💡Tiêu đề bảng là bắt buộc' })}
           />
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1.5 flex items-center gap-1.5">
-            <span className="text-sky-500">💡</span> Tiêu đề bảng là bắt buộc
-          </p>
+          <FieldErrorAlert errors={errors} fieldName={'title'} />
         </div>
 
         <div>
           <label htmlFor="board-description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5" >
             Mô tả
           </label>
-          <input
-            id="board-description"
-            type="text"
+          <textarea
             placeholder="Thêm mô tả cho bảng..."
-            className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3.5 py-2 hover:border-sky-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 dark:focus:ring-sky-400 transition-colors duration-200"
+            rows="3"
+            className="w-full rounded-lg border border-gray-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-3.5 py-2 hover:border-sky-500 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 dark:focus:ring-sky-400 transition-colors duration-200 resize-none"
+            {...register('description')}
           />
         </div>
 
         <button
-          onClick={() => { toast.error('Vui lòng nhập tên bảng')}}
+          type="submit"
           className="interceptor-loading w-full bg-sky-500 hover:bg-sky-600 text-white font-medium rounded-lg px-4 py-2.5 shadow-md hover:shadow-lg active:shadow-sm transition-all duration-200" >
           Tạo bảng
         </button>
-      </div>
+      </form>
     </div>
   )
 }

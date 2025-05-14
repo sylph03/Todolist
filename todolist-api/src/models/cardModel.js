@@ -11,7 +11,7 @@ const CARD_COLLECTION_SCHEMA = Joi.object({
 
   title: Joi.string().required().min(3).max(50).trim().strict(),
   description: Joi.string().allow('').optional(),
-  status: Joi.string().valid('todo', 'prepare', 'in-progress', 'completed').required(),
+  status: Joi.string().required(),
   cover: Joi.string().uri().allow('').optional(),
 
   createdAt: Joi.date().timestamp('javascript').default(Date.now),

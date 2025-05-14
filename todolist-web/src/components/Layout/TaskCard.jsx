@@ -146,6 +146,7 @@ const TaskCard = ({ card }) => {
           ease-in-out 
           hover:scale-[1.01] 
           group
+          select-none
         `}
         ref={setNodeRef}
         style={dndKitCardStyles}
