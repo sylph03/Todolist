@@ -1,5 +1,8 @@
 import React from 'react'
 import { EllipsisVertical } from 'lucide-react'
+import { useSelector } from 'react-redux'
+import { selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { Link } from 'react-router-dom'
 
 const ProjectItem = ({
   project,
@@ -8,12 +11,14 @@ const ProjectItem = ({
   showOptionsProject,
   optionsButtonRef
 }) => {
-  const keyString = `${type}-${project.id}`
-  const isActive = project.isActive
-  const isShown = showOptionsProject?.type === type && showOptionsProject?.id === project.id
+  const activeBoard = useSelector(selectCurrentActiveBoard)
+  const keyString = `${type}-${project._id}`
+  const isActive = activeBoard?._id === project._id
+  const isShown = showOptionsProject?.type === type && showOptionsProject?.id === project._id
 
   return (
-    <div
+    <Link
+      to={`/boards/${project._id}`}
       key={keyString}
       title={project?.description}
       className={`relative group px-4 py-2 rounded-xl cursor-pointer transition duration-200 
@@ -22,7 +27,7 @@ const ProjectItem = ({
     >
       {/* Tên dự án */}
       <span className="text-white dark:text-gray-100 text-sm md:text-base truncate block pr-10">
-        {project.name}
+        {project.title}
       </span>
 
       {/* Nút ba chấm */}
@@ -34,12 +39,12 @@ const ProjectItem = ({
           ${isShown ? 'opacity-100 text-white dark:text-white' : 'opacity-0'}
           group-hover:opacity-100
         `}
-        onClick={(e) => onEllipsisClick(e, { type, id: project.id })}
+        onClick={(e) => onEllipsisClick(e, { type, id: project._id })}
         ref={(el) => {
           optionsButtonRef.current[keyString] = el
         }}
       />
-    </div>
+    </Link>
   )
 }
 

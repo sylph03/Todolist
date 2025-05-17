@@ -47,10 +47,19 @@ const getBoards = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const getBoardsForSidebar = async (req, res, next) => {
+  try {
+    const userId = req.jwtDecoded._id
+    const result = await boardService.getBoardsForSidebar(userId)
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) { next(error) }
+}
+
 export const boardController = {
   createNew,
   getDetails,
   update,
   moveCardToDifferentColumn,
-  getBoards
+  getBoards,
+  getBoardsForSidebar
 }

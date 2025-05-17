@@ -7,15 +7,17 @@ import { generatePlaceholderCard } from '~/utils/formatters'
 import { updateCurrentActiveBoard, selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
+import { updateCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
 
-const OptionListCard = ({ card }) => {
+const OptionListCard = ({ card, setShowPopup }) => {
   const dispatch = useDispatch()
   const board = useSelector(selectCurrentActiveBoard)
 
   const { confirm } = useConfirm()
 
   const handleOpenCard = () => {
-    console.log('Mở thẻ')
+    setShowPopup(false)
+    dispatch(updateCurrentActiveCard(card))
   }
 
   const handleMoveCard = () => {

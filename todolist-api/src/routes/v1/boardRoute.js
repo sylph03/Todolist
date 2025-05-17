@@ -9,6 +9,9 @@ Router.route('/')
   .get(authMiddleware.isAuthorized, boardController.getBoards)
   .post(authMiddleware.isAuthorized, boardValidation.createNew, boardController.createNew)
 
+Router.route('/sidebar')
+  .get(authMiddleware.isAuthorized, boardController.getBoardsForSidebar)
+
 Router.route('/:id')
   .get(authMiddleware.isAuthorized, boardController.getDetails)
   .put(authMiddleware.isAuthorized, boardValidation.update, boardController.update)

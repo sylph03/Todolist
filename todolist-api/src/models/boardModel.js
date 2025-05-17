@@ -146,7 +146,7 @@ const getBoards = async (userId, page, itemsPerPage) => {
         { $match: { $and: queryConditions } },
         // sort title của board theo A-Z (B hoa trước a thường)
         // { $sort: { title: 1 } },
-        { $sort: { createdAt: -1 } }, // sắp xếp mới nhất lên đầu
+        { $sort: { createdAt: 1 } }, //  mới nhất xuống dưới
         // $facet để xử lý nhiều luồng trong một query
         { $facet: {
           // Luồng thứ 1: Query boards
@@ -172,6 +172,31 @@ const getBoards = async (userId, page, itemsPerPage) => {
   } catch (error) { throw new Error(error) }
 }
 
+const getBoardsForSidebar = async (userId) => {
+  try {
+    const queryConditions = [
+      // Điều kiện 1: Board chưa bị xóa
+      { _destroy: false },
+      // Điều kiện 2: userId đang thực hiện request phải thuộc vào một trong 2 mảng ownerIds hoặc memberIds
+      { $or: [
+        { ownerIds: { $all: [new ObjectId(String(userId))] } },
+        { memberIds: { $all: [new ObjectId(String(userId))] } }
+      ] }
+    ]
+
+    // Query để lấy tất cả boards
+    const boards = await GET_DB().collection(BOARD_COLLECTION_NAME)
+      .find({ $and: queryConditions })
+      .sort({ createdAt: 1 }) //  mới nhất xuống dưới
+      .toArray()
+
+    return {
+      boards,
+      totalBoards: boards.length
+    }
+  } catch (error) { throw new Error(error) }
+}
+
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
@@ -181,5 +206,6 @@ export const boardModel = {
   pushColumnOrderIds,
   update,
   pullColumnOrderIds,
-  getBoards
+  getBoards,
+  getBoardsForSidebar
 }

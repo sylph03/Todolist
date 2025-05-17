@@ -4,9 +4,9 @@ import { cloneDeep } from 'lodash'
 import { boardModel } from '~/models/boardModel'
 import { cardModel } from '~/models/cardModel'
 import { columnModel } from '~/models/columnModel'
-import ApiError from '~/utils/ApiError'
 import { slugify } from '~/utils/formatters'
-import { DEFAULT_PAGE, DEFAULT_ITEMS_PER_PAGE } from '~/utils/constants'
+import { DEFAULT_PAGE, DEFAULT_ITEMS_PER_PAGE, DEFAULT_SKIP, DEFAULT_LIMIT } from '~/utils/constants'
+import ApiError from '~/utils/ApiError'
 
 const createNew = async (userId, reqBody) => {
   try {
@@ -116,10 +116,20 @@ const getBoards = async (userId, page, itemsPerPage) => {
   } catch (error) { throw error }
 }
 
+const getBoardsForSidebar = async (userId) => {
+  try {
+
+    const results = await boardModel.getBoardsForSidebar(userId)
+
+    return results
+  } catch (error) { throw error }
+}
+
 export const boardService = {
   createNew,
   getDetails,
   update,
   moveCardToDifferentColumn,
-  getBoards
+  getBoards,
+  getBoardsForSidebar
 }

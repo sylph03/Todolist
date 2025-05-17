@@ -38,40 +38,89 @@ const Boards = () => {
   }, [location.search]) // Fix typo in dependency
 
   const affterCreatedNewBoard = () => {
-    // fetch lại danh sách boards
+    // fetch lại danh sách boards với phân trang
     fetchBoardsAPI(location.search).then(updateStateData)
   }
 
+// Tách riêng logic tính toán vị trí form
+const calculateFormPosition = () => {
+  if (!plusButtonRef.current) return null
+  
+  const rect = plusButtonRef.current.getBoundingClientRect()
+  const isSmallScreen = window.innerWidth <= 640 // Breakpoint sm trong Tailwind
+  const padding = 16 // Padding an toàn để form không sát cạnh màn hình
+
+  // Nếu màn hình nhỏ (như điện thoại), luôn đặt form ở giữa
+  if (isSmallScreen) {
+    const centerTop = Math.max(padding, (window.innerHeight - FORM_CREATE_PROJECT_HEIGHT) / 2)
+    const centerLeft = Math.max(padding, (window.innerWidth - FORM_CREATE_PROJECT_WIDTH) / 2)
+    return { top: centerTop, left: centerLeft }
+  }
+
+  // Logic cho màn hình lớn
+  let top = rect.top - 10
+  let left = rect.left - FORM_CREATE_PROJECT_WIDTH - 10
+
+  // Kiểm tra và điều chỉnh vị trí nếu form vượt quá kích thước màn hình
+  if (top + FORM_CREATE_PROJECT_HEIGHT > window.innerHeight - padding) {
+    // Nếu form vượt quá chiều cao màn hình, đặt ở giữa theo chiều dọc
+    top = Math.max(padding, (window.innerHeight - FORM_CREATE_PROJECT_HEIGHT) / 2)
+  }
+  
+  if (left + FORM_CREATE_PROJECT_WIDTH > window.innerWidth - padding) {
+    // Nếu form vượt quá chiều rộng màn hình, đặt ở giữa theo chiều ngang
+    left = Math.max(padding, (window.innerWidth - FORM_CREATE_PROJECT_WIDTH) / 2)
+  }
+
+  // Đảm bảo form không bị cắt ở cạnh trên và trái
+  top = Math.max(padding, top)
+  left = Math.max(padding, left)
+
+  return { top, left }
+}
+
 // Xử lý sự kiện nhấn nút + (Plus)
 const handlePlusClick = () => {
-  if (plusButtonRef.current) {
-    const rect = plusButtonRef.current.getBoundingClientRect()
-    let top = rect.top - 10
-    let left = rect.left - FORM_CREATE_PROJECT_WIDTH - 10
-  
-    if (top + FORM_CREATE_PROJECT_HEIGHT > window.innerHeight) {
-      top = rect.top - FORM_CREATE_PROJECT_HEIGHT
-    }
-    if (left + FORM_CREATE_PROJECT_WIDTH > window.innerWidth) {
-      left = rect.right - FORM_CREATE_PROJECT_WIDTH/2
-    }
-    setFormPosition({ top, left })
-  }
+  setFormPosition(calculateFormPosition())
   setShowInput(!showInput)
 }
 
 useEffect(() => {
+  if (!showInput) {
+    setFormPosition(null)
+    return
+  }
+
+  // Xử lý khi nhấn ra ngoài popup
   const handleClickOutside = (event) => {
-    // Form tạo project
     if (showInput && formCreateProjectRef.current && !formCreateProjectRef.current.contains(event.target)) {
       if (plusButtonRef.current?.contains(event.target)) return
       setShowInput(false)
     }
   }
 
+  // Nhấn Esc thoát popup
+  const handleKeyDown = (event) => {
+    if (event.key === 'Escape') setShowInput(false)
+  }
+
+  // Cập nhật vị trí form khi scroll hoặc resize
+  const handleScrollOrResize = () => {
+    if (showInput) {
+      setFormPosition(calculateFormPosition())
+    }
+  }
+
   document.addEventListener('mousedown', handleClickOutside)
+  document.addEventListener('keydown', handleKeyDown)
+  window.addEventListener('scroll', handleScrollOrResize, true)
+  window.addEventListener('resize', handleScrollOrResize)
+
   return () => {
     document.removeEventListener('mousedown', handleClickOutside)
+    document.removeEventListener('keydown', handleKeyDown)
+    window.removeEventListener('scroll', handleScrollOrResize, true)
+    window.removeEventListener('resize', handleScrollOrResize)
   }
 }, [showInput])
 

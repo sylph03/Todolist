@@ -9,12 +9,14 @@ const CreateProjectForm = ({ formCreateProjectRef, setShowInput, formPosition, a
   const { register, handleSubmit, reset, formState: { errors } } = useForm()
 
   const submitCreateProject = async (data) => {
-    // const { title, description } = data
-    createNewBoardAPI(data).then(() => {
-      setShowInput(false)
-      // Thông báo component cha để xử lý
-      affterCreatedNewBoard()
-    })
+    const response = await createNewBoardAPI(data)
+    setShowInput(false)
+    reset() // Reset form sau khi tạo thành công
+    
+    // Gọi callback với board mới tạo
+    if (affterCreatedNewBoard) {
+      affterCreatedNewBoard(response)
+    }
   }
 
   return (

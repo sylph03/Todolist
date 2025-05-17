@@ -136,7 +136,7 @@ const BoardActions = () => {
 
       {/* Form tạo cột mới */}
       {isShowFormCreateColumn && (
-        <div className="fixed inset-0 bg-black/50 dark:bg-black/40 flex justify-center items-center z-50 p-4 animate-fadeIn">
+        <div className="fixed inset-0 bg-black/50 dark:bg-black/40 flex justify-center items-center overflow-y-auto overflow-x-hidden z-50 p-4 animate-fadeIn">
           <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 p-8 rounded-2xl shadow-2xl w-full max-w-md transition-all duration-300 animate-slideUp relative">
             {/* Close button */}
             <button

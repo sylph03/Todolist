@@ -4,8 +4,12 @@ import { CSS } from '@dnd-kit/utilities'
 import { SquarePen } from 'lucide-react'
 import OptionListCard from '../Card/OptionListCard'
 import { useConfirm } from '~/Context/ConfirmProvider'
+import { useDispatch } from 'react-redux'
+import { updateCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
 
 const TaskCard = ({ card }) => {
+
+  const dispatch = useDispatch()
 
   const [textAreaWidth, setTextAreaWidth] = useState(null)
   const [textArea, setTextArea] = useState(card?.title)
@@ -128,6 +132,14 @@ const TaskCard = ({ card }) => {
     }
   }, [showPopup])
 
+  const setActiveCard = (e) => {
+    if (e.target.closest('[data-no-dnd="true"]')) return
+    // Cập nhật dữ liệu activeCard trong Redux
+    dispatch(updateCurrentActiveCard(card))
+
+    setShowPopup(false)
+  }
+
   return (
     <>
       <div
@@ -152,6 +164,7 @@ const TaskCard = ({ card }) => {
         style={dndKitCardStyles}
         {...attributes}
         {...listeners}
+        onClick={setActiveCard}
       >
         <div className='w-full' ref={contentCardRef}>
           {/* Ảnh bìa */}
@@ -236,7 +249,7 @@ const TaskCard = ({ card }) => {
               className="fixed transition-all"
               style={{ top: optionsCardPosition?.top, left: optionsCardPosition?.left }}
             >
-              <OptionListCard card={card} showPopup={showPopup} />
+              <OptionListCard card={card} setShowPopup={setShowPopup} />
             </div>
           </div>
         </div>

@@ -4,93 +4,15 @@ import ProjectItem from '../Project/ProjectItem'
 import CreateProjectForm from '../Project/CreateProjectForm'
 import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '~/redux/user/userSlice'
+import { selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { Link } from 'react-router-dom'
 import { FORM_CREATE_PROJECT_WIDTH, FORM_CREATE_PROJECT_HEIGHT, OPTIONS_PROJECT_HEIGHT } from '~/utils/constants'
-
-const projects = [
-  {
-    id: 1, name: 'Today', description: 'Công việc hôm nay', isActive: true, favorite: true
-  },
-  {
-    id: 2, name: 'Tomorrow', isActive: false, favorite: true
-  },
-  {
-    id: 4, name: 'Project 2', isActive: false, favorite: true
-  },
-  {
-    id: 5, name: 'Project 3', isActive: false, favorite: true
-  },
-  {
-    id: 6, name: 'Project 4', isActive: false
-  },
-  {
-    id: 7, name: 'Project 5', isActive: false
-  },
-  {
-    id: 8, name: 'Project 6', isActive: false, favorite: true
-  },
-  {
-    id: 9, name: 'Project 7', isActive: false, favorite: true
-  },
-  {
-    id: 10, name: 'Project 8', isActive: false, favorite: true
-  },
-  {
-    id: 11, name: 'Project 9', isActive: false
-  },
-  {
-    id: 12, name: 'Project 10', isActive: false, favorite: true
-  },
-  {
-    id: 13, name: 'Project 11', isActive: false, favorite: true
-  },
-  {
-    id: 14, name: 'Project 12', isActive: false, favorite: true
-  },
-  {
-    id: 15, name: 'Project 13', isActive: false, favorite: true
-  },
-  {
-    id: 16, name: 'Project 14', isActive: false, favorite: true
-  },
-  {
-    id: 17, name: 'Project 15', isActive: false
-  },
-  {
-    id: 18, name: 'Project 16', isActive: false
-  },
-  {
-    id: 19, name: 'Project 17', isActive: false
-  },
-  {
-    id: 20, name: 'Project 18', isActive: false
-  },
-  {
-    id: 21, name: 'Project 19', isActive: false
-  },
-  {
-    id: 22, name: 'Project 20', isActive: false
-  },
-  {
-    id: 23, name: 'Project 21', isActive: false
-  },
-  {
-    id: 24, name: 'Project 22', isActive: false
-  },
-  {
-    id: 25, name: 'Project 23', isActive: false
-  },
-  {
-    id: 26, name: 'Project 24', isActive: false
-  },
-  {
-    id: 27, name: 'Project 25', isActive: false
-  }
-]
+import { fetchBoardsForSidebarAPI } from '~/apis'
 
 const SideBar = ({ isOpen, toggleSidebar }) => {
 
   const currentUser = useSelector(selectCurrentUser)
+  const activeBoard = useSelector(selectCurrentActiveBoard)
 
   const [showInput, setShowInput] = useState(false) // Hiển thị form tạo board hay không
   const [toggleFavoriteProject, setToggleFavoriteProject] = useState(false) // Hiển thị danh sách dự án đã đánh dấu hay không
@@ -98,6 +20,8 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
 
   const [optionProjectPosition, setOptionProjectPosition] = useState(null) // Vị trí của menu lựa chọn dự án
   const [formPosition, setFormPosition] = useState(null) // Vị trí của form tạo board
+  const [boards, setBoards] = useState([])
+  const [loading, setLoading] = useState(false)
 
   const plusButtonRef = useRef(null) // Tham chiếu nút tạo board (+)
   const optionsButtonRef = useRef({}) // Tham chiếu nút lựa chọn menu dự án (⋮)
@@ -105,6 +29,23 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
 
   const formCreateProjectRef = useRef(null) // Tham chiếu form tạo board
   const OptionProjectRef = useRef(null) // Tham chiếu menu lựa chọn dự án
+
+  const getListBoards = async () => {
+    setLoading(true)
+    const response = await fetchBoardsForSidebarAPI()
+    setBoards(response.boards)
+    setLoading(false)
+  }
+
+  const handleCreatedNewBoard = (newBoard) => {
+    // Thêm board mới vào đầu danh sách
+    setBoards(prevBoards => [...prevBoards, newBoard])
+  }
+
+  // Load boards khi component mount
+  useEffect(() => {
+    getListBoards()
+  }, [])
 
   // Xử lý dropdown khi cuộn
   useEffect(() => {
@@ -224,6 +165,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
           formCreateProjectRef={formCreateProjectRef}
           setShowInput={setShowInput}
           formPosition={formPosition}
+          affterCreatedNewBoard={handleCreatedNewBoard}
         />
       }
 
@@ -305,11 +247,11 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
               {/* Danh sách đã đánh dấu */}
               {toggleFavoriteProject &&
                 <div className="flex flex-col gap-2 w-full max-w-full animate-fadeIn">
-                  {projects?.map((project) => (
-                    project.favorite && (
+                  {boards?.map((board) => (
+                    board.favorite && (
                       <ProjectItem
-                        key={`favorite-${project.id}`}
-                        project={project}
+                        key={`favorite-${board._id}`}
+                        project={board}
                         type="favorite"
                         onEllipsisClick={handleOptionsProject}
                         showOptionsProject={showOptionsProject}
@@ -317,6 +259,11 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
                       />
                     )
                   ))}
+                  {loading && (
+                    <div className="text-center text-white/70 dark:text-gray-400 py-2">
+                      Đang tải...
+                    </div>
+                  )}
                 </div>
               }
             </div>
@@ -347,15 +294,20 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
               </div>
               {/* Danh sách dự án */}
               <div className="flex flex-col gap-2 w-full max-w-full">
-                {projects?.map((project) => (
+                {boards?.map((board) => (
                   <ProjectItem
-                    key={`normal-${project.id}`}
-                    project={project}
+                    key={`normal-${board._id}`}
+                    project={board}
                     onEllipsisClick={handleOptionsProject}
                     showOptionsProject={showOptionsProject}
                     optionsButtonRef={optionsButtonRef}
                   />
                 ))}
+                {loading && (
+                  <div className="text-center text-white/70 dark:text-gray-400 py-2">
+                    Đang tải...
+                  </div>
+                )}
               </div>
             </div>
           </div>
