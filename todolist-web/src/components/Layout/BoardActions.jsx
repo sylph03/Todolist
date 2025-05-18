@@ -18,7 +18,7 @@ const BoardActions = () => {
   const dispatch = useDispatch()
   const [isShowFormCreateCard, setIsShowFormCreateCard] = useState(false)
   const [isShowFormCreateColumn, setIsShowFormCreateColumn] = useState(false)
-  
+
   const { register: registerColumn, handleSubmit: handleSubmitColumn, formState: { errors: errorsColumn }, reset: resetColumn } = useForm()
 
   const handleClickCreateColumn = () => {
@@ -33,7 +33,7 @@ const BoardActions = () => {
   const addNewColumn = async (data) => {
     const newColumnData = {
       boardId: board._id,
-      title: data.title
+      title: data.title.trim()
     }
 
     toast.promise(
@@ -76,7 +76,7 @@ const BoardActions = () => {
             onClick={handleClickCreateCard}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-600
             text-white font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95"
-            title={!board?.columns?.length ? "Vui lòng tạo cột trước khi thêm nhiệm vụ" : "Thêm nhiệm vụ"}
+            title={!board?.columns?.length ? 'Vui lòng tạo cột trước khi thêm nhiệm vụ' : 'Thêm nhiệm vụ'}
             aria-label="Thêm nhiệm vụ"
           >
             <Plus className="w-5 h-5" />
@@ -128,7 +128,7 @@ const BoardActions = () => {
       </div>
 
       {/* Form tạo nhiệm vụ mới */}
-      <FormCreateCard 
+      <FormCreateCard
         isShowFormCreateCard={isShowFormCreateCard}
         setIsShowFormCreateCard={setIsShowFormCreateCard}
         board={board}
@@ -141,7 +141,7 @@ const BoardActions = () => {
             {/* Close button */}
             <button
               onClick={handleClickCancelFormCreateColumn}
-              className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition duration-200"
               aria-label="Đóng form"
             >
               <X className="w-5 h-5" />
@@ -157,7 +157,7 @@ const BoardActions = () => {
                   Tên cột <span className="text-red-500">*</span>
                 </label>
                 <input
-                  className={`w-full p-3 rounded-xl border transition duration-200 focus:outline-none ${
+                  className={`w-full p-3 rounded-xl border transition duration-200 focus:outline-none dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 ${
                     errorsColumn['title']
                       ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-400 hover:border-red-500'
                       : 'border-gray-300 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 hover:border-sky-500'
@@ -195,6 +195,3 @@ const BoardActions = () => {
 }
 
 export default BoardActions
-
-
-

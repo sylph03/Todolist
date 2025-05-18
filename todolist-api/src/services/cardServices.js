@@ -47,7 +47,20 @@ const deleteItem = async (cardId) => {
   } catch (error) { throw error }
 }
 
+const update = async (cardId, reqBody) => {
+  try {
+    const updateCard = {
+      ...reqBody,
+      updatedAt: Date.now()
+    }
+    const updatedCard = await cardModel.update(cardId, updateCard)
+
+    return updatedCard
+  } catch (error) { throw error }
+}
+
 export const cardService = {
   createNew,
-  deleteItem
+  deleteItem,
+  update
 }

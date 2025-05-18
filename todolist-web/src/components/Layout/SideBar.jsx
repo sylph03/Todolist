@@ -1,10 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { ChevronLeft, ChevronRight, Search, Sparkles, ChevronUp, FolderOpen, Plus, Ellipsis, Pencil, Star, Trash2, ChevronDown } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Search, Sparkles, ChevronUp, FolderOpen, Plus, Ellipsis, Pencil, Star, Trash2 } from 'lucide-react'
 import ProjectItem from '../Project/ProjectItem'
 import CreateProjectForm from '../Project/CreateProjectForm'
 import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '~/redux/user/userSlice'
-import { selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { Link } from 'react-router-dom'
 import { FORM_CREATE_PROJECT_WIDTH, FORM_CREATE_PROJECT_HEIGHT, OPTIONS_PROJECT_HEIGHT } from '~/utils/constants'
 import { fetchBoardsForSidebarAPI } from '~/apis'
@@ -12,7 +11,6 @@ import { fetchBoardsForSidebarAPI } from '~/apis'
 const SideBar = ({ isOpen, toggleSidebar }) => {
 
   const currentUser = useSelector(selectCurrentUser)
-  const activeBoard = useSelector(selectCurrentActiveBoard)
 
   const [showInput, setShowInput] = useState(false) // Hiển thị form tạo board hay không
   const [toggleFavoriteProject, setToggleFavoriteProject] = useState(false) // Hiển thị danh sách dự án đã đánh dấu hay không
@@ -118,7 +116,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
       const rect = plusButtonRef.current.getBoundingClientRect()
       let top = rect.top - 30
       let left = rect.right + 30
-      
+
       if (top + FORM_CREATE_PROJECT_HEIGHT > window.innerHeight) {
         top = rect.top - FORM_CREATE_PROJECT_HEIGHT
       }

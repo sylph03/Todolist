@@ -42,87 +42,87 @@ const Boards = () => {
     fetchBoardsAPI(location.search).then(updateStateData)
   }
 
-// Tách riêng logic tính toán vị trí form
-const calculateFormPosition = () => {
-  if (!plusButtonRef.current) return null
-  
-  const rect = plusButtonRef.current.getBoundingClientRect()
-  const isSmallScreen = window.innerWidth <= 640 // Breakpoint sm trong Tailwind
-  const padding = 16 // Padding an toàn để form không sát cạnh màn hình
+  // Tách riêng logic tính toán vị trí form
+  const calculateFormPosition = () => {
+    if (!plusButtonRef.current) return null
 
-  // Nếu màn hình nhỏ (như điện thoại), luôn đặt form ở giữa
-  if (isSmallScreen) {
-    const centerTop = Math.max(padding, (window.innerHeight - FORM_CREATE_PROJECT_HEIGHT) / 2)
-    const centerLeft = Math.max(padding, (window.innerWidth - FORM_CREATE_PROJECT_WIDTH) / 2)
-    return { top: centerTop, left: centerLeft }
-  }
+    const rect = plusButtonRef.current.getBoundingClientRect()
+    const isSmallScreen = window.innerWidth <= 640 // Breakpoint sm trong Tailwind
+    const padding = 16 // Padding an toàn để form không sát cạnh màn hình
 
-  // Logic cho màn hình lớn
-  let top = rect.top - 10
-  let left = rect.left - FORM_CREATE_PROJECT_WIDTH - 10
-
-  // Kiểm tra và điều chỉnh vị trí nếu form vượt quá kích thước màn hình
-  if (top + FORM_CREATE_PROJECT_HEIGHT > window.innerHeight - padding) {
-    // Nếu form vượt quá chiều cao màn hình, đặt ở giữa theo chiều dọc
-    top = Math.max(padding, (window.innerHeight - FORM_CREATE_PROJECT_HEIGHT) / 2)
-  }
-  
-  if (left + FORM_CREATE_PROJECT_WIDTH > window.innerWidth - padding) {
-    // Nếu form vượt quá chiều rộng màn hình, đặt ở giữa theo chiều ngang
-    left = Math.max(padding, (window.innerWidth - FORM_CREATE_PROJECT_WIDTH) / 2)
-  }
-
-  // Đảm bảo form không bị cắt ở cạnh trên và trái
-  top = Math.max(padding, top)
-  left = Math.max(padding, left)
-
-  return { top, left }
-}
-
-// Xử lý sự kiện nhấn nút + (Plus)
-const handlePlusClick = () => {
-  setFormPosition(calculateFormPosition())
-  setShowInput(!showInput)
-}
-
-useEffect(() => {
-  if (!showInput) {
-    setFormPosition(null)
-    return
-  }
-
-  // Xử lý khi nhấn ra ngoài popup
-  const handleClickOutside = (event) => {
-    if (showInput && formCreateProjectRef.current && !formCreateProjectRef.current.contains(event.target)) {
-      if (plusButtonRef.current?.contains(event.target)) return
-      setShowInput(false)
+    // Nếu màn hình nhỏ (như điện thoại), luôn đặt form ở giữa
+    if (isSmallScreen) {
+      const centerTop = Math.max(padding, (window.innerHeight - FORM_CREATE_PROJECT_HEIGHT) / 2)
+      const centerLeft = Math.max(padding, (window.innerWidth - FORM_CREATE_PROJECT_WIDTH) / 2)
+      return { top: centerTop, left: centerLeft }
     }
-  }
 
-  // Nhấn Esc thoát popup
-  const handleKeyDown = (event) => {
-    if (event.key === 'Escape') setShowInput(false)
-  }
+    // Logic cho màn hình lớn
+    let top = rect.top - 10
+    let left = rect.left - FORM_CREATE_PROJECT_WIDTH - 10
 
-  // Cập nhật vị trí form khi scroll hoặc resize
-  const handleScrollOrResize = () => {
-    if (showInput) {
-      setFormPosition(calculateFormPosition())
+    // Kiểm tra và điều chỉnh vị trí nếu form vượt quá kích thước màn hình
+    if (top + FORM_CREATE_PROJECT_HEIGHT > window.innerHeight - padding) {
+      // Nếu form vượt quá chiều cao màn hình, đặt ở giữa theo chiều dọc
+      top = Math.max(padding, (window.innerHeight - FORM_CREATE_PROJECT_HEIGHT) / 2)
     }
+
+    if (left + FORM_CREATE_PROJECT_WIDTH > window.innerWidth - padding) {
+      // Nếu form vượt quá chiều rộng màn hình, đặt ở giữa theo chiều ngang
+      left = Math.max(padding, (window.innerWidth - FORM_CREATE_PROJECT_WIDTH) / 2)
+    }
+
+    // Đảm bảo form không bị cắt ở cạnh trên và trái
+    top = Math.max(padding, top)
+    left = Math.max(padding, left)
+
+    return { top, left }
   }
 
-  document.addEventListener('mousedown', handleClickOutside)
-  document.addEventListener('keydown', handleKeyDown)
-  window.addEventListener('scroll', handleScrollOrResize, true)
-  window.addEventListener('resize', handleScrollOrResize)
-
-  return () => {
-    document.removeEventListener('mousedown', handleClickOutside)
-    document.removeEventListener('keydown', handleKeyDown)
-    window.removeEventListener('scroll', handleScrollOrResize, true)
-    window.removeEventListener('resize', handleScrollOrResize)
+  // Xử lý sự kiện nhấn nút + (Plus)
+  const handlePlusClick = () => {
+    setFormPosition(calculateFormPosition())
+    setShowInput(!showInput)
   }
-}, [showInput])
+
+  useEffect(() => {
+    if (!showInput) {
+      setFormPosition(null)
+      return
+    }
+
+    // Xử lý khi nhấn ra ngoài popup
+    const handleClickOutside = (event) => {
+      if (showInput && formCreateProjectRef.current && !formCreateProjectRef.current.contains(event.target)) {
+        if (plusButtonRef.current?.contains(event.target)) return
+        setShowInput(false)
+      }
+    }
+
+    // Nhấn Esc thoát popup
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setShowInput(false)
+    }
+
+    // Cập nhật vị trí form khi scroll hoặc resize
+    const handleScrollOrResize = () => {
+      if (showInput) {
+        setFormPosition(calculateFormPosition())
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('scroll', handleScrollOrResize, true)
+    window.addEventListener('resize', handleScrollOrResize)
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('scroll', handleScrollOrResize, true)
+      window.removeEventListener('resize', handleScrollOrResize)
+    }
+  }, [showInput])
 
   if (!boards) {
     return <PageLoadingSpinner />
@@ -243,8 +243,8 @@ useEffect(() => {
                         />
                         <Search className="w-5 h-5 text-gray-400 dark:text-gray-500 absolute left-3 top-2.5" />
                       </div>
-                      <button 
-                        onClick={handlePlusClick} 
+                      <button
+                        onClick={handlePlusClick}
                         ref={plusButtonRef}
                         className="bg-sky-500 text-white px-5 py-2.5 rounded-lg hover:bg-sky-600 transition-all duration-200 flex items-center justify-center text-sm font-medium shadow-sm hover:shadow-md">
                         <Plus className={`w-5 h-5 mr-2 transition-all duration-200 ${showInput ? '-rotate-45' : ''}`} />

@@ -114,7 +114,7 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
           {/* Close button */}
           <button
             onClick={handleClickCancelFormCreateCard}
-            className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+            className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
             aria-label="Đóng form"
           >
             <X className="w-5 h-5" />
@@ -133,7 +133,7 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
                     Tên nhiệm vụ <span className="text-red-500">*</span>
                   </label>
                   <input
-                    className={`w-full p-3 rounded-xl border transition duration-200 focus:outline-none ${
+                    className={`w-full p-3 rounded-xl border transition duration-200 focus:outline-none dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 ${
                       errors['title']
                         ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-400 hover:border-red-500'
                         : 'border-gray-300 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 hover:border-sky-500'
@@ -155,7 +155,7 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
                     Mô tả nhiệm vụ
                   </label>
                   <textarea
-                    className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:border-sky-500 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none resize-none transition duration-300"
+                    className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:border-sky-500 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none resize-none transition duration-200"
                     placeholder="Thêm mô tả cho nhiệm vụ..."
                     rows="5"
                     {...register('description')}
@@ -251,7 +251,7 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
                       {imagePreview && (
                         <button
                           onClick={handleRemoveImage}
-                          className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-colors duration-200 z-10"
+                          className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all duration-200 z-10"
                           title="Xóa ảnh"
                         >
                           <X className="w-5 h-5" />

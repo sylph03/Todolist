@@ -5,7 +5,7 @@ import { boardModel } from '~/models/boardModel'
 import { cardModel } from '~/models/cardModel'
 import { columnModel } from '~/models/columnModel'
 import { slugify } from '~/utils/formatters'
-import { DEFAULT_PAGE, DEFAULT_ITEMS_PER_PAGE, DEFAULT_SKIP, DEFAULT_LIMIT } from '~/utils/constants'
+import { DEFAULT_PAGE, DEFAULT_ITEMS_PER_PAGE } from '~/utils/constants'
 import ApiError from '~/utils/ApiError'
 
 const createNew = async (userId, reqBody) => {

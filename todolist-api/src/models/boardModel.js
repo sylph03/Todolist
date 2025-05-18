@@ -157,7 +157,7 @@ const getBoards = async (userId, page, itemsPerPage) => {
           // Luồng thứ 2: Query đến tổng số lượng tất cả bản ghi boards trong db và trả về biến countedAllBoards
           'queryTotalBoards': [{ $count: 'countedAllBoards' }]
         } }
-      ],
+      ]
       // Khai báo thêm thuộc tính collation locale 'en' để fix vụ B hoa đứng trước a thường
       // { collation: { locale: 'en' } }
     ).toArray()

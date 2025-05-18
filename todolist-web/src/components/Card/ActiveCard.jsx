@@ -4,6 +4,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { clearCurrentActiveCard, selectCurrentActiveCard, updateCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
 import { selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { selectCurrentUser } from '~/redux/user/userSlice'
+import { updateCardDetailsAPI } from '~/apis'
+import { updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
+import ToggleFocusInput from '../UI/ToggleFocusInput'
+import DescriptionMdEditor from './DescriptionMdEditor'
 
 const ActiveCard = () => {
   const dispatch = useDispatch()
@@ -17,24 +21,40 @@ const ActiveCard = () => {
     dispatch(clearCurrentActiveCard())
   }
 
+  // Hàm dùng chung cho các trường hợp update card
+  const callApiUpdateCard = async (updateData) => {
+    const updatedCard = await updateCardDetailsAPI(activeCard._id, updateData)
+
+    // Cập nhật lại card đang active trong modal hiện tại
+    dispatch(updateCurrentActiveCard(updatedCard))
+
+    // Cập nhật lại bản ghi card trong activeBoard (nested data)
+    dispatch(updateCardInBoard(updatedCard))
+    return updatedCard
+  }
+
+  const updateCardTitle = (newTitle) => {
+    callApiUpdateCard({ title: newTitle.trim() })
+  }
+
   return (
     <div className="fixed inset-0 z-50 bg-black/50 dark:bg-black/40 animate-fadeIn overflow-y-auto overflow-x-hidden m-0">
       {/* Modal Content */}
       <div className="min-h-screen flex items-center justify-center p-4">
-        <div 
+        <div
           className="relative w-full max-w-4xl bg-white dark:bg-gray-800 rounded-xl shadow-xl transform transition-all duration-300 ease-out flex flex-col my-8"
         >
           {/* Close Button */}
           <button
             onClick={handleModalClose}
-            className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors z-10"
+            className={`absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 ${activeCard?.cover ? 'dark:hover:bg-gray-800' : 'dark:hover:bg-gray-700'} transition-all duration-200 z-10`}
           >
-            <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+            <X className="w-5 h-5 text-gray-900 dark:text-gray-100" />
           </button>
 
           {/* Card Cover */}
           {activeCard?.cover && (
-            <div className="w-full bg-sky-200 relative rounded-t-xl">
+            <div className="w-full bg-sky-200 dark:bg-gray-700 relative rounded-t-xl">
               <div className="w-[40%] mx-auto bg-sky-200 h-[140px] md:h-[180px] lg:h-[220px] overflow-hidden">
                 <img
                   src={activeCard.cover}
@@ -50,13 +70,12 @@ const ActiveCard = () => {
           )}
 
           {/* Title & List */}
-          <div className="pt-6">
+          <div className={`${activeCard?.cover ? 'pt-4' : 'pt-6'}`}>
             <div className="flex items-center gap-2 mb-2 px-4">
-              <input
-                className="text-2xl font-semibold text-gray-900 dark:text-gray-100 break-words bg-transparent border-2 rounded-sm border-transparent focus:border-sky-500 hover:border-sky-400 outline-none transition-colors duration-200 w-[92%] py-1.5 px-2"
-                value={activeCard?.title || ''}
-                onChange={e => {/* TODO: handle title change */}}
-                placeholder="Nhập tiêu đề..."
+              <ToggleFocusInput
+                value={activeCard?.title}
+                onChange={updateCardTitle}
+                className="text-2xl font-semibold text-gray-900 dark:text-gray-100 break-words bg-transparent border rounded-lg border-transparent focus:border-sky-500 hover:border-sky-400 outline-none transition-colors duration-200 w-[92%] py-1.5 px-2"
               />
             </div>
             <div className="px-6 text-sm text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-2">
@@ -67,39 +86,37 @@ const ActiveCard = () => {
             </div>
             {
               activeCard?.members?.length > 0 && (
-              <div className="flex items-center gap-2 mb-4">
-                <span className="flex items-center gap-1">
-                  <Users className="w-4 h-4" />
-                  Thành viên:
-                </span>
-                <div className="flex -space-x-2">
-                  {activeCard?.members?.map((member) => (
-                    <img
-                      key={member._id}
-                      src={member.avatar || 'https://default-avatar-url.jpg'}
-                      alt={member.displayName}
-                      title={member.displayName}
-                      className="w-8 h-8 rounded-full border-2 border-white dark:border-gray-800 object-cover"
-                    />
-                  ))}
-                  {/* Nút thêm thành viên */}
-                  <button className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
-                    <UserPlus className="w-5 h-5" />
-                  </button>
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="flex items-center gap-1">
+                    <Users className="w-4 h-4" />
+                    Thành viên:
+                  </span>
+                  <div className="flex -space-x-2">
+                    {activeCard?.members?.map((member) => (
+                      <img
+                        key={member._id}
+                        src={member.avatar || 'https://default-avatar-url.jpg'}
+                        alt={member.displayName}
+                        title={member.displayName}
+                        className="w-8 h-8 rounded-full border-2 border-white dark:border-gray-800 object-cover"
+                      />
+                    ))}
+                    {/* Nút thêm thành viên */}
+                    <button className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                      <UserPlus className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
 
           {/* Main Content */}
-          <div>
-            
-          </div>
           <div className="flex-1 flex flex-col md:flex-row gap-6 px-6 pb-6">
             {/* Left: Main Info */}
             <div className="flex-1 min-w-0">
               {/* Description */}
-              <div className="mb-6">
+              <DescriptionMdEditor />
+              {/* <div className="mb-6">
                 <div className="flex items-center gap-2 mb-2">
                   <Text className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   <span className="font-semibold text-gray-900 dark:text-gray-100">Mô tả</span>
@@ -112,7 +129,7 @@ const ActiveCard = () => {
                   <button className="px-4 py-1.5 bg-sky-600 text-white rounded font-medium hover:bg-sky-700 transition">Lưu</button>
                   <button className="px-4 py-1.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">Hủy</button>
                 </div>
-              </div>
+              </div> */}
 
               {/* Activity */}
               <div className="mb-2 flex items-center gap-2">
@@ -120,14 +137,14 @@ const ActiveCard = () => {
                 <span className="font-semibold text-gray-900 dark:text-gray-100">Hoạt động</span>
               </div>
               <div className="mb-4">
-                <input 
-                  className="w-full rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-2 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all" 
-                  placeholder="Viết bình luận..." 
+                <input
+                  className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-2 text-gray-800 focus:ring-1 focus:ring-sky-500 hover:border-sky-500 dark:text-gray-200 focus:outline-none focus:border-sky-500 duration-200 transition-all"
+                  placeholder="Viết bình luận..."
                 />
               </div>
               <div className="space-y-4">
                 <div className="flex items-start gap-3 text-sm">
-                  <img 
+                  <img
                     src={currentUser?.avatar || 'https://inkythuatso.com/uploads/thumbnails/800/2023/03/9-anh-dai-dien-trang-inkythuatso-03-15-27-03.jpg'}
                     alt="User Avatar"
                     className="w-8 h-8 rounded-full object-cover"

@@ -15,7 +15,7 @@ export const activeCardSlice = createSlice({
     clearCurrentActiveCard: (state) => {
       state.currentActiveCard = null
     },
-    
+
     updateCurrentActiveCard: (state, action) => {
       // action.payload là chuẩn đặt tên nhận dữ liệu vào reducer, ở đây chúng ta gán nó ra một biến có nghĩa hơn
       const fullCard = action.payload

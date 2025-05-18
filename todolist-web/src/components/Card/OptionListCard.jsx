@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import { updateCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
 
-const OptionListCard = ({ card, setShowPopup }) => {
+const OptionListCard = ({ card, setShowPopup, updateCardTitle }) => {
   const dispatch = useDispatch()
   const board = useSelector(selectCurrentActiveBoard)
 
@@ -82,6 +82,7 @@ const OptionListCard = ({ card, setShowPopup }) => {
       ))}
 
       <div
+        onClick={updateCardTitle}
         className="flex items-center justify-center px-4 py-2 rounded-md w-fit font-medium cursor-pointer
                    bg-gradient-to-r from-sky-500 to-blue-500 dark:from-sky-600 dark:to-blue-600 text-white
                    hover:from-sky-600 hover:to-blue-600 dark:hover:from-sky-700 dark:hover:to-blue-700

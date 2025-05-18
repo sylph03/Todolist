@@ -121,6 +121,7 @@ const Board = () => {
   return (
     <div className="h-screen w-screen dark:bg-gray-800 text-white dark:text-gray-100 flex flex-col">
 
+      {/* Modal Active Card, check đóng/mở dựa theo activeCard lưu trong Redux. Mỗi thời điểm chỉ có 1 modal active card hiển thị */}
       {activeCard && <ActiveCard />}
 
       <AppBar />

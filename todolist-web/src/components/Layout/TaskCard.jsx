@@ -6,21 +6,23 @@ import OptionListCard from '../Card/OptionListCard'
 import { useConfirm } from '~/Context/ConfirmProvider'
 import { useDispatch } from 'react-redux'
 import { updateCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
+import { updateCardDetailsAPI } from '~/apis'
+import { updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
 
 const TaskCard = ({ card }) => {
 
   const dispatch = useDispatch()
 
-  const [textAreaWidth, setTextAreaWidth] = useState(null)
-  const [textArea, setTextArea] = useState(card?.title)
+  const [textCardWidth, setTextCardWidth] = useState(null)
   const [showPopup, setShowPopup] = useState(false)
+  const [inputValue, setInputValue] = useState(card?.title)
 
-  const [textAreaCardPosition, setTextAreaCardPosition] = useState(null)
+  const [textCardCardPosition, setTextCardCardPosition] = useState(null)
   const [optionsCardPosition, setOptionsCardPosition] = useState(null)
 
   const contentCardRef = useRef({})
   const popupRef = useRef(null)
-  const textAreaRef = useRef(null)
+  const inputRef = useRef(null)
 
   const { stateConfirm } = useConfirm()
 
@@ -51,41 +53,41 @@ const TaskCard = ({ card }) => {
       const widthOptionsCard = 120
       const heightCard = rect.height
 
-      if (rect.width !== textAreaWidth) {
-        setTextAreaWidth(rect.width)
+      if (rect.width !== textCardWidth) {
+        setTextCardWidth(rect.width)
       }
 
-      let topTextArea = rect.top
-      let leftTextArea = rect.left
+      let topTextCard = rect.top
+      let leftTextCard = rect.left
 
       let topOptionsCard = rect.top + heightCard + 8
       let leftOptionsCard = rect.right - widthOptionsCard
 
       if (topOptionsCard + heightOptionsCard > window.innerHeight - 16) {
-        topOptionsCard = topTextArea - heightOptionsCard - 8
-        if (topTextArea + heightCard > window.innerHeight - 16) {
-          topTextArea = window.innerHeight - heightCard - 16
-          topOptionsCard = topTextArea - heightOptionsCard - 8
+        topOptionsCard = topTextCard - heightOptionsCard - 8
+        if (topTextCard + heightCard > window.innerHeight - 16) {
+          topTextCard = window.innerHeight - heightCard - 16
+          topOptionsCard = topTextCard - heightOptionsCard - 8
         }
       }
 
       setOptionsCardPosition({ top: topOptionsCard, left: leftOptionsCard })
-      setTextAreaCardPosition({ top: topTextArea, left: leftTextArea })
+      setTextCardCardPosition({ top: topTextCard, left: leftTextCard })
     }
-  }, [textAreaWidth])
+  }, [textCardWidth])
 
 
   // Xử lý khi nhấn nút edit ở card
   const handleEditClick = () => {
     // e.stopPropagation() // Ngăn sự kiện kéo khi click
     updatePopupPosition()
-
+    setInputValue(card?.title) // Reset input value to current card title
     setShowPopup(prev => !prev)
   }
 
   useEffect(() => {
     if (!showPopup) {
-      setTextAreaCardPosition(null)
+      setTextCardCardPosition(null)
       setOptionsCardPosition(null)
       return
     }
@@ -124,11 +126,11 @@ const TaskCard = ({ card }) => {
     }
   }, [showPopup, stateConfirm.isOpen, updatePopupPosition])
 
-  // Khi nhấn edit ở card thì focus textarea và bôi xanh
+  // Khi nhấn edit ở card thì focus input và bôi xanh
   useEffect(() => {
-    if (showPopup && textAreaRef.current) {
-      textAreaRef.current.focus()
-      textAreaRef.current.select() // bôi xanh toàn bộ text
+    if (showPopup && inputRef.current) {
+      inputRef.current.focus()
+      inputRef.current.select() // bôi xanh toàn bộ text
     }
   }, [showPopup])
 
@@ -137,6 +139,28 @@ const TaskCard = ({ card }) => {
     // Cập nhật dữ liệu activeCard trong Redux
     dispatch(updateCurrentActiveCard(card))
 
+    setShowPopup(false)
+  }
+
+  const updateCardTitle = async (newTitle) => {
+    const updatedCard = await updateCardDetailsAPI(card._id, { title: newTitle.trim() })
+
+    // Cập nhật lại bản ghi card trong activeBoard (nested data)
+    dispatch(updateCardInBoard(updatedCard))
+
+    return updatedCard
+  }
+
+  const handleInputChange = (e) => {
+    setInputValue(e.target.value)
+  }
+
+  const handleSaveTitle = async () => {
+    const trimmedValue = inputValue.trim()
+
+    if (trimmedValue && trimmedValue !== card.title) {
+      await updateCardTitle(trimmedValue)
+    }
     setShowPopup(false)
   }
 
@@ -172,7 +196,7 @@ const TaskCard = ({ card }) => {
             <img
               src={card.cover}
               alt="cover"
-              className="object-cover w-full h-[247px] rounded-t-xl"
+              className="object-cover w-full h-[224px] rounded-t-xl"
             />
           )}
 
@@ -208,24 +232,23 @@ const TaskCard = ({ card }) => {
       {showPopup && (
         <div className="fixed inset-0 h-screen w-screen bg-black/50 dark:bg-black/60 z-50 flex items-center justify-center">
           <div ref={popupRef} className="relative">
-            {/* Text Area Popup */}
+            {/* Text Card Popup */}
             <div
               className="fixed transition-all"
-              style={{ top: textAreaCardPosition?.top, left: textAreaCardPosition?.left }}
+              style={{ top: textCardCardPosition?.top, left: textCardCardPosition?.left }}
             >
               {card?.cover && (
                 <img
                   src={card.cover}
                   alt="cover"
-                  className="object-cover w-full h-[247px] rounded-t-xl"
+                  className="object-cover w-[310px] h-[224px] rounded-t-xl"
                 />
               )}
-              <textarea
-                onChange={(e) => setTextArea(e.target.value)}
-                ref={textAreaRef}
-                spellCheck="false"
-                rows="1"
-                value={textArea}
+              <input
+                ref={inputRef}
+                value={inputValue}
+                onChange={handleInputChange}
+                spellCheck={false}
                 className={`
                   ${card?.cover ? 'rounded-b-xl' : 'rounded-xl'}
                   p-4 w-full
@@ -240,7 +263,7 @@ const TaskCard = ({ card }) => {
                   placeholder-gray-400
                   dark:placeholder-gray-500
                 `}
-                style={{ width: textAreaWidth ? `${textAreaWidth}px` : 'auto' }}
+                style={{ width: textCardWidth ? `${textCardWidth}px` : 'auto' }}
               />
             </div>
 
@@ -249,7 +272,11 @@ const TaskCard = ({ card }) => {
               className="fixed transition-all"
               style={{ top: optionsCardPosition?.top, left: optionsCardPosition?.left }}
             >
-              <OptionListCard card={card} setShowPopup={setShowPopup} />
+              <OptionListCard
+                card={card}
+                setShowPopup={setShowPopup}
+                updateCardTitle={handleSaveTitle}
+              />
             </div>
           </div>
         </div>

@@ -39,7 +39,11 @@ const ProjectItem = ({
           ${isShown ? 'opacity-100 text-white dark:text-white' : 'opacity-0'}
           group-hover:opacity-100
         `}
-        onClick={(e) => onEllipsisClick(e, { type, id: project._id })}
+        onClick={(e) => {
+          e.stopPropagation() // Ngăn sự kiện click "lan lên" thẻ <Link>
+          e.preventDefault() // Ngăn <Link> thực hiện điều hướng
+          onEllipsisClick(e, { type, id: project._id })
+        }}
         ref={(el) => {
           optionsButtonRef.current[keyString] = el
         }}
