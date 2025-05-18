@@ -8,6 +8,10 @@ import { updateCardDetailsAPI } from '~/apis'
 import { updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
 import ToggleFocusInput from '../UI/ToggleFocusInput'
 import DescriptionMdEditor from './DescriptionMdEditor'
+import ActivitySection from './ActivitySection'
+import { singleFileValidator } from '~/utils/validators'
+import { toast } from 'react-toastify'
+
 
 const ActiveCard = () => {
   const dispatch = useDispatch()
@@ -33,8 +37,28 @@ const ActiveCard = () => {
     return updatedCard
   }
 
-  const updateCardTitle = (newTitle) => {
+  const onUpdateCardTitle = (newTitle) => {
     callApiUpdateCard({ title: newTitle.trim() })
+  }
+
+  const onUpdateCardDescription = (newDescription) => {
+    callApiUpdateCard({ description: newDescription })
+  }
+
+  const onUpdateCardCover = (event) => {
+    const error = singleFileValidator(event.target.files[0])
+    if (error) {
+      toast.error(error)
+      return
+    }
+    let reqData = new FormData()
+    reqData.append('cardCover', event.target.files[0])
+
+    // Gọi API
+    toast.promise(
+      callApiUpdateCard(reqData).finally(() => event.target.value = ''),
+      { pending: 'Đang cập nhật ảnh bìa...' }
+    )
   }
 
   return (
@@ -74,7 +98,7 @@ const ActiveCard = () => {
             <div className="flex items-center gap-2 mb-2 px-4">
               <ToggleFocusInput
                 value={activeCard?.title}
-                onChange={updateCardTitle}
+                onChange={onUpdateCardTitle}
                 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 break-words bg-transparent border rounded-lg border-transparent focus:border-sky-500 hover:border-sky-400 outline-none transition-colors duration-200 w-[92%] py-1.5 px-2"
               />
             </div>
@@ -115,49 +139,13 @@ const ActiveCard = () => {
             {/* Left: Main Info */}
             <div className="flex-1 min-w-0">
               {/* Description */}
-              <DescriptionMdEditor />
-              {/* <div className="mb-6">
-                <div className="flex items-center gap-2 mb-2">
-                  <Text className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                  <span className="font-semibold text-gray-900 dark:text-gray-100">Mô tả</span>
-                </div>
-                <textarea
-                  className="w-full min-h-[80px] rounded border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-3 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all resize-y"
-                  placeholder="Thêm mô tả chi tiết..."
-                />
-                <div className="flex gap-2 mt-2">
-                  <button className="px-4 py-1.5 bg-sky-600 text-white rounded font-medium hover:bg-sky-700 transition">Lưu</button>
-                  <button className="px-4 py-1.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">Hủy</button>
-                </div>
-              </div> */}
+              <DescriptionMdEditor
+                cardDescriptionProp={activeCard?.description}
+                handleUpdateCardDescription={onUpdateCardDescription}
+              />
 
               {/* Activity */}
-              <div className="mb-2 flex items-center gap-2">
-                <Activity className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                <span className="font-semibold text-gray-900 dark:text-gray-100">Hoạt động</span>
-              </div>
-              <div className="mb-4">
-                <input
-                  className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-2 text-gray-800 focus:ring-1 focus:ring-sky-500 hover:border-sky-500 dark:text-gray-200 focus:outline-none focus:border-sky-500 duration-200 transition-all"
-                  placeholder="Viết bình luận..."
-                />
-              </div>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3 text-sm">
-                  <img
-                    src={currentUser?.avatar || 'https://inkythuatso.com/uploads/thumbnails/800/2023/03/9-anh-dai-dien-trang-inkythuatso-03-15-27-03.jpg'}
-                    alt="User Avatar"
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium text-gray-900 dark:text-gray-100">{currentUser?.displayName}</span>
-                      <span className="text-xs text-gray-400">17:20 12 thg 3, 2025</span>
-                    </div>
-                    <p className="text-gray-700 dark:text-gray-300">Đây là bình luận!</p>
-                  </div>
-                </div>
-              </div>
+              <ActivitySection currentUser={currentUser} />
             </div>
 
             {/* Right: Actions */}
@@ -179,10 +167,16 @@ const ActiveCard = () => {
                   <Paperclip className="w-4 h-4" />
                   Đính kèm
                 </button>
-                <button className="w-full flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                <label className="w-full flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition cursor-pointer">
                   <Image className="w-4 h-4" />
                   Ảnh bìa
-                </button>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={onUpdateCardCover}
+                    className="hidden"
+                  />
+                </label>
               </div>
               <div>
                 <div className="text-xs text-gray-400 uppercase mb-2">Thao tác</div>

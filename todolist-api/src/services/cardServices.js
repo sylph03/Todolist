@@ -3,6 +3,7 @@ import { StatusCodes } from 'http-status-codes'
 import { cardModel } from '~/models/cardModel'
 import { columnModel } from '~/models/columnModel'
 import ApiError from '~/utils/ApiError'
+import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 
 const createNew = async (reqBody) => {
   try {
@@ -47,13 +48,26 @@ const deleteItem = async (cardId) => {
   } catch (error) { throw error }
 }
 
-const update = async (cardId, reqBody) => {
+const update = async (cardId, reqBody, cardCoverFile) => {
   try {
     const updateCard = {
       ...reqBody,
       updatedAt: Date.now()
     }
-    const updatedCard = await cardModel.update(cardId, updateCard)
+
+    let updatedCard = {}
+
+    if (cardCoverFile) {
+      // Trường hợp upload file lên Cloudinary
+      const uploadResult = await CloudinaryProvider.streamUpload(cardCoverFile.buffer, 'card-covers')
+      // Lưu lại url (secure_url) của file vào DB
+      updatedCard = await cardModel.update(cardId, {
+        cover: uploadResult.secure_url
+      })
+    } else {
+      // Các trường hợp update chung
+      updatedCard = await cardModel.update(cardId, updateCard)
+    }
 
     return updatedCard
   } catch (error) { throw error }

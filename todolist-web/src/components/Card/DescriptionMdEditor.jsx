@@ -4,7 +4,7 @@ import rehypeSanitize from 'rehype-sanitize'
 import { useDarkMode } from '../../Context/ThemeContext'
 import { Text } from 'lucide-react'
 
-const DescriptionMdEditor = () => {
+const DescriptionMdEditor = ({ cardDescriptionProp, handleUpdateCardDescription }) => {
   // Lấy giá trị 'dark' hoặc 'light' từ context để hỗ trợ phần Markdown bên dưới: data-color-mode={mode}
   const { darkMode } = useDarkMode()
 
@@ -12,14 +12,21 @@ const DescriptionMdEditor = () => {
   const [markdownEditMode, setMarkdownEditMode] = useState(false)
 
   // State xử lý giá trị markdown khi chỉnh sửa
-  const [cardDescription, setCardDescription] = useState('')
+  const [cardDescription, setCardDescription] = useState(cardDescriptionProp)
 
-  const handleSave = () => {
+  const onMarkdownEditMode = () => {
+    setMarkdownEditMode(true)
+    setCardDescription(cardDescriptionProp)
+  }
+
+  const updateCardDescription = () => {
     setMarkdownEditMode(false)
+    handleUpdateCardDescription(cardDescription)
   }
 
   const handleCancel = () => {
     setMarkdownEditMode(false)
+    setCardDescription(cardDescriptionProp)
   }
 
   return (
@@ -44,7 +51,7 @@ const DescriptionMdEditor = () => {
           </div>
           <div className="flex gap-3 mt-3">
             <button
-              onClick={handleSave}
+              onClick={updateCardDescription}
               className="px-4 py-2 bg-sky-600 text-white rounded-md font-medium hover:bg-sky-700 transition-colors duration-200"
             >
               Lưu
@@ -60,18 +67,18 @@ const DescriptionMdEditor = () => {
       ) : (
         <div className="space-y-4">
           {
-            cardDescription.trim() === '' ?
+            !cardDescription ?
               <button
-                onClick={() => setMarkdownEditMode(true)}
+                onClick={onMarkdownEditMode}
                 className="w-full pt-4 pb-12 px-4 text-left rounded-lg border border-gray-200 bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-400 dark:border-gray-700 hover:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all duration-200"
               >
                 Thêm mô tả chi tiết ...
               </button>
               :
               <div
-                onClick={() => setMarkdownEditMode(true)}
+                onClick={onMarkdownEditMode}
                 data-color-mode={darkMode ? 'dark' : 'light'}
-                className="rounded-lg bg-white dark:bg-gray-800 border border-transparent hover:border-sky-500 px-6.5 pb-3 pt-2 transition-all duration-200"
+                className="rounded-lg bg-white dark:bg-gray-800 border border-transparent hover:border-sky-500 px-6.5 pb-3 pt-2 transition-all duration-200 cursor-text"
               >
                 <MDEditor.Markdown
                   source={cardDescription}
