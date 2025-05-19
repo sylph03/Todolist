@@ -1,7 +1,7 @@
-const OptionItemCard = ({ icon, label, isDanger, onClick }) => {
+const OptionItemCard = ({ icon, label, isDanger, onClick, isFileUpload }) => {
   return (
     <div
-      onClick={onClick}
+      onClick={!isFileUpload ? onClick : undefined}
       className={`${isDanger
         ? 'text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
         : 'text-black dark:text-gray-200'
@@ -11,8 +11,18 @@ const OptionItemCard = ({ icon, label, isDanger, onClick }) => {
         transition-colors duration-200
       `}
     >
-      {icon}
-      <span className="whitespace-nowrap">{label}</span>
+      {isFileUpload ? (
+        <label className="flex items-center gap-2 flex-nowrap cursor-pointer">
+          <input type="file" accept="image/*" className="hidden" onChange={onClick} />
+          {icon}
+          <span className="whitespace-nowrap">{label}</span>
+        </label>
+      ) : (
+        <>
+          {icon}
+          <span className="whitespace-nowrap">{label}</span>
+        </>
+      )}
     </div>
   )
 }

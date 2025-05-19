@@ -5,7 +5,7 @@ import { SquarePen } from 'lucide-react'
 import OptionListCard from '../Card/OptionListCard'
 import { useConfirm } from '~/Context/ConfirmProvider'
 import { useDispatch } from 'react-redux'
-import { updateCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
+import { updateCurrentActiveCard, showActiveCard } from '~/redux/activeCard/activeCardSlice'
 import { updateCardDetailsAPI } from '~/apis'
 import { updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
 
@@ -49,7 +49,7 @@ const TaskCard = ({ card }) => {
   const updatePopupPosition = useCallback(() => {
     if (contentCardRef.current) {
       const rect = contentCardRef.current.getBoundingClientRect()
-      const heightOptionsCard = 226
+      const heightOptionsCard = 270
       const widthOptionsCard = 120
       const heightCard = rect.height
 
@@ -134,11 +134,18 @@ const TaskCard = ({ card }) => {
     }
   }, [showPopup])
 
+  // Cập nhật vị trí popup khi ảnh bìa thay đổi
+  useEffect(() => {
+    if (showPopup) {
+      updatePopupPosition()
+    }
+  }, [card?.cover, showPopup, updatePopupPosition])
+
   const setActiveCard = (e) => {
     if (e.target.closest('[data-no-dnd="true"]')) return
     // Cập nhật dữ liệu activeCard trong Redux
     dispatch(updateCurrentActiveCard(card))
-
+    dispatch(showActiveCard())
     setShowPopup(false)
   }
 
@@ -196,7 +203,7 @@ const TaskCard = ({ card }) => {
             <img
               src={card.cover}
               alt="cover"
-              className="object-cover w-full h-[224px] rounded-t-xl"
+              className="object-cover w-full h-HEIGHT_COVER_CARD rounded-t-xl"
             />
           )}
 
@@ -241,7 +248,7 @@ const TaskCard = ({ card }) => {
                 <img
                   src={card.cover}
                   alt="cover"
-                  className="object-cover w-[310px] h-[224px] rounded-t-xl"
+                  className="object-cover w-[312px] h-HEIGHT_COVER_CARD rounded-t-xl"
                 />
               )}
               <input

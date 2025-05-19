@@ -9,12 +9,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { cloneDeep } from 'lodash'
 import { useParams } from 'react-router-dom'
 import PageLoadingSpinner from '~/components/UI/Loading/PageLoadingSpinner'
-import { selectCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
 import ActiveCard from '~/components/Card/ActiveCard'
+
 const Board = () => {
   const dispatch = useDispatch()
   const board = useSelector(selectCurrentActiveBoard)
-  const activeCard = useSelector(selectCurrentActiveCard)
 
   const { boardId } = useParams()
 
@@ -121,8 +120,8 @@ const Board = () => {
   return (
     <div className="h-screen w-screen dark:bg-gray-800 text-white dark:text-gray-100 flex flex-col">
 
-      {/* Modal Active Card, check đóng/mở dựa theo activeCard lưu trong Redux. Mỗi thời điểm chỉ có 1 modal active card hiển thị */}
-      {activeCard && <ActiveCard />}
+      {/* Modal Active Card, check đóng/mở dựa theo state isShowActiveCard lưu trong Redux. Mỗi thời điểm chỉ có 1 modal active card hiển thị */}
+      <ActiveCard />
 
       <AppBar />
       <div className="flex flex-1 h-full relative">

@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useRef, useEffect } from 'react'
 import { X, Image, Calendar, Users, UserPlus, Paperclip, CheckSquare, Copy, Archive, Share2, FileText, Activity, Text } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
-import { clearCurrentActiveCard, selectCurrentActiveCard, updateCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
+import { clearCurrentActiveCard, selectCurrentActiveCard, updateCurrentActiveCard, selectIsShowActiveCard, hideActiveCard } from '~/redux/activeCard/activeCardSlice'
 import { selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { updateCardDetailsAPI } from '~/apis'
@@ -12,17 +12,48 @@ import ActivitySection from './ActivitySection'
 import { singleFileValidator } from '~/utils/validators'
 import { toast } from 'react-toastify'
 
-
 const ActiveCard = () => {
   const dispatch = useDispatch()
   const currentUser = useSelector(selectCurrentUser)
   const activeCard = useSelector(selectCurrentActiveCard)
+  const isShowActiveCard = useSelector(selectIsShowActiveCard)
+  const modalRef = useRef(null)
+  const titleInputRef = useRef(null)
 
   const board = useSelector(selectCurrentActiveBoard)
-  const column = board?.columns.find(column => column._id === activeCard.columnId)
+  const column = board?.columns?.find(column => column._id === activeCard?.columnId)
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        // Trigger blur event on the title input if it exists and is focused
+        if (titleInputRef.current && document.activeElement === titleInputRef.current) {
+          titleInputRef.current.blur()
+        }
+        // Small delay to allow the blur event to complete
+        setTimeout(() => {
+          dispatch(hideActiveCard())
+          dispatch(clearCurrentActiveCard())
+        }, 100)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [dispatch])
 
   const handleModalClose = () => {
-    dispatch(clearCurrentActiveCard())
+    // Trigger blur event on the title input if it exists and is focused
+    if (titleInputRef.current && document.activeElement === titleInputRef.current) {
+      titleInputRef.current.blur()
+    }
+    // Small delay to allow the blur event to complete
+    setTimeout(() => {
+      dispatch(hideActiveCard())
+      dispatch(clearCurrentActiveCard())
+    }, 100)
   }
 
   // Hàm dùng chung cho các trường hợp update card
@@ -61,11 +92,14 @@ const ActiveCard = () => {
     )
   }
 
+  if (!isShowActiveCard || !activeCard) return null
+
   return (
     <div className="fixed inset-0 z-50 bg-black/50 dark:bg-black/40 animate-fadeIn overflow-y-auto overflow-x-hidden m-0">
       {/* Modal Content */}
       <div className="min-h-screen flex items-center justify-center p-4">
         <div
+          ref={modalRef}
           className="relative w-full max-w-4xl bg-white dark:bg-gray-800 rounded-xl shadow-xl transform transition-all duration-300 ease-out flex flex-col my-8"
         >
           {/* Close Button */}
@@ -79,7 +113,7 @@ const ActiveCard = () => {
           {/* Card Cover */}
           {activeCard?.cover && (
             <div className="w-full bg-sky-200 dark:bg-gray-700 relative rounded-t-xl">
-              <div className="w-[40%] mx-auto bg-sky-200 h-[140px] md:h-[180px] lg:h-[220px] overflow-hidden">
+              <div className="w-[254px] h-[146px] md:w-[306px] md:h-[176px] mx-auto bg-sky-200 overflow-hidden">
                 <img
                   src={activeCard.cover}
                   alt="cover"
@@ -97,6 +131,7 @@ const ActiveCard = () => {
           <div className={`${activeCard?.cover ? 'pt-4' : 'pt-6'}`}>
             <div className="flex items-center gap-2 mb-2 px-4">
               <ToggleFocusInput
+                ref={titleInputRef}
                 value={activeCard?.title}
                 onChange={onUpdateCardTitle}
                 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 break-words bg-transparent border rounded-lg border-transparent focus:border-sky-500 hover:border-sky-400 outline-none transition-colors duration-200 w-[92%] py-1.5 px-2"
@@ -108,30 +143,29 @@ const ActiveCard = () => {
                 <span>Trạng thái: <b>{column?.title}</b></span>
               </span>
             </div>
-            {
-              activeCard?.members?.length > 0 && (
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="flex items-center gap-1">
-                    <Users className="w-4 h-4" />
-                    Thành viên:
-                  </span>
-                  <div className="flex -space-x-2">
-                    {activeCard?.members?.map((member) => (
-                      <img
-                        key={member._id}
-                        src={member.avatar || 'https://default-avatar-url.jpg'}
-                        alt={member.displayName}
-                        title={member.displayName}
-                        className="w-8 h-8 rounded-full border-2 border-white dark:border-gray-800 object-cover"
-                      />
-                    ))}
-                    {/* Nút thêm thành viên */}
-                    <button className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
-                      <UserPlus className="w-5 h-5" />
-                    </button>
-                  </div>
+            {activeCard?.members?.length > 0 && (
+              <div className="flex items-center gap-2 mb-4">
+                <span className="flex items-center gap-1">
+                  <Users className="w-4 h-4" />
+                  Thành viên:
+                </span>
+                <div className="flex -space-x-2">
+                  {activeCard?.members?.map((member) => (
+                    <img
+                      key={member._id}
+                      src={member.avatar || 'https://default-avatar-url.jpg'}
+                      alt={member.displayName}
+                      title={member.displayName}
+                      className="w-8 h-8 rounded-full border-2 border-white dark:border-gray-800 object-cover"
+                    />
+                  ))}
+                  {/* Nút thêm thành viên */}
+                  <button className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                    <UserPlus className="w-5 h-5" />
+                  </button>
                 </div>
-              )}
+              </div>
+            )}
           </div>
 
           {/* Main Content */}

@@ -25,6 +25,7 @@ button {
   --spacing-WIDTH_BOARD_CONTENT: calc(100vw - var(--spacing-ML_BOARD_CONTENT) - var(--spacing-SPACE_BOARD_CONTENT));
   --spacing-HEIGHT_COLUMN_TITLE: 44px;
   --spacing-HEIGHT_COLUMN_CONTENT: calc(100% - var(--spacing-HEIGHT_COLUMN_TITLE));
+  --spacing-HEIGHT_COVER_CARD: 184px;
 
   --animate-fadeOutLeft: fadeOutLeft 0.3s ease-in-out forwards;
   @keyframes fadeOutLeft {

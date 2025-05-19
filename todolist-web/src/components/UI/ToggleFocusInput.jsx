@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, forwardRef } from 'react'
 
-const ToggleFocusInput = ({
+const ToggleFocusInput = forwardRef(({
   value,
   onChange,
   ...props
-}) => {
+}, ref) => {
   const [inputValue, setInputValue] = useState(value)
 
   const handleBlur = () => {
@@ -27,12 +27,13 @@ const ToggleFocusInput = ({
 
   return (
     <input
+      ref={ref}
       value={inputValue}
       onChange={handleChange}
       onBlur={handleBlur}
       {...props}
     />
   )
-}
+})
 
 export default ToggleFocusInput

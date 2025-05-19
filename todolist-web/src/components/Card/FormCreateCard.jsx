@@ -8,17 +8,19 @@ import { updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { useDispatch } from 'react-redux'
 import FieldErrorAlert from '~/components/UI/FieldErrorAlert'
 import { FIELD_REQUIRED_MESSAGE } from '~/utils/validators'
+import DescriptionMdEditor from '~/components/Card/DescriptionMdEditor'
+import { singleFileValidator } from '~/utils/validators'
 
 const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }) => {
   const dispatch = useDispatch()
   const [isOpenStatusOption, setIsOpenStatusOption] = useState(false)
   const [coverImage, setCoverImage] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
+  const [cardDescription, setCardDescription] = useState('')
 
   const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm({
     defaultValues: {
       title: '',
-      description: '',
       status: ''
     },
     mode: 'onChange'
@@ -31,12 +33,17 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
     label: column.title
   })) || []
 
+  const handleUpdateCardDescription = (description) => {
+    setCardDescription(description)
+  }
+
   const handleClickCancelFormCreateCard = () => {
     setIsOpenStatusOption(false)
     setIsShowFormCreateCard(false)
     reset()
     setCoverImage(null)
     setImagePreview(null)
+    setCardDescription('')
   }
 
   const handleSelect = (value) => {
@@ -47,6 +54,11 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
   const handleImageChange = (e) => {
     const file = e.target.files[0]
     if (file) {
+      const error = singleFileValidator(file)
+      if (error) {
+        toast.error(error)
+        return
+      }
       setCoverImage(file)
       const reader = new FileReader()
       reader.onloadend = () => {
@@ -75,13 +87,25 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
       boardId: board._id,
       columnId: selectedColumn._id,
       title: data.title.trim(),
-      description: data.description?.trim() || '',
-      cover: coverImage ? coverImage.name : ''
+      description: cardDescription
+    }
+
+    // Tạo FormData để gửi cả file và dữ liệu
+    const formData = new FormData()
+    // formData.append('boardId', newCardData.boardId)
+    // formData.append('columnId', newCardData.columnId)
+    // formData.append('title', newCardData.title)
+    // formData.append('description', newCardData.description)
+    Object.keys(newCardData).forEach(key => {
+      formData.append(key, newCardData[key])
+    })
+    if (coverImage) {
+      formData.append('cardCover', coverImage)
     }
 
     toast.promise(
       (async () => {
-        const createdCard = await createNewCardAPI(newCardData)
+        const createdCard = await createNewCardAPI(formData)
         const newBoard = cloneDeep(board)
         const columnToUpdate = newBoard.columns.find(column => column._id === createdCard.columnId)
 
@@ -110,7 +134,7 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
   return (
     <div className="fixed inset-0 z-50 bg-black/50 dark:bg-black/40 animate-fadeIn overflow-y-auto overflow-x-hidden">
       <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 p-8 rounded-2xl shadow-2xl w-full max-w-2xl transition-all duration-300 animate-slideUp relative my-8">
+        <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 p-8 rounded-2xl shadow-2xl w-full max-w-4xl transition-all duration-300 animate-slideUp relative my-8">
           {/* Close button */}
           <button
             onClick={handleClickCancelFormCreateCard}
@@ -127,7 +151,7 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
           <form onSubmit={handleSubmit(addNewCard)} className="flex flex-col gap-8">
             <div className="flex flex-col md:flex-row gap-8">
               {/* Thông tin nhiệm vụ */}
-              <div className="flex flex-col basis-3/5 gap-6">
+              <div className="flex flex-col flex-1 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Tên nhiệm vụ <span className="text-red-500">*</span>
@@ -154,17 +178,16 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Mô tả nhiệm vụ
                   </label>
-                  <textarea
-                    className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:border-sky-500 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none resize-none transition duration-200"
-                    placeholder="Thêm mô tả cho nhiệm vụ..."
-                    rows="5"
-                    {...register('description')}
+                  <DescriptionMdEditor
+                    isCreateCard={true}
+                    cardDescriptionProp={cardDescription}
+                    handleUpdateCardDescription={handleUpdateCardDescription}
                   />
                 </div>
               </div>
 
               {/* Cài đặt bên phải */}
-              <div className="flex flex-col basis-2/5 p-6 gap-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl shadow-inner border border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col w-60 h-fit p-6 gap-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl shadow-inner border border-gray-200 dark:border-gray-700">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Trạng thái <span className="text-red-500">*</span>

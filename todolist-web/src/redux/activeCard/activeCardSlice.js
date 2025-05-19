@@ -2,7 +2,8 @@ import { createSlice } from '@reduxjs/toolkit'
 
 // Khởi tạo giá trị State của một cái Slice trong redux
 const initialState = {
-  currentActiveCard: null
+  currentActiveCard: null,
+  isShowActiveCard: false
 }
 
 // Khởi tạo một cái Slice trong kho lưu trữ - Redux Store
@@ -12,6 +13,15 @@ export const activeCardSlice = createSlice({
   // Reducers: Nơi xử lý dữ liệu đồng bộ
   reducers: {
     // Luôn cần có ngoặc nhọn {} cho function trong reducer cho dù code có 1 dòng, đây là quy tắc của Redux
+
+    showActiveCard: (state) => {
+      state.isShowActiveCard = true
+    },
+
+    hideActiveCard: (state) => {
+      state.isShowActiveCard = false
+    },
+
     clearCurrentActiveCard: (state) => {
       state.currentActiveCard = null
     },
@@ -28,16 +38,20 @@ export const activeCardSlice = createSlice({
   },
 
   // ExtraReducers: Nơi xử lý dữ liệu bất đồng bộ
-  extraReducers: (builder) => {}
+  extraReducers: () => {}
 })
 
 // Actions: Nơi dành cho các components bên dưới gọi bằng dispatch() tới nó để cập nhật lại dữ liệu thông qua reducer (chạy đồng bộ)
 // Ở trên không có properties actions vì những actions này được redux tạo tự động theo tên reducer
-export const { clearCurrentActiveCard, updateCurrentActiveCard } = activeCardSlice.actions
+export const { clearCurrentActiveCard, updateCurrentActiveCard, showActiveCard, hideActiveCard } = activeCardSlice.actions
 
 // Selectors: Nơi dành cho các components bên dưới gọi bằng hook useSelector() để lấy dữ liệu từ trong kho redux store ra sử dụng
 export const selectCurrentActiveCard = (state) => {
   return state.activeCard.currentActiveCard
+}
+
+export const selectIsShowActiveCard = (state) => {
+  return state.activeCard.isShowActiveCard
 }
 
 // File này tên là activeCardSlice nhưng export một thứ là Reducer

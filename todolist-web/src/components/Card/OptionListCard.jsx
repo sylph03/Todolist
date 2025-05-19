@@ -1,13 +1,15 @@
-import { CreditCard, MoveRight, Archive, Trash2 } from 'lucide-react'
+import { CreditCard, MoveRight, Archive, Trash2, Image } from 'lucide-react'
 import OptionItemCard from './OptionItemCard'
 import { useConfirm } from '~/Context/ConfirmProvider'
-import { deleteCardDetailsAPI } from '~/apis'
+import { deleteCardDetailsAPI, updateCardDetailsAPI } from '~/apis'
 import { cloneDeep, isEmpty } from 'lodash'
 import { generatePlaceholderCard } from '~/utils/formatters'
 import { updateCurrentActiveBoard, selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import { updateCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
+import { singleFileValidator } from '~/utils/validators'
+import { updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
 
 const OptionListCard = ({ card, setShowPopup, updateCardTitle }) => {
   const dispatch = useDispatch()
@@ -26,6 +28,27 @@ const OptionListCard = ({ card, setShowPopup, updateCardTitle }) => {
 
   const handleArchiveCard = () => {
     console.log('Lưu trữ thẻ')
+  }
+
+  const onUpdateCardCover = (event) => {
+    const error = singleFileValidator(event.target.files[0])
+    if (error) {
+      toast.error(error)
+      return
+    }
+    let reqData = new FormData()
+    reqData.append('cardCover', event.target.files[0])
+
+    // Gọi API
+    toast.promise(
+      updateCardDetailsAPI(card._id, reqData)
+        .then(res => {
+          // Cập nhật lại bản ghi card trong activeBoard (nested data)
+          dispatch(updateCardInBoard(res))
+        })
+        .finally(() => event.target.value = ''),
+      { pending: 'Đang cập nhật ảnh bìa...' }
+    )
   }
 
   const handleDeleteCard = async () => {
@@ -66,6 +89,7 @@ const OptionListCard = ({ card, setShowPopup, updateCardTitle }) => {
     { icon: <CreditCard className="w-4 h-4 text-gray-600 dark:text-gray-300" />, label: 'Mở thẻ', onClick: handleOpenCard },
     { icon: <MoveRight className="w-4 h-4 text-gray-600 dark:text-gray-300" />, label: 'Di chuyển', onClick: handleMoveCard },
     { icon: <Archive className="w-4 h-4 text-gray-600 dark:text-gray-300" />, label: 'Lưu trữ', onClick: handleArchiveCard },
+    { icon: <Image className="w-4 h-4 text-gray-600 dark:text-gray-300" />, label: 'Ảnh bìa', onClick: onUpdateCardCover, isFileUpload: true },
     { icon: <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />, label: 'Xóa', onClick: handleDeleteCard, isDanger: true }
   ]
 
@@ -78,6 +102,7 @@ const OptionListCard = ({ card, setShowPopup, updateCardTitle }) => {
           label={item.label}
           isDanger={item.isDanger}
           onClick={item.onClick}
+          isFileUpload={item.isFileUpload}
         />
       ))}
 

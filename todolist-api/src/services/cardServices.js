@@ -5,17 +5,29 @@ import { columnModel } from '~/models/columnModel'
 import ApiError from '~/utils/ApiError'
 import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 
-const createNew = async (reqBody) => {
+const createNew = async (reqBody, cardCoverFile) => {
   try {
     // Xử lý logic dữ liệu tùy đặc thù dự án
     const newCard = {
       ...reqBody
     }
 
-    // Gọi tới tầng model để xử lý lưu bản ghi newBoard vào trong Database
-    const createdCard = await cardModel.createNew(newCard)
+    let createdCard = {}
 
-    // Lấy bản ghi board sau khi gọi (tùy mục đích dự án mà có cần bước này hay không)
+    if (cardCoverFile) {
+      // Trường hợp upload file lên Cloudinary
+      const uploadResult = await CloudinaryProvider.streamUpload(cardCoverFile.buffer, 'card-covers')
+      // Lưu lại url (secure_url) của file vào DB
+      createdCard = await cardModel.createNew({
+        ...newCard,
+        cover: uploadResult.secure_url
+      })
+    } else {
+      // Các trường hợp tạo mới chung
+      createdCard = await cardModel.createNew(newCard)
+    }
+
+    // Lấy bản ghi card sau khi tạo
     const getNewCard = await cardModel.findOneById(createdCard.insertedId)
 
     // Xử lý logic khác với các Collection khác tùy đặc thù dự án...

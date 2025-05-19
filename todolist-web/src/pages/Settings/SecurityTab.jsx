@@ -14,7 +14,7 @@ const SecurityTab = () => {
   const { confirm } = useConfirm()
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const { register, handleSubmit, formState: { errors }, watch, reset } = useForm()
+  const { register, handleSubmit, formState: { errors }, watch } = useForm()
 
   const submitChangePassword = async (data) => {
     const { currentPassword, newPassword } = data

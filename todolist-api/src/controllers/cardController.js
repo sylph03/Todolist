@@ -3,7 +3,8 @@ import { cardService } from '~/services/cardServices'
 
 const createNew = async (req, res, next) => {
   try {
-    const createdCard = await cardService.createNew(req.body)
+    const cardCoverFile = req.file
+    const createdCard = await cardService.createNew(req.body, cardCoverFile)
     // Có kết quả trả về phía client
     res.status(StatusCodes.CREATED).json(createdCard)
   } catch (error) { next(error) }

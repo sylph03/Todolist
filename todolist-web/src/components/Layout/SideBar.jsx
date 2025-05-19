@@ -191,9 +191,12 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
         </div>
       )}
 
+      {/* Sidebar thu gọn */}
       {!isOpen && <div className='h-full min-w-4 max-w-4 bg-sky-500 absolute top-0 bottom-0 dark:bg-gray-800 transition-all duration-300'>
         <ChevronRight className='z-1 absolute border border-white dark:border-gray-400 shadow-md bg-sky-500 rounded-full bottom-1/2 left-1/4 cursor-pointer hover:bg-sky-400 dark:bg-gray-800 dark:hover:bg-gray-700 transition-all duration-200' onClick={toggleSidebar}/>
       </div>}
+
+      {/* Sidebar mở */}
       <div className={`z-1 absolute top-0 bottom-0 h-full max-w-WIDTH_SIDEBAR min-w-WIDTH_SIDEBAR bg-gradient-to-b from-sky-500 to-sky-600 dark:from-gray-800 dark:to-gray-900 shadow-lg transition-all duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
 
         {/* Không gian làm việc */}
@@ -219,14 +222,18 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
         <div className='h-[calc(100%-65px)] pr-0.5 mt-0.5'>
           <div className="flex flex-col gap-2 overflow-y-auto overflow-x-hidden h-full scrollbar-thin scrollbar-thumb-sky-400/30 dark:scrollbar-thumb-gray-600/30 scrollbar-track-transparent" ref={projectsContainerRef}>
             {/* Ô tìm kiếm */}
-            <div className='px-3 pt-2'>
-              <div className="flex items-center bg-white/10 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg px-3 py-2 transition-all duration-200 ease-in-out hover:bg-white/20 focus-within:bg-white/20 dark:focus-within:bg-gray-700/50 dark:hover:bg-gray-700/50 w-full group">
-                <Search className="text-white/80 dark:text-gray-400 w-5 h-5 flex-shrink-0 transition-all duration-200 group-focus-within:text-white dark:group-focus-within:text-gray-300" />
+            <div className="px-3 pt-2">
+              <div className="relative">
                 <input
                   type="text"
                   placeholder="Tìm kiếm ..."
-                  className="ml-3 bg-transparent outline-none text-white dark:text-gray-100 placeholder-white/70 dark:placeholder-gray-400 w-full text-sm sm:text-base transition-all duration-200"
+                  className="w-full pl-10 pr-4 py-2 rounded-xl border border-sky-400/30 dark:border-slate-700/30
+                    bg-white/10 dark:bg-gray-800/50 text-white dark:text-gray-100
+                    focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/30
+                    transition duration-200 placeholder-gray-100 dark:placeholder-gray-400
+                    backdrop-blur-sm"
                 />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-100 dark:text-gray-400" />
               </div>
             </div>
 
