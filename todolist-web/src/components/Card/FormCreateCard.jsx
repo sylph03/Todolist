@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { X, Image, ChevronUp } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
@@ -17,6 +17,7 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
   const [coverImage, setCoverImage] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
   const [cardDescription, setCardDescription] = useState('')
+  const formRef = useRef(null)
 
   const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm({
     defaultValues: {
@@ -37,14 +38,14 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
     setCardDescription(description)
   }
 
-  const handleClickCancelFormCreateCard = () => {
+  const handleClickCancelFormCreateCard = useCallback(() => {
     setIsOpenStatusOption(false)
     setIsShowFormCreateCard(false)
     reset()
     setCoverImage(null)
     setImagePreview(null)
     setCardDescription('')
-  }
+  }, [setIsShowFormCreateCard, reset])
 
   const handleSelect = (value) => {
     setValue('status', value, { shouldValidate: true })
@@ -57,6 +58,7 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
       const error = singleFileValidator(file)
       if (error) {
         toast.error(error)
+        e.target.value = '' // Reset input if there's an error
         return
       }
       setCoverImage(file)
@@ -72,6 +74,11 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
     e.stopPropagation()
     setCoverImage(null)
     setImagePreview(null)
+    // Reset file input value
+    const fileInput = document.querySelector('input[type="file"]')
+    if (fileInput) {
+      fileInput.value = ''
+    }
   }
 
   const addNewCard = async (data) => {
@@ -129,12 +136,37 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
     )
   }
 
+  // Handle both Escape key press and click outside
+  useEffect(() => {
+    if (!isShowFormCreateCard) return
+
+    const handleEscapeKey = (e) => {
+      if (e.key === 'Escape') {
+        handleClickCancelFormCreateCard()
+      }
+    }
+
+    const handleClickOutside = (e) => {
+      if (formRef.current && !formRef.current.contains(e.target)) {
+        handleClickCancelFormCreateCard()
+      }
+    }
+
+    document.addEventListener('keydown', handleEscapeKey)
+    document.addEventListener('mousedown', handleClickOutside)
+
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey)
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isShowFormCreateCard, handleClickCancelFormCreateCard])
+
   if (!isShowFormCreateCard) return null
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 dark:bg-black/40 animate-fadeIn overflow-y-auto overflow-x-hidden">
       <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 p-8 rounded-2xl shadow-2xl w-full max-w-4xl transition-all duration-300 animate-slideUp relative my-8">
+        <div ref={formRef} className="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 p-8 rounded-2xl shadow-2xl w-full max-w-4xl transition-all duration-300 animate-slideUp relative my-8">
           {/* Close button */}
           <button
             onClick={handleClickCancelFormCreateCard}
@@ -246,13 +278,13 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
                   </label>
                   <div className="flex items-center gap-3">
                     <div className="flex-1 relative">
-                      <label className="h-[90px] px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-300 cursor-pointer hover:border-sky-500 transition duration-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-center gap-2 relative overflow-hidden">
+                      <label className="min-h-[90px] w-full h-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-300 cursor-pointer hover:border-sky-500 transition duration-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-center gap-2 relative overflow-hidden">
                         {imagePreview ? (
                           <>
                             <img
                               src={imagePreview}
                               alt="Preview"
-                              className="absolute inset-0 w-full h-full object-cover"
+                              className="w-full h-auto object-contain"
                             />
                             <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200">
                               <span className="text-white text-sm">Thay đổi ảnh</span>

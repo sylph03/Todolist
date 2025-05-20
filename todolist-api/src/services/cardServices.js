@@ -60,7 +60,7 @@ const deleteItem = async (cardId) => {
   } catch (error) { throw error }
 }
 
-const update = async (cardId, reqBody, cardCoverFile) => {
+const update = async (cardId, reqBody, cardCoverFile, userInfo) => {
   try {
     const updateCard = {
       ...reqBody,
@@ -76,6 +76,15 @@ const update = async (cardId, reqBody, cardCoverFile) => {
       updatedCard = await cardModel.update(cardId, {
         cover: uploadResult.secure_url
       })
+    } else if (updateCard.commentToAdd) {
+      // Tạo dữ liệu comment để thêm vào db, cần bổ sung những trường cần thiết
+      const commentData = {
+        ...updateCard.commentToAdd,
+        commentedAt: Date.now(),
+        userId: userInfo._id,
+        userEmail: userInfo.email
+      }
+      updatedCard = await cardModel.unshiftNewComment(cardId, commentData)
     } else {
       // Các trường hợp update chung
       updatedCard = await cardModel.update(cardId, updateCard)

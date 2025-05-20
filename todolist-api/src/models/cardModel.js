@@ -24,7 +24,7 @@ const CARD_COLLECTION_SCHEMA = Joi.object({
     userDisplayName: Joi.string(),
     content: Joi.string(),
     // Chỗ này lưu ý vì dùng hàm $push để thêm comment nên không set default Date.now luôn giống hàm insertOne khi create được.
-    commentAt: Joi.date().timestamp()
+    commentedAt: Joi.date().timestamp()
   }).default([]),
 
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
@@ -96,6 +96,18 @@ const deleteOneById = async (cardId) => {
   } catch (error) { throw new Error (error) }
 }
 
+// Dùng push nhưng bọc data vào array để trong $each và chỉ định $position = 0 để thêm vào đầu mảng
+const unshiftNewComment = async (cardId, commentData) => {
+  try {
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(String(cardId)) },
+      { $push: { comments: { $each: [commentData], $position: 0 } } },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) { throw new Error (error) }
+}
+
 export const cardModel = {
   CARD_COLLECTION_NAME,
   CARD_COLLECTION_SCHEMA,
@@ -103,5 +115,6 @@ export const cardModel = {
   findOneById,
   update,
   deleteManyByColumnId,
-  deleteOneById
+  deleteOneById,
+  unshiftNewComment
 }

@@ -93,6 +93,7 @@ const DescriptionMdEditor = ({ cardDescriptionProp, handleUpdateCardDescription,
                 <MDEditor.Markdown
                   source={cardDescription}
                   style={{
+                    whiteSpace: 'pre-wrap',
                     backgroundColor: darkMode ? '#1E2939' : '#fff',
                     color: darkMode ? '#F3F4F6' : '#000'
                   }}

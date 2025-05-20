@@ -10,6 +10,7 @@ import { toast } from 'react-toastify'
 import { updateCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
 import { singleFileValidator } from '~/utils/validators'
 import { updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { showActiveCard } from '~/redux/activeCard/activeCardSlice'
 
 const OptionListCard = ({ card, setShowPopup, updateCardTitle }) => {
   const dispatch = useDispatch()
@@ -18,8 +19,9 @@ const OptionListCard = ({ card, setShowPopup, updateCardTitle }) => {
   const { confirm } = useConfirm()
 
   const handleOpenCard = () => {
-    setShowPopup(false)
     dispatch(updateCurrentActiveCard(card))
+    dispatch(showActiveCard())
+    setShowPopup(false)
   }
 
   const handleMoveCard = () => {

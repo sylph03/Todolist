@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { Plus, Search, Archive, CircleCheck, Columns2, X, UserPlus2 } from 'lucide-react'
 import { useSelector, useDispatch } from 'react-redux'
@@ -18,17 +18,43 @@ const BoardActions = () => {
   const dispatch = useDispatch()
   const [isShowFormCreateCard, setIsShowFormCreateCard] = useState(false)
   const [isShowFormCreateColumn, setIsShowFormCreateColumn] = useState(false)
+  const formRef = useRef(null)
 
   const { register: registerColumn, handleSubmit: handleSubmitColumn, formState: { errors: errorsColumn }, reset: resetColumn } = useForm()
 
-  const handleClickCreateColumn = () => {
+  const handleClickCreateColumn = useCallback(() => {
     setIsShowFormCreateColumn(prev => !prev)
-  }
+  }, [])
 
-  const handleClickCancelFormCreateColumn = () => {
+  const handleClickCancelFormCreateColumn = useCallback(() => {
     setIsShowFormCreateColumn(false)
     resetColumn()
-  }
+  }, [resetColumn])
+
+  // Handle both Escape key press and click outside
+  useEffect(() => {
+    if (!isShowFormCreateColumn) return
+
+    const handleEscapeKey = (e) => {
+      if (e.key === 'Escape') {
+        handleClickCancelFormCreateColumn()
+      }
+    }
+
+    const handleClickOutside = (e) => {
+      if (formRef.current && !formRef.current.contains(e.target)) {
+        handleClickCancelFormCreateColumn()
+      }
+    }
+
+    document.addEventListener('keydown', handleEscapeKey)
+    document.addEventListener('mousedown', handleClickOutside)
+
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey)
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isShowFormCreateColumn, handleClickCancelFormCreateColumn])
 
   const addNewColumn = async (data) => {
     const newColumnData = {
@@ -115,20 +141,30 @@ const BoardActions = () => {
           </button> */}
         </div>
 
-        {/* Left Actions: Thanh tìm kiếm và thêm users vào board */}
+        {/* Right Actions: Thanh tìm kiếm và thêm users vào board */}
         <div className="flex gap-3">
           {/* Thanh tìm kiếm */}
           <div className="relative">
             <input
               type="text"
               placeholder="Tìm kiếm nhiệm vụ..."
-              className="max-w-[300px] pl-10 pr-4 py-2 rounded-xl border border-gray-300 dark:border-gray-700
-                bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100
+              className="max-w-[300px] pl-10 pr-4 py-[7px] rounded-xl border border-gray-300 dark:border-gray-700
+                bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-sm
                 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500
                 transition duration-200 placeholder-gray-500 dark:placeholder-gray-400"
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-gray-400" />
           </div>
+
+          {/* Nút mời users vào board */}
+          <button
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-200 font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95"
+            title="Mời users vào board"
+            aria-label="Lưu nhiệm vụ"
+          >
+            <UserPlus2 className="w-5 h-5" />
+            <span className="hidden xl:inline text-sm">Mời</span>
+          </button>
 
           {/* Thêm users vào board */}
           <BoardUserGroup boardUsers={board?.FE_allUsers} />
@@ -145,7 +181,7 @@ const BoardActions = () => {
       {/* Form tạo cột mới */}
       {isShowFormCreateColumn && (
         <div className="fixed inset-0 bg-black/50 dark:bg-black/40 flex justify-center items-center overflow-y-auto overflow-x-hidden z-50 p-4 animate-fadeIn">
-          <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 p-8 rounded-2xl shadow-2xl w-full max-w-md transition-all duration-300 animate-slideUp relative">
+          <div ref={formRef} className="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 p-8 rounded-2xl shadow-2xl w-full max-w-md transition-all duration-300 animate-slideUp relative">
             {/* Close button */}
             <button
               onClick={handleClickCancelFormCreateColumn}

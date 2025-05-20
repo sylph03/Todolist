@@ -203,7 +203,7 @@ const TaskCard = ({ card }) => {
             <img
               src={card.cover}
               alt="cover"
-              className="object-cover w-full h-HEIGHT_COVER_CARD rounded-t-xl"
+              className="object-contain w-full h-full rounded-t-xl"
             />
           )}
 
@@ -248,7 +248,7 @@ const TaskCard = ({ card }) => {
                 <img
                   src={card.cover}
                   alt="cover"
-                  className="object-cover w-[312px] h-HEIGHT_COVER_CARD rounded-t-xl"
+                  className="object-contain w-[312px] h-full rounded-t-xl"
                 />
               )}
               <input

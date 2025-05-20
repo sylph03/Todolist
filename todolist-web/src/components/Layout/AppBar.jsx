@@ -17,7 +17,7 @@ const AppBar = () => {
       </Link>
 
       {/* AppBar Right */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         <DarkModeToggler />
         <button className="rounded-full appbar-button-custom p-2 hover:bg-white/10 transition-colors duration-200">
           <Bell className="size-5 text-white dark:text-gray-300" />

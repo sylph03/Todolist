@@ -1,28 +1,43 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 
 const BoardUserGroup = ({ boardUsers = [], limit = 3 }) => {
   const [isOpenPopover, setIsOpenPopover] = useState(false)
   const containerRef = useRef(null)
 
+  const handleClosePopover = useCallback(() => {
+    setIsOpenPopover(false)
+  }, [])
+
+  const handleTogglePopover = useCallback(() => {
+    setIsOpenPopover(prev => !prev)
+  }, [])
+
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
-        setIsOpenPopover(false)
+    if (!isOpenPopover) return
+
+    const handleEscapeKey = (e) => {
+      if (e.key === 'Escape') {
+        handleClosePopover()
       }
     }
 
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        handleClosePopover()
+      }
+    }
+
+    document.addEventListener('keydown', handleEscapeKey)
     document.addEventListener('mousedown', handleClickOutside)
+
     return () => {
+      document.removeEventListener('keydown', handleEscapeKey)
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [])
-
-  const handleTogglePopover = () => {
-    setIsOpenPopover(!isOpenPopover)
-  }
+  }, [isOpenPopover, handleClosePopover])
 
   return (
-    <div className="flex items-center relative" ref={containerRef}>
+    <div className={`flex items-center relative ${boardUsers.length > 1 ? 'ml-1' : ''}`} ref={containerRef}>
       {/* Hiển thị các user là thành viên của card */}
       {boardUsers.map((user, index) => {
         if (index < limit) {
@@ -32,7 +47,7 @@ const BoardUserGroup = ({ boardUsers = [], limit = 3 }) => {
               src={user?.avatar || '/src/assets/users/default avatar.jpg'}
               alt={user?.displayName || 'default avatar'}
               title={user?.displayName || 'default avatar'}
-              className="w-8 h-8 rounded-full border-2 border-white dark:border-gray-800 object-cover -ml-1 hover:scale-110 transition-transform duration-200 cursor-pointer"
+              className={`w-8 h-8 rounded-full border-2 border-white dark:border-gray-800 object-cover ${index !== boardUsers.length - 1 ? '-ml-1' : ''} hover:scale-110 transition-transform duration-200 cursor-pointer`}
             />
           )
         }
@@ -41,7 +56,15 @@ const BoardUserGroup = ({ boardUsers = [], limit = 3 }) => {
       {/* Nếu số lượng users nhiều hơn limit thì hiện thêm + number */}
       {boardUsers.length > limit && (
         <div
-          className={`w-8 h-8 rounded-full border-2 border-white ${isOpenPopover ? 'bg-gray-300 dark:bg-gray-600 scale-110' : 'bg-gray-200'} dark:border-gray-800 text-gray-700 dark:bg-gray-700 dark:text-white flex items-center justify-center text-sm font-medium -ml-1 cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 hover:scale-110`}
+          className={`w-8 h-8 rounded-full border-2 border-white dark:border-gray-800 
+            ${isOpenPopover 
+              ? 'bg-gray-300 dark:bg-gray-600 scale-110' 
+              : 'bg-gray-200 dark:bg-gray-700'
+            } 
+            text-gray-700 dark:text-white 
+            flex items-center justify-center text-sm font-medium -ml-1 
+            cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-600 
+            transition-all duration-200 hover:scale-110`}
           title={`${boardUsers.length - limit} người khác`}
           onClick={handleTogglePopover}
         >

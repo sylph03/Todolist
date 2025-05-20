@@ -38,9 +38,25 @@ const ActiveCard = () => {
       }
     }
 
+    const handleEscapeKey = (event) => {
+      if (event.key === 'Escape') {
+        // Trigger blur event on the title input if it exists and is focused
+        if (titleInputRef.current && document.activeElement === titleInputRef.current) {
+          titleInputRef.current.blur()
+        }
+        // Small delay to allow the blur event to complete
+        setTimeout(() => {
+          dispatch(hideActiveCard())
+          dispatch(clearCurrentActiveCard())
+        }, 100)
+      }
+    }
+
     document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('keydown', handleEscapeKey)
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('keydown', handleEscapeKey)
     }
   }, [dispatch])
 
@@ -92,6 +108,11 @@ const ActiveCard = () => {
     )
   }
 
+  // Dùng async await ở đây để component con ActivitySection chờ và nếu thành công thì clear input comment
+  const onAddCardComment = async(commentToAdd) => {
+    await callApiUpdateCard({ commentToAdd })
+  }
+
   if (!isShowActiveCard || !activeCard) return null
 
   return (
@@ -112,12 +133,12 @@ const ActiveCard = () => {
 
           {/* Card Cover */}
           {activeCard?.cover && (
-            <div className="w-full bg-sky-200 dark:bg-gray-700 relative rounded-t-xl">
-              <div className="w-[254px] h-[146px] md:w-[306px] md:h-[176px] mx-auto bg-sky-200 overflow-hidden">
+            <div className="w-full relative rounded-t-xl">
+              <div className="h-[146px] w-auto md:h-[176px] mx-auto bg-sky-200 overflow-hidden rounded-t-xl bg-sky-200 dark:bg-gray-700">
                 <img
                   src={activeCard.cover}
                   alt="cover"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
                 <span className="absolute bottom-4 right-6 text-white bg-black/40 px-2 py-1 rounded text-xs font-medium flex items-center gap-1">
                   <Image className="w-4 h-4" />
@@ -179,7 +200,7 @@ const ActiveCard = () => {
               />
 
               {/* Activity */}
-              <ActivitySection currentUser={currentUser} />
+              <ActivitySection cardComments={activeCard?.comments} onAddCardComment={onAddCardComment} currentUser={currentUser} />
             </div>
 
             {/* Right: Actions */}
