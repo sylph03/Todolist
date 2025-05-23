@@ -48,7 +48,7 @@ const deleteItem = async (cardId) => {
   try {
     const targetCard = await cardModel.findOneById(cardId)
     if (!targetCard) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Card not found!')
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy thẻ!')
     }
     // Xóa card
     await cardModel.deleteOneById(cardId)

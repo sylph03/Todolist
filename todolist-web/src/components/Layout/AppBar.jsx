@@ -3,7 +3,7 @@ import { ListTodo, Bell, User, Settings, LogOut } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import DarkModeToggler from '~/components/UI/DarkModeToggler'
 import Profile from '../Appbar/Profile'
-
+import Notification from '../Appbar/Notification'
 const AppBar = () => {
   return (
     <div className="w-full h-HEIGHT_APPBAR min-h-HEIGHT_APPBAR bg-gradient-to-r from-sky-500 to-sky-600 dark:from-gray-800 dark:to-gray-900 flex items-center justify-between px-6 shadow-lg z-20 transition-all duration-300">
@@ -19,9 +19,7 @@ const AppBar = () => {
       {/* AppBar Right */}
       <div className="flex items-center gap-3">
         <DarkModeToggler />
-        <button className="rounded-full appbar-button-custom p-2 hover:bg-white/10 transition-colors duration-200">
-          <Bell className="size-5 text-white dark:text-gray-300" />
-        </button>
+        <Notification />
         <Profile />
       </div>
     </div>

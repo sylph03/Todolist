@@ -77,7 +77,7 @@ const DescriptionMdEditor = ({ cardDescriptionProp, handleUpdateCardDescription,
               <button
                 onClick={onMarkdownEditMode}
                 className={`w-full text-left border border-gray-200 dark:border-gray-700 dark:text-gray-400 bg-gray-50 text-gray-600 hover:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all duration-200 ${
-                  isCreateCard ? 'px-3 pt-3 pb-23.5 bg-white dark:bg-gray-800 rounded-xl' : 'rounded-lg pt-4 pb-12 px-4 dark:bg-gray-900'
+                  isCreateCard ? 'px-3 pt-3 pb-25 bg-white dark:bg-gray-900 rounded-xl' : 'rounded-lg pt-4 pb-12 px-4 dark:bg-gray-900'
                 }`}
               >
                 Thêm mô tả chi tiết ...

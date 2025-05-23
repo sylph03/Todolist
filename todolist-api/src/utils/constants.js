@@ -12,5 +12,12 @@ export const WEBSITE_DOMAINS = (env.BUILD_MODE === 'production') ? env.WEBSITE_D
 export const DEFAULT_PAGE = 1
 export const DEFAULT_ITEMS_PER_PAGE = 8
 
-export const DEFAULT_SKIP = 0
-export const DEFAULT_LIMIT = 20
+export const INVITATION_TYPES = {
+  BOARD_INVITATION: 'BOARD_INVITATION'
+}
+
+export const BOARD_INVITATION_STATUS = {
+  PENDING: 'PENDING',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED'
+}

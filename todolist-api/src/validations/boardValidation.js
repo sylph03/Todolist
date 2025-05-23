@@ -6,11 +6,11 @@ import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 const createNew = async (req, res, next) => {
   const correctCondition = Joi.object({
     title: Joi.string().required().min(3).max(30).trim().strict().messages({
-      'any.required' : 'Title is required',
-      'string.empty' : 'Title is not allowed to be empty',
-      'string.min' : 'Title length must be at least 3 characters long',
-      'string.max' : 'Title length must be less than or equal to 30 characters long',
-      'string.trim' : 'Title must not have leading or trailing whitespace'
+      'any.required' : 'Tiêu đề là bắt buộc',
+      'string.empty' : 'Tiêu đề không được để trống',
+      'string.min' : 'Tiêu đề phải có ít nhất 3 ký tự',
+      'string.max' : 'Tiêu đề phải có ít hơn 30 ký tự',
+      'string.trim' : 'Tiêu đề không được có khoảng trắng đầu hoặc cuối'
     }),
     description: Joi.string().max(255).trim().strict().allow('').optional(),
     columnOrderIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([])

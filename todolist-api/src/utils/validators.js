@@ -1,5 +1,5 @@
 export const OBJECT_ID_RULE = /^[0-9a-fA-F]{24}$/
-export const OBJECT_ID_RULE_MESSAGE = 'Your string fails to match the Object Id pattern!'
+export const OBJECT_ID_RULE_MESSAGE = 'Chuỗi của bạn không khớp với mẫu Object Id!'
 
 export const FIELD_REQUIRED_MESSAGE = 'Trường này là bắt buộc.'
 export const EMAIL_RULE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/

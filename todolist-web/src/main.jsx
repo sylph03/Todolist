@@ -17,16 +17,16 @@ import { injectStore } from './utils/authorizeAxios'
 injectStore(store)
 
 createRoot(document.getElementById('root')).render(
-  <BrowserRouter basename='/'>
-    <Provider store={store}>
-      <PersistGate persistor={persistor}>
+  <Provider store={store}>
+    <PersistGate persistor={persistor}>
+      <BrowserRouter basename='/'>
         <ThemeProvider>
           <ConfirmProvider>
             <App />
             <ToastContainer position="top-center" theme="light" newestOnTop closeOnClick/>
           </ConfirmProvider>
         </ThemeProvider>
-      </PersistGate>
-    </Provider>
-  </BrowserRouter>
+      </BrowserRouter>
+    </PersistGate>
+  </Provider>
 )

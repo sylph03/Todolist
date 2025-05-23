@@ -53,7 +53,7 @@ const TaskColumn = ({ column, cursor }) => {
   // }
 
   return (
-    <div className="select-none min-w-[352px] w-[352px] h-full px-1" ref={setNodeRef} style={dndKitColumnStyles} {...attributes}>
+    <div className="select-none min-w-[352px] w-[352px] h-HEIGHT_BOARD_COLUMN min-h-HEIGHT_BOARD_COLUMN px-1" ref={setNodeRef} style={dndKitColumnStyles} {...attributes}>
       <div className={`relative w-full h-full rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 overflow-hidden transition-all duration-300 hover:shadow-xl ${column?.bgColumn ? column.bgColumn : 'bg-sky-100 dark:bg-sky-900/20'}`}>
         {/* Column Title */}
         <div

@@ -21,6 +21,6 @@ export const DEFAULT_PAGE = 1
 export const DEFAULT_ITEMS_PER_PAGE = 8
 
 // Form dimensions
-export const FORM_CREATE_PROJECT_WIDTH = 320
-export const FORM_CREATE_PROJECT_HEIGHT = 391
+export const FORM_CREATE_PROJECT_WIDTH = 352
+export const FORM_CREATE_PROJECT_HEIGHT = 401
 export const OPTIONS_PROJECT_HEIGHT = 138

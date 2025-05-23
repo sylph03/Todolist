@@ -265,7 +265,7 @@ const BoardContent = ({ board, isSidebarOpen, moveColumns, moveCardInTheSameColu
     // sensor: Cảm biến, collisionDetection: Thuật toán phát hiện va chạm, flickering: collisionDetection={closestCorners} + sai lệch dữ liệu
     <DndContext onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd} sensors={sensors} collisionDetection={collisionDetectionStrategy}>
       <div className='w-full h-HEIGHT_BOARD_CONTENT'>
-        <div className={`h-full p-SPACE_BOARD_CONTENT text-white dark:bg-gray-700 bg-sky-200 transition-all duration-300 flex flex-col gap-5 md:gap-SPACE_BOARD_CONTENT overflow-y-hidden overflow-x-auto max-w-full ${isSidebarOpen ? 'ml-ML_BOARD_CONTENT' : 'ml-4'}`}>
+        <div className={`h-full p-SPACE_BOARD_CONTENT text-white dark:bg-gray-700 bg-sky-200 transition-all duration-300 flex flex-col gap-5 md:gap-SPACE_BOARD_CONTENT overflow-y-hidden overflow-x-auto max-w-full scrollbar-gutter-stable ${isSidebarOpen ? 'ml-ML_BOARD_CONTENT' : 'ml-4'}`}>
           <BoardActions board={board} />
           <SortableContext items={orderedColumns?.map(column => column._id)} strategy={horizontalListSortingStrategy}>
             <div className="flex gap-5 md:gap-SPACE_BOARD_CONTENT h-HEIGHT_BOARD_COLUMN min-w-full w-fit">

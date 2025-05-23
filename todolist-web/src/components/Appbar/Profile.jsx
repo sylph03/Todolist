@@ -72,7 +72,7 @@ const Profile = () => {
         {menuOpen && (
           <div
             ref={menuRef}
-            className="absolute right-0 top-11 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 shadow-lg rounded-lg p-2 w-44 z-50"
+            className="absolute right-0 top-11 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 shadow-lg rounded-lg p-2 w-44 z-50 animate-fadeIn"
             onClick={(e) => e.stopPropagation()}
           >
             <Link

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { SquarePen } from 'lucide-react'
+import { SquarePen, Users, MessageSquare, Paperclip, Text } from 'lucide-react'
 import OptionListCard from '../Card/OptionListCard'
 import { useConfirm } from '~/Context/ConfirmProvider'
 import { useDispatch } from 'react-redux'
@@ -9,13 +9,49 @@ import { updateCurrentActiveCard, showActiveCard } from '~/redux/activeCard/acti
 import { updateCardDetailsAPI } from '~/apis'
 import { updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
 
-const TaskCard = ({ card }) => {
+const CardIndicators = ({ card }) => {
+  return (
+    <div className="flex items-center gap-3 text-xs text-gray-700 dark:text-gray-300">
+      {/* Description */}
+      {card?.description?.length > 0 && (
+        <div className="flex items-center gap-1 mb-2" title="Nhiệm vụ đã có mô tả">
+          <Text className="size-3.5" />
+        </div>
+      )}
+      {/* Members indicator */}
+      {card?.memberIds?.length > 0 && (
+        <div className="flex items-center gap-1 mb-2" title="Thành viên">
+          <Users className="size-3.5" />
+          <span>{card.memberIds.length}</span>
+        </div>
+      )}
 
+      {/* Comments indicator */}
+      {card?.comments?.length > 0 && (
+        <div className="flex items-center gap-1 mb-2" title="Bình luận">
+          <MessageSquare className="size-3.5" />
+          <span>{card.comments.length}</span>
+        </div>
+      )}
+
+      {/* Attachments indicator */}
+      {card?.attachments?.length > 0 && (
+        <div className="flex items-center gap-1 mb-2" title="Các tập tin đính kèm">
+          <Paperclip className="size-3.5" />
+          <span>{card.attachments.length}</span>
+        </div>
+      )}
+    </div>
+  )
+}
+
+const TaskCard = ({ card }) => {
   const dispatch = useDispatch()
 
   const [textCardWidth, setTextCardWidth] = useState(null)
   const [showPopup, setShowPopup] = useState(false)
   const [inputValue, setInputValue] = useState(card?.title)
+  const [isLeftPosition, setIsLeftPosition] = useState(false)
 
   const [textCardCardPosition, setTextCardCardPosition] = useState(null)
   const [optionsCardPosition, setOptionsCardPosition] = useState(null)
@@ -52,6 +88,7 @@ const TaskCard = ({ card }) => {
       const heightOptionsCard = 270
       const widthOptionsCard = 120
       const heightCard = rect.height
+      const SAFE_MARGIN = 16
 
       if (rect.width !== textCardWidth) {
         setTextCardWidth(rect.width)
@@ -60,15 +97,31 @@ const TaskCard = ({ card }) => {
       let topTextCard = rect.top
       let leftTextCard = rect.left
 
-      let topOptionsCard = rect.top + heightCard + 8
-      let leftOptionsCard = rect.right - widthOptionsCard
+      let topOptionsCard = rect.top
+      let leftOptionsCard = rect.right + 8
 
-      if (topOptionsCard + heightOptionsCard > window.innerHeight - 16) {
-        topOptionsCard = topTextCard - heightOptionsCard - 8
-        if (topTextCard + heightCard > window.innerHeight - 16) {
-          topTextCard = window.innerHeight - heightCard - 16
-          topOptionsCard = topTextCard - heightOptionsCard - 8
-        }
+      // Nếu chiều cao card vượt quá mép dưới màn hình thì đặt card cách 16px
+      if (topTextCard + heightCard > window.innerHeight - SAFE_MARGIN) {
+        topTextCard = window.innerHeight - heightCard - SAFE_MARGIN
+        topOptionsCard = topTextCard
+      }
+      // Nếu chiều cao option card vượt quá mép dưới màn hình thì mép dưới option card sẽ bằng mép dưới card
+      if (topOptionsCard + heightOptionsCard > window.innerHeight - SAFE_MARGIN) {
+        topOptionsCard = topTextCard + heightCard - heightOptionsCard
+      }
+
+      // Nếu chiều cao card vượt quá mép trên màn hình thì đặt card cách 16px
+      if (topTextCard < SAFE_MARGIN) {
+        topTextCard = SAFE_MARGIN
+        topOptionsCard = topTextCard
+      }
+
+      // Nếu chiều ngang của option card vượt mép phải màn hình thì đưa sang trái
+      if (leftOptionsCard + widthOptionsCard > window.innerWidth) {
+        leftOptionsCard = leftTextCard - widthOptionsCard - 8
+        setIsLeftPosition(true)
+      } else {
+        setIsLeftPosition(false)
       }
 
       setOptionsCardPosition({ top: topOptionsCard, left: leftOptionsCard })
@@ -83,6 +136,12 @@ const TaskCard = ({ card }) => {
     updatePopupPosition()
     setInputValue(card?.title) // Reset input value to current card title
     setShowPopup(prev => !prev)
+  }
+
+  // Xử lý sự kiện nhấn chuột phải
+  const handleContextMenu = (e) => {
+    e.preventDefault() // Ngăn menu mặc định của trình duyệt
+    handleEditClick()
   }
 
   useEffect(() => {
@@ -180,7 +239,7 @@ const TaskCard = ({ card }) => {
           w-full rounded-xl 
           cursor-pointer 
           bg-white dark:bg-gray-800
-          text-slate-800 dark:text-gray-200
+          text-gray-800 dark:text-gray-100
           shadow-sm dark:shadow-gray-900/30
           hover:shadow-md dark:hover:shadow-gray-900/50
           hover:border-gray-300 dark:hover:border-gray-600
@@ -196,6 +255,7 @@ const TaskCard = ({ card }) => {
         {...attributes}
         {...listeners}
         onClick={setActiveCard}
+        onContextMenu={handleContextMenu}
       >
         <div className='w-full' ref={contentCardRef}>
           {/* Ảnh bìa */}
@@ -208,8 +268,10 @@ const TaskCard = ({ card }) => {
           )}
 
           {/* Nội dung */}
-          <div className="p-4 relative text-sm leading-relaxed font-medium">
-            {card?.title}
+          <div className="px-4 pt-4 pb-2 relative text-sm leading-relaxed font-medium">
+            <div className="mb-2">
+              {card?.title}
+            </div>
             {/* Nút chỉnh sửa */}
             <div
               data-no-dnd="true"
@@ -232,6 +294,9 @@ const TaskCard = ({ card }) => {
             >
               <SquarePen className="size-4.5 text-gray-600 dark:text-gray-400" />
             </div>
+
+            {/* Card indicators */}
+            <CardIndicators card={card} />
           </div>
         </div>
       </div>
@@ -241,7 +306,7 @@ const TaskCard = ({ card }) => {
           <div ref={popupRef} className="relative">
             {/* Text Card Popup */}
             <div
-              className="fixed transition-all"
+              className="fixed transition-all cursor-pointer"
               style={{ top: textCardCardPosition?.top, left: textCardCardPosition?.left }}
             >
               {card?.cover && (
@@ -249,29 +314,31 @@ const TaskCard = ({ card }) => {
                   src={card.cover}
                   alt="cover"
                   className="object-contain w-[312px] h-full rounded-t-xl"
+                  style={{ width: textCardWidth ? `${textCardWidth}px` : 'auto' }}
                 />
               )}
-              <input
-                ref={inputRef}
-                value={inputValue}
-                onChange={handleInputChange}
-                spellCheck={false}
-                className={`
-                  ${card?.cover ? 'rounded-b-xl' : 'rounded-xl'}
-                  p-4 w-full
-                  bg-white dark:bg-gray-800
-                  text-black dark:text-gray-200
-                  focus:outline-none
-                  focus:ring-2
-                  focus:ring-sky-500
-                  dark:focus:ring-sky-500
-                  focus:ring-opacity-50
-                  transition-all duration-200
-                  placeholder-gray-400
-                  dark:placeholder-gray-500
-                `}
+              <div 
+                className={`px-4 pt-4 pb-2 bg-white dark:bg-gray-800 ${card?.cover ? 'rounded-b-xl' : 'rounded-xl'}`}
                 style={{ width: textCardWidth ? `${textCardWidth}px` : 'auto' }}
-              />
+              >
+                <input
+                  ref={inputRef}
+                  value={inputValue}
+                  onChange={handleInputChange}
+                  spellCheck={false}
+                  className={`
+                    w-full mb-2
+                    bg-white dark:bg-gray-800
+                    text-gray-800 dark:text-gray-100
+                    focus:outline-none
+                    transition-all duration-200
+                    placeholder-gray-400
+                    dark:placeholder-gray-500
+                  `}
+                />
+                {/* Card indicators */}
+                <CardIndicators card={card} />
+              </div>
             </div>
 
             {/* Options Popup */}
@@ -283,6 +350,7 @@ const TaskCard = ({ card }) => {
                 card={card}
                 setShowPopup={setShowPopup}
                 updateCardTitle={handleSaveTitle}
+                isLeftPosition={isLeftPosition}
               />
             </div>
           </div>
@@ -293,3 +361,63 @@ const TaskCard = ({ card }) => {
 }
 
 export default TaskCard
+// Theo dõi cập nhật vị trí popup (opstions card)
+// const updatePopupPosition = useCallback(() => {
+//   if (contentCardRef.current) {
+//     const rect = contentCardRef.current.getBoundingClientRect()
+//     const heightOptionsCard = 270
+//     const widthOptionsCard = 120
+//     const heightCard = rect.height
+//     const SAFE_MARGIN = 16 // Khoảng cách an toàn với màn hình
+
+//     if (rect.width !== textCardWidth) {
+//       setTextCardWidth(rect.width)
+//     }
+
+//     let topTextCard = rect.top
+//     let leftTextCard = rect.left
+
+//     // Tính toán vị trí cho options card
+//     let topOptionsCard = rect.top + heightCard + 8
+//     let leftOptionsCard = rect.right - widthOptionsCard
+
+//     // Kiểm tra và điều chỉnh vị trí text card nếu cần
+//     if (topTextCard + heightCard > window.innerHeight - SAFE_MARGIN) {
+//       topTextCard = window.innerHeight - heightCard - SAFE_MARGIN
+//     }
+
+//     // Kiểm tra và điều chỉnh vị trí nếu vượt quá màn hình trên
+//     if (topTextCard < SAFE_MARGIN) {
+//       topTextCard = SAFE_MARGIN
+//     }
+
+//     // Tính toán vị trí options card dựa trên vị trí mới của text card
+//     const spaceBelow = window.innerHeight - (topTextCard + heightCard + SAFE_MARGIN)
+//     const spaceAbove = topTextCard - SAFE_MARGIN
+
+//     if (spaceBelow >= heightOptionsCard) {
+//       // Nếu có đủ không gian phía dưới, đặt options card ở dưới
+//       topOptionsCard = topTextCard + heightCard + 8
+//     } else if (spaceAbove >= heightOptionsCard) {
+//       // Nếu có đủ không gian phía trên, đặt options card ở trên
+//       topOptionsCard = topTextCard - heightOptionsCard - 8
+//     } else {
+//       // Nếu không đủ không gian ở cả trên và dưới, đặt options card ở vị trí có nhiều không gian hơn
+//       if (spaceBelow > spaceAbove) {
+//         topOptionsCard = window.innerHeight - heightOptionsCard - SAFE_MARGIN
+//       } else {
+//         topOptionsCard = SAFE_MARGIN
+//       }
+//     }
+
+//     // Kiểm tra và điều chỉnh vị trí ngang nếu cần
+//     if (leftOptionsCard < SAFE_MARGIN) {
+//       leftOptionsCard = SAFE_MARGIN
+//     } else if (leftOptionsCard + widthOptionsCard > window.innerWidth - SAFE_MARGIN) {
+//       leftOptionsCard = window.innerWidth - widthOptionsCard - SAFE_MARGIN
+//     }
+
+//     setOptionsCardPosition({ top: topOptionsCard, left: leftOptionsCard })
+//     setTextCardCardPosition({ top: topTextCard, left: leftTextCard })
+//   }
+// }, [textCardWidth])

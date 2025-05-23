@@ -166,17 +166,17 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
   return (
     <div className="fixed inset-0 z-50 bg-black/50 dark:bg-black/40 animate-fadeIn overflow-y-auto overflow-x-hidden">
       <div className="min-h-screen flex items-center justify-center p-4">
-        <div ref={formRef} className="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 p-8 rounded-2xl shadow-2xl w-full max-w-4xl transition-all duration-300 animate-slideUp relative my-8">
+        <div ref={formRef} className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 p-8 rounded-xl shadow-2xl w-full max-w-[820px] transition-all duration-300 animate-slideUp relative my-8">
           {/* Close button */}
           <button
             onClick={handleClickCancelFormCreateCard}
-            className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
+            className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
             aria-label="Đóng form"
           >
             <X className="w-5 h-5" />
           </button>
 
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 bg-gradient-to-r from-sky-500 to-blue-600 bg-clip-text text-transparent">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-gray-800 dark:text-gray-100">
             Tạo Nhiệm Vụ Mới
           </h2>
 
@@ -189,10 +189,10 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
                     Tên nhiệm vụ <span className="text-red-500">*</span>
                   </label>
                   <input
-                    className={`w-full p-3 rounded-xl border transition duration-200 focus:outline-none dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 ${
+                    className={`w-full p-3 rounded-xl border transition duration-200 focus:outline-none dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 ${
                       errors['title']
                         ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-400 hover:border-red-500'
-                        : 'border-gray-300 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 hover:border-sky-500'
+                        : 'border-gray-300 dark:border-gray-600 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 hover:border-sky-500 dark:hover:border-sky-500'
                     }`}
                     placeholder="Nhập tên nhiệm vụ..."
                     {...register('title', {
@@ -219,7 +219,7 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
               </div>
 
               {/* Cài đặt bên phải */}
-              <div className="flex flex-col w-60 h-fit p-6 gap-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl shadow-inner border border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col w-60 h-fit p-6 gap-6 bg-gray-50 dark:bg-gray-900/50 rounded-xl shadow-inner border border-gray-200 dark:border-gray-700">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Trạng thái <span className="text-red-500">*</span>
@@ -230,8 +230,8 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
                       className={`${
                         isOpenStatusOption ? 'border-sky-500 ring-1 ring-sky-500/20' : ''
                       } w-full cursor-pointer rounded-xl border ${
-                        errors['status'] ? 'border-red-500' : 'border-gray-300 dark:border-gray-700'
-                      } bg-white dark:bg-gray-800 py-3 px-4 text-gray-800 dark:text-gray-100 hover:border-sky-500 transition-all duration-300`}
+                        errors['status'] ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                      } bg-white dark:bg-gray-900 py-3 px-4 text-gray-800 dark:text-gray-100 hover:border-sky-500 dark:hover:border-sky-500 transition-all duration-300`}
                     >
                       <div className="flex items-center justify-between">
                         <span className={errors['status'] ? 'text-red-500' : ''}>
@@ -246,18 +246,20 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
                     </div>
 
                     {isOpenStatusOption && (
-                      <ul className="absolute z-10 mt-2 p-2 w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg animate-fadeIn max-h-[200px] overflow-y-auto">
+                      <ul className="absolute z-10 mt-2 p-2 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 shadow-lg animate-fadeIn max-h-[200px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
                         {options.map((option) => (
                           <li
                             key={option.value}
                             onClick={() => handleSelect(option.value)}
                             className={`px-4 py-2.5 cursor-pointer rounded-lg mb-1 transition-all duration-200 ${
                               status === option.value
-                                ? 'bg-sky-100 dark:bg-gray-700 text-sky-600 dark:text-sky-400 font-medium'
-                                : 'hover:bg-slate-100 dark:hover:bg-gray-600'
+                                ? 'bg-sky-100 dark:bg-gray-800 bg-sky-100 text-sky-500 font-medium shadow-sm'
+                                : 'hover:bg-slate-100 dark:hover:bg-gray-700 hover:shadow-sm'
                             }`}
                           >
-                            {option.label}
+                            <div className="flex items-center gap-2">
+                              <span>{option.label}</span>
+                            </div>
                           </li>
                         ))}
                       </ul>
@@ -278,7 +280,7 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
                   </label>
                   <div className="flex items-center gap-3">
                     <div className="flex-1 relative">
-                      <label className="min-h-[90px] w-full h-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-300 cursor-pointer hover:border-sky-500 transition duration-200 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-center gap-2 relative overflow-hidden">
+                      <label className="min-h-[90px] w-full h-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-300 cursor-pointer hover:border-sky-500 dark:hover:border-sky-500 transition duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-center gap-2 relative overflow-hidden">
                         {imagePreview ? (
                           <>
                             <img
@@ -323,13 +325,13 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
               <button
                 type="button"
                 onClick={handleClickCancelFormCreateCard}
-                className="px-6 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-800 dark:text-white shadow-sm transition duration-200 hover:shadow-md active:scale-95"
+                className="px-6 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-100 shadow-sm transition duration-200 hover:shadow-md active:scale-95"
               >
                 Hủy
               </button>
               <button
                 type="submit"
-                className="interceptor-loading flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-semibold shadow-lg transition-all duration-300 hover:shadow-xl active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+                className="interceptor-loading flex items-center gap-2 px-6 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-semibold shadow-lg transition-all duration-300 hover:shadow-xl active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed dark:from-sky-600 dark:to-blue-700 dark:hover:from-sky-700 dark:hover:to-blue-800"
               >
                 Tạo nhiệm vụ
               </button>

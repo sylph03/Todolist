@@ -12,7 +12,7 @@ import { singleFileValidator } from '~/utils/validators'
 import { updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { showActiveCard } from '~/redux/activeCard/activeCardSlice'
 
-const OptionListCard = ({ card, setShowPopup, updateCardTitle }) => {
+const OptionListCard = ({ card, setShowPopup, updateCardTitle, isLeftPosition }) => {
   const dispatch = useDispatch()
   const board = useSelector(selectCurrentActiveBoard)
 
@@ -96,7 +96,7 @@ const OptionListCard = ({ card, setShowPopup, updateCardTitle }) => {
   ]
 
   return (
-    <div className="flex flex-col items-end gap-2">
+    <div className="flex flex-col gap-2">
       {options.map((item, index) => (
         <OptionItemCard
           key={index}
@@ -105,18 +105,19 @@ const OptionListCard = ({ card, setShowPopup, updateCardTitle }) => {
           isDanger={item.isDanger}
           onClick={item.onClick}
           isFileUpload={item.isFileUpload}
+          isLeftPosition={isLeftPosition}
         />
       ))}
 
       <div
         onClick={updateCardTitle}
-        className="flex items-center justify-center px-4 py-2 rounded-md w-fit font-medium cursor-pointer
+        className={`flex items-center justify-center px-4 py-2 rounded-md self-${isLeftPosition ? 'end' : 'start'} font-medium cursor-pointer
                    bg-gradient-to-r from-sky-500 to-blue-500 dark:from-sky-600 dark:to-blue-600 text-white
                    hover:from-sky-600 hover:to-blue-600 dark:hover:from-sky-700 dark:hover:to-blue-700
                    active:from-sky-700 active:to-blue-700 dark:active:from-sky-800 dark:active:to-blue-800
                    transition-all duration-200 ease-in-out
                    shadow-sm hover:shadow-md dark:shadow-gray-900/50
-                   dark:border dark:border-gray-700"
+                   dark:border dark:border-gray-700`}
       >
         Lưu
       </div>

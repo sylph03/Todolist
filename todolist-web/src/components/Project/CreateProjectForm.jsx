@@ -10,9 +10,8 @@ const CreateProjectForm = ({ formCreateProjectRef, setShowInput, formPosition, a
   const submitCreateProject = async (data) => {
     const response = await createNewBoardAPI(data)
     setShowInput(false)
-    reset() // Reset form sau khi tạo thành công
+    reset()
 
-    // Gọi callback với board mới tạo
     if (affterCreatedNewBoard) {
       affterCreatedNewBoard(response)
     }
@@ -21,12 +20,12 @@ const CreateProjectForm = ({ formCreateProjectRef, setShowInput, formPosition, a
   return (
     <div
       ref={formCreateProjectRef}
-      className="z-50 fixed w-80 bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700"
+      className="z-50 fixed w-88 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-600"
       style={{ top: formPosition?.top, left: formPosition?.left }} >
-      <div className="text-gray-900 dark:text-gray-100 font-semibold text-lg text-center mb-5 relative">
+      <div className="text-gray-900 dark:text-gray-100 font-semibold text-xl text-center mb-6 relative">
         Tạo bảng
         <X
-          className="absolute top-1/2 right-0 -translate-y-1/2 p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200"
+          className="absolute top-1/2 right-0 -translate-y-1/2 p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 hover:scale-110 active:scale-95"
           size={28}
           onClick={() => setShowInput(false)}
         />
@@ -34,34 +33,34 @@ const CreateProjectForm = ({ formCreateProjectRef, setShowInput, formPosition, a
 
       <form onSubmit={handleSubmit(submitCreateProject)} className="space-y-4">
         <div>
-          <label htmlFor="board-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5" >
+          <label htmlFor="board-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" >
             Tên bảng <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
             placeholder="Nhập tên bảng..."
-            className={`w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3.5 py-2 focus:outline-none transition-all duration-200
-              ${errors['title'] ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-400 hover:border-red-500' : 'border-gray-200 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 hover:border-sky-500'}`}
+            className={`w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-4 py-3 focus:outline-none transition-all duration-200
+              ${errors['title'] ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-400 hover:border-red-500' : 'border-gray-200 dark:border-gray-600 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 hover:border-sky-500 dark:hover:border-sky-500'}`}
             {...register('title', { required: '💡Tiêu đề bảng là bắt buộc' })}
           />
           <FieldErrorAlert errors={errors} fieldName={'title'} />
         </div>
 
         <div>
-          <label htmlFor="board-description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5" >
+          <label htmlFor="board-description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" >
             Mô tả
           </label>
           <textarea
             placeholder="Thêm mô tả cho bảng..."
             rows="3"
-            className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3.5 py-2 focus:ring-1 focus:ring-sky-500 hover:border-sky-500 focus:border-sky-500 focus:outline-none transition-all duration-200"
+            className="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-4 py-3 focus:ring-1 focus:ring-sky-500 hover:border-sky-500 dark:hover:border-sky-500 focus:border-sky-500 focus:outline-none transition-all duration-200 resize-none"
             {...register('description')}
           />
         </div>
 
         <button
           type="submit"
-          className="interceptor-loading w-full bg-sky-500 hover:bg-sky-600 text-white font-medium rounded-lg px-4 py-2.5 shadow-md hover:shadow-lg active:shadow-sm transition-all duration-200" >
+          className="interceptor-loading w-full bg-sky-500 hover:bg-sky-600 text-white font-medium rounded-xl px-4 py-3 shadow-md hover:shadow-lg active:shadow-sm transition-all duration-200 active:scale-95 mt-2" >
           Tạo bảng
         </button>
       </form>

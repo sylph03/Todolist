@@ -28,7 +28,7 @@ const RegisterForm = () => {
   }
 
   return (
-    <div className="w-full max-w-md p-8 bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100">
+    <div className="w-full max-w-md p-8 bg-white/95 backdrop-blur-sm rounded-xl shadow-xl border border-gray-100">
       <div className="flex flex-col items-center mb-8">
         {/* <div className="w-16 h-16 bg-sky-100 rounded-full flex items-center justify-center mb-4">
           <UserPlus className="w-8 h-8 text-sky-600" />

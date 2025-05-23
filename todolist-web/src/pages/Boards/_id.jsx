@@ -113,7 +113,7 @@ const Board = () => {
 
   if (!board) {
     return (
-      <PageLoadingSpinner caption={'Loading Board...'}/>
+      <PageLoadingSpinner />
     )
   }
 
@@ -124,7 +124,7 @@ const Board = () => {
       <ActiveCard />
 
       <AppBar />
-      <div className="flex flex-1 h-full relative">
+      <div className="flex h-full relative">
         <SideBar board={board} isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}/>
         <BoardContent
           board={board}
