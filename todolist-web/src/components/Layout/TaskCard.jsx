@@ -11,7 +11,7 @@ import { updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
 
 const CardIndicators = ({ card }) => {
   return (
-    <div className="flex items-center gap-3 text-xs text-gray-700 dark:text-gray-300">
+    <div className="flex items-center gap-4 text-xs text-gray-700 dark:text-gray-300">
       {/* Description */}
       {card?.description?.length > 0 && (
         <div className="flex items-center gap-1 mb-2" title="Nhiệm vụ đã có mô tả">

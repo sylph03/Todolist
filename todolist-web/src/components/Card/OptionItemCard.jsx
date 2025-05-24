@@ -7,7 +7,7 @@ const OptionItemCard = ({ icon, label, isDanger, onClick, isFileUpload, isLeftPo
         : 'text-black dark:text-gray-200'
       }
         bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700
-        flex items-center gap-2 flex-nowrap px-3 py-1.5 border rounded-md self-${isLeftPosition ? 'end' : 'start'} cursor-pointer
+        flex items-center gap-2 flex-nowrap px-3 py-1.5 border rounded-md w-fit ${isLeftPosition ? 'ml-auto' : 'mr-auto'} cursor-pointer
         transition-colors duration-200
       `}
     >

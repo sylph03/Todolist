@@ -20,6 +20,12 @@ export const API_ROOT = apiRoot
 export const DEFAULT_PAGE = 1
 export const DEFAULT_ITEMS_PER_PAGE = 8
 
+// Action cho việc thêm hoặc xóa thành viên trong card
+export const CARD_MEMBER_ACTION = {
+  ADD: 'ADD',
+  REMOVE: 'REMOVE'
+}
+
 // Form dimensions
 export const FORM_CREATE_PROJECT_WIDTH = 352
 export const FORM_CREATE_PROJECT_HEIGHT = 401

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 
-const BoardUserGroup = ({ boardUsers = [], limit = 3 }) => {
+const BoardUserGroup = ({ boardUsers = [], limit = 5 }) => {
   const [isOpenPopover, setIsOpenPopover] = useState(false)
   const containerRef = useRef(null)
 

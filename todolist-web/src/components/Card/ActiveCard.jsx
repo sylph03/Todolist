@@ -1,5 +1,5 @@
-import React, { useRef, useEffect } from 'react'
-import { X, Image, Calendar, Users, UserPlus, Paperclip, CheckSquare, Copy, Archive, Share2, FileText, Activity, Text } from 'lucide-react'
+import React, { useRef, useEffect, useState, useCallback } from 'react'
+import { X, Image, Calendar, Users, UserPlus, Paperclip, CheckSquare, Copy, Archive, Share2, FileText, Activity, Text, CircleCheck } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import { clearCurrentActiveCard, selectCurrentActiveCard, updateCurrentActiveCard, selectIsShowActiveCard, hideActiveCard } from '~/redux/activeCard/activeCardSlice'
 import { selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
@@ -11,6 +11,9 @@ import DescriptionMdEditor from './DescriptionMdEditor'
 import ActivitySection from './ActivitySection'
 import { singleFileValidator } from '~/utils/validators'
 import { toast } from 'react-toastify'
+import UserGroup from './UserGroup'
+import { CARD_MEMBER_ACTION } from '~/utils/constants'
+import MembersPopover from './MembersPopover'
 
 const ActiveCard = () => {
   const dispatch = useDispatch()
@@ -19,6 +22,9 @@ const ActiveCard = () => {
   const isShowActiveCard = useSelector(selectIsShowActiveCard)
   const modalRef = useRef(null)
   const titleInputRef = useRef(null)
+  const [isShowMembers, setIsShowMembers] = useState(false)
+  const membersButtonRef = useRef(null)
+  const membersPopoverRef = useRef(null)
 
   const board = useSelector(selectCurrentActiveBoard)
   const column = board?.columns?.find(column => column._id === activeCard?.columnId)
@@ -113,6 +119,14 @@ const ActiveCard = () => {
     await callApiUpdateCard({ commentToAdd })
   }
 
+  const onUpdateCardMembers = (incomingMemberInfo) => {
+    callApiUpdateCard({ incomingMemberInfo })
+  }
+
+  const handleCloseMembersPopover = useCallback(() => {
+    setIsShowMembers(false)
+  }, [])
+
   if (!isShowActiveCard || !activeCard) return null
 
   return (
@@ -164,29 +178,8 @@ const ActiveCard = () => {
                 <span>Trạng thái: <b>{column?.title}</b></span>
               </span>
             </div>
-            {activeCard?.members?.length > 0 && (
-              <div className="flex items-center gap-2 mb-4">
-                <span className="flex items-center gap-1">
-                  <Users className="w-4 h-4" />
-                  Thành viên:
-                </span>
-                <div className="flex -space-x-2">
-                  {activeCard?.members?.map((member) => (
-                    <img
-                      key={member._id}
-                      src={member.avatar || 'https://default-avatar-url.jpg'}
-                      alt={member.displayName}
-                      title={member.displayName}
-                      className="w-8 h-8 rounded-full border-2 border-white dark:border-gray-800 object-cover"
-                    />
-                  ))}
-                  {/* Nút thêm thành viên */}
-                  <button className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
-                    <UserPlus className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-            )}
+            {/* UserGroup: Hiển thị thành viên của card */}
+            <UserGroup cardMemberIds={activeCard?.memberIds} onUpdateCardMembers={onUpdateCardMembers} />
           </div>
 
           {/* Main Content */}
@@ -206,22 +199,33 @@ const ActiveCard = () => {
             {/* Right: Actions */}
             <div className="w-full md:w-64 flex-shrink-0 flex flex-col gap-6">
               <div className="space-y-2">
-                <button className="w-full flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                <button 
+                  onClick={() => onUpdateCardMembers({
+                    userId: currentUser?._id,
+                    action: activeCard?.memberIds.includes(currentUser?._id) ? CARD_MEMBER_ACTION.REMOVE : CARD_MEMBER_ACTION.ADD
+                  })}
+                  className="w-full flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
                   <UserPlus className="w-4 h-4" />
-                  Tham gia
+                  {activeCard?.memberIds.includes(currentUser?._id) ? 'Rời khỏi' : 'Tham gia'}
                 </button>
-                <button className="w-full flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
-                  <Users className="w-4 h-4" />
-                  Thành viên
-                </button>
-                <button className="w-full flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
-                  <Calendar className="w-4 h-4" />
-                  Ngày
-                </button>
-                <button className="w-full flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
-                  <Paperclip className="w-4 h-4" />
-                  Đính kèm
-                </button>
+                <div className="relative">
+                  <button 
+                    ref={membersButtonRef}
+                    onClick={() => setIsShowMembers(prev => !prev)}
+                    className={`w-full flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition ${isShowMembers ? 'bg-gray-200 dark:bg-gray-600' : ''}`}>
+                    <Users className="w-4 h-4" />
+                    Thành viên
+                  </button>
+                  <MembersPopover
+                    isOpen={isShowMembers}
+                    onClose={handleCloseMembersPopover}
+                    containerRef={membersPopoverRef}
+                    toggleButtonRef={membersButtonRef}
+                    cardMemberIds={activeCard?.memberIds || []}
+                    allUsers={board?.FE_allUsers || []}
+                    onUpdateCardMembers={onUpdateCardMembers}
+                  />
+                </div>
                 <label className="w-full flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition cursor-pointer">
                   <Image className="w-4 h-4" />
                   Ảnh bìa
@@ -232,6 +236,14 @@ const ActiveCard = () => {
                     className="hidden"
                   />
                 </label>
+                <button className="w-full flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                  <Calendar className="w-4 h-4" />
+                  Ngày
+                </button>
+                <button className="w-full flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                  <Paperclip className="w-4 h-4" />
+                  Đính kèm
+                </button>
               </div>
               <div>
                 <div className="text-xs text-gray-400 uppercase mb-2">Thao tác</div>
