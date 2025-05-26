@@ -32,13 +32,14 @@ const validateBeforeCreate = async (data) => {
 }
 
 const createNewBoardInvitation = async (data) => {
+  // eslint-disable-next-line no-useless-catch
   try {
     const validData = await validateBeforeCreate(data)
     // Biến đổi một số dữ liệu liên quan tới ObjectId chuẩn chỉnh
     let newInvitationToAdd = {
       ...validData,
       inviterId: new ObjectId(String(validData.inviterId)),
-      inviteeId: new ObjectId(String(validData.inviteeId)),
+      inviteeId: new ObjectId(String(validData.inviteeId))
     }
     // Nếu tồn tại dữ liệu boardInvitation thì update cho cái boardId
     if (validData.boardInvitation) {
@@ -70,7 +71,7 @@ const update = async (invitationId, updateData) => {
         delete updateData[fieldName]
       }
     })
-  
+
     // Đối với những dữ liệu liên quan ObjectId thì chuyển đổi ở đây
     if (updateData.boardInvitation) {
       updateData.boardInvitation = {
@@ -78,7 +79,7 @@ const update = async (invitationId, updateData) => {
         boardId: new ObjectId(String(updateData.boardInvitation.boardId))
       }
     }
-    
+
     const result = await GET_DB().collection(INVITATION_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(String(invitationId)) },
       { $set: updateData },
@@ -93,7 +94,7 @@ const findByUser = async (userId) => {
   try {
     const queryConditions = [
       { inviteeId: new ObjectId(String(userId)) }, // Tìm theo người được mời
-      { _destroy: false },
+      { _destroy: false }
     ]
 
     // const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({ _id: new ObjectId(String(id)) })
@@ -117,7 +118,7 @@ const findByUser = async (userId) => {
         from: boardModel.BOARD_COLLECTION_NAME,
         localField: 'boardInvitation.boardId', // Board được mời
         foreignField: '_id',
-        as: 'board',
+        as: 'board'
       } }
     ]).toArray()
     return results

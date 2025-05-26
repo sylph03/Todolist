@@ -14,6 +14,7 @@ const ACIVE_DRAG_ITEM_TYPE = {
 }
 
 const BoardContent = ({ board, isSidebarOpen, moveColumns, moveCardInTheSameColumn, moveCardToDifferentColumn }) => {
+
   // const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 10 } })
   // Yêu cầu chuột di chuyển 10 pixel trước khi kích hoạt kéo thả
   const mouseSensor = useSensor(MouseSensor, { activationConstraint: { distance: 10 } })
@@ -34,7 +35,9 @@ const BoardContent = ({ board, isSidebarOpen, moveColumns, moveCardInTheSameColu
 
   useEffect(() => {
     // Columns đã được sắp xếp ở component cha cao nhất (boards/_id.jsx)
-    setOrderedColumns(board.columns)
+    if (board?.columns) {
+      setOrderedColumns(board.columns)
+    }
   }, [board])
 
   // Tìm column theo cardId
@@ -265,9 +268,9 @@ const BoardContent = ({ board, isSidebarOpen, moveColumns, moveCardInTheSameColu
     // sensor: Cảm biến, collisionDetection: Thuật toán phát hiện va chạm, flickering: collisionDetection={closestCorners} + sai lệch dữ liệu
     <DndContext onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd} sensors={sensors} collisionDetection={collisionDetectionStrategy}>
       <div className='w-full h-HEIGHT_BOARD_CONTENT'>
-        <div className={`h-full p-SPACE_BOARD_CONTENT text-white dark:bg-gray-700 bg-sky-200 transition-all duration-300 flex flex-col gap-5 md:gap-SPACE_BOARD_CONTENT overflow-y-hidden overflow-x-auto max-w-full scrollbar-gutter-stable ${isSidebarOpen ? 'ml-ML_BOARD_CONTENT' : 'ml-4'}`}>
+        <div className={`h-full p-SPACE_BOARD_CONTENT text-white dark:bg-gray-700 ${board?.backgroundColor || 'bg-sky-200'} transition-all duration-300 flex flex-col gap-5 md:gap-SPACE_BOARD_CONTENT overflow-y-hidden overflow-x-auto max-w-full scrollbar-gutter-stable ${isSidebarOpen ? 'ml-ML_BOARD_CONTENT' : 'ml-4'}`}>
           <BoardActions board={board} />
-          <SortableContext items={orderedColumns?.map(column => column._id)} strategy={horizontalListSortingStrategy}>
+          <SortableContext items={orderedColumns?.map(column => column._id) || []} strategy={horizontalListSortingStrategy}>
             <div className="flex gap-5 md:gap-SPACE_BOARD_CONTENT h-HEIGHT_BOARD_COLUMN min-w-full w-fit">
               {orderedColumns?.map(column => (
                 <TaskColumn key={column._id} column={column}/>

@@ -40,9 +40,9 @@ const UserGroup = ({ cardMemberIds = [], onUpdateCardMembers }) => {
 
     const handleClickOutside = (e) => {
       // Check if click is outside both container and toggle button
-      if (containerRef.current && 
-          !containerRef.current.contains(e.target) && 
-          toggleButtonRef.current && 
+      if (containerRef.current &&
+          !containerRef.current.contains(e.target) &&
+          toggleButtonRef.current &&
           !toggleButtonRef.current.contains(e.target)) {
         handleClosePopover()
       }
@@ -70,13 +70,13 @@ const UserGroup = ({ cardMemberIds = [], onUpdateCardMembers }) => {
               src={user?.avatar || '/src/assets/users/default avatar.jpg'}
               alt={user?.displayName || 'default avatar'}
               title={user?.displayName || 'default avatar'}
-              className="w-9 h-9 rounded-full border-2 border-white dark:border-gray-800 object-cover 
+              className="w-9 h-9 rounded-full border-2 border-white dark:border-gray-800 object-cover
                 transition-all duration-200 cursor-pointer
                 hover:ring-2 hover:ring-sky-500 dark:hover:ring-sky-400
                 shadow-sm hover:shadow-md"
             />
-            {/* <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-1.5 
-              bg-gray-900 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 
+            {/* <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-1.5
+              bg-gray-900 text-white text-xs rounded-md opacity-0 group-hover:opacity-100
               transition-all duration-200 ease-in-out whitespace-nowrap z-50
               shadow-lg pointer-events-none">
               {user?.displayName}
@@ -87,10 +87,7 @@ const UserGroup = ({ cardMemberIds = [], onUpdateCardMembers }) => {
         <button
           ref={toggleButtonRef}
           className={`relative w-9 h-9 rounded-full border-2 border-white dark:border-gray-800 
-            ${isOpenPopover 
-              ? 'bg-sky-500 text-white focus:ring-2 focus:ring-sky-500' 
-              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white focus:ring-0'
-            } 
+            ${isOpenPopover ? 'bg-sky-500 text-white focus:ring-2 focus:ring-sky-500' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white focus:ring-0'} 
             flex items-center justify-center text-sm font-medium
             cursor-pointer hover:bg-sky-500 hover:text-white dark:hover:bg-sky-500
             transition-all duration-200

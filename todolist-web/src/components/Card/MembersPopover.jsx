@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback } from 'react'
+import React, { useEffect, useCallback } from 'react'
 import { CircleCheck, X } from 'lucide-react'
 import { CARD_MEMBER_ACTION } from '~/utils/constants'
 
@@ -26,9 +26,9 @@ const MembersPopover = ({
     }
 
     const handleClickOutside = (e) => {
-      if (containerRef.current && 
-          !containerRef.current.contains(e.target) && 
-          toggleButtonRef.current && 
+      if (containerRef.current &&
+          !containerRef.current.contains(e.target) &&
+          toggleButtonRef.current &&
           !toggleButtonRef.current.contains(e.target)) {
         handleClosePopover()
       }

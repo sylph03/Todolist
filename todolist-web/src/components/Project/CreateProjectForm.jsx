@@ -1,11 +1,31 @@
-import React from 'react'
+import React, { useState, useRef } from 'react'
 import { X } from 'lucide-react'
 import { createNewBoardAPI } from '~/apis'
 import { useForm } from 'react-hook-form'
 import FieldErrorAlert from '~/components/UI/FieldErrorAlert'
+import ColorPickerPopup, { colorOptions } from './ColorPickerPopup'
 
 const CreateProjectForm = ({ formCreateProjectRef, setShowInput, formPosition, affterCreatedNewBoard }) => {
-  const { register, handleSubmit, reset, formState: { errors } } = useForm()
+  const { register, handleSubmit, reset, formState: { errors }, setValue, watch } = useForm({
+    defaultValues: {
+      backgroundColor: 'bg-sky-200'
+    }
+  })
+  const [showColorPicker, setShowColorPicker] = useState(false)
+  const colorButtonRef = useRef(null)
+
+  const selectedColor = watch('backgroundColor')
+
+  const handleColorPickerClick = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setShowColorPicker(!showColorPicker)
+  }
+
+  const handleColorChange = (color) => {
+    setValue('backgroundColor', color)
+    setShowColorPicker(false)
+  }
 
   const submitCreateProject = async (data) => {
     const response = await createNewBoardAPI(data)
@@ -56,6 +76,37 @@ const CreateProjectForm = ({ formCreateProjectRef, setShowInput, formPosition, a
             className="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-4 py-3 focus:ring-1 focus:ring-sky-500 hover:border-sky-500 dark:hover:border-sky-500 focus:border-sky-500 focus:outline-none transition-all duration-200 resize-none"
             {...register('description')}
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Màu nền
+          </label>
+          <div className="relative">
+            <button
+              type="button"
+              ref={colorButtonRef}
+              onClick={handleColorPickerClick}
+              className="w-full flex items-center justify-between rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 px-4 py-3 hover:border-sky-500 dark:hover:border-sky-500 transition-all duration-200"
+            >
+              <div className="flex items-center gap-3">
+                <span className={`w-6 h-6 rounded-md ${selectedColor}`}></span>
+                <span className="text-gray-700 dark:text-gray-300">
+                  {colorOptions.find(color => color.value === selectedColor)?.name || 'Chọn màu'}
+                </span>
+              </div>
+            </button>
+            {showColorPicker && (
+              <ColorPickerPopup
+                position={{
+                  top: colorButtonRef.current?.getBoundingClientRect().bottom + 5,
+                  left: colorButtonRef.current?.getBoundingClientRect().left
+                }}
+                selectedColor={selectedColor}
+                onColorChange={handleColorChange}
+              />
+            )}
+          </div>
         </div>
 
         <button

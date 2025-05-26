@@ -267,10 +267,10 @@ const Boards = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                       {boards.map((board) => (
                         <div key={board?._id} className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer transform hover:-translate-y-0.5 border border-gray-100 dark:border-gray-700">
-                          <div className="h-16 sm:h-22 bg-sky-200 relative">
-                            <button className="absolute top-2 sm:top-3 right-2 sm:right-3 p-1.5 sm:p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-all duration-200">
+                          <div className={`h-16 sm:h-22 ${board?.backgroundColor || 'bg-sky-200'} relative`}>
+                            {board?.favorite && <button className="absolute top-2 sm:top-3 right-2 sm:right-3 p-1.5 sm:p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-all duration-200">
                               <Star className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                            </button>
+                            </button>}
                           </div>
                           <div className="p-3 sm:p-4">
                             <div className="flex items-start justify-between mb-2 sm:mb-3">

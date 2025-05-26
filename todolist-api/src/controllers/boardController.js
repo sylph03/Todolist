@@ -55,11 +55,20 @@ const getBoardsForSidebar = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const deleteBoard = async (req, res, next) => {
+  try {
+    const boardId = req.params.id
+    const result = await boardService.deleteBoard(boardId)
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) { next(error) }
+}
+
 export const boardController = {
   createNew,
   getDetails,
   update,
   moveCardToDifferentColumn,
   getBoards,
-  getBoardsForSidebar
+  getBoardsForSidebar,
+  deleteBoard
 }

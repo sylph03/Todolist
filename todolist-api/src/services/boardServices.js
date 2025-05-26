@@ -125,11 +125,27 @@ const getBoardsForSidebar = async (userId) => {
   } catch (error) { throw error }
 }
 
+const deleteBoard = async (boardId) => {
+  try {
+    // Xóa board
+    await boardModel.deleteOneById(boardId)
+
+    // Xóa tất cả columns thuộc board
+    await columnModel.deleteManyByBoardId(boardId)
+
+    // Xóa tất cả cards thuộc board
+    await cardModel.deleteManyByBoardId(boardId)
+
+    return { deleteResult: 'Board đã được xóa thành công!' }
+  } catch (error) { throw error }
+}
+
 export const boardService = {
   createNew,
   getDetails,
   update,
   moveCardToDifferentColumn,
   getBoards,
-  getBoardsForSidebar
+  getBoardsForSidebar,
+  deleteBoard
 }

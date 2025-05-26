@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import FieldErrorAlert from '~/components/UI/FieldErrorAlert'
 import {
   EMAIL_RULE,
-  EMAIL_RULE_MESSAGE,
+  EMAIL_RULE_MESSAGE
 } from '~/utils/validators'
 import { inviteUserToBoardAPI } from '~/apis'
 import { socketIoInstance } from '~/socketClient'

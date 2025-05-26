@@ -57,10 +57,7 @@ const BoardUserGroup = ({ boardUsers = [], limit = 5 }) => {
       {boardUsers.length > limit && (
         <div
           className={`w-8 h-8 rounded-full border-2 border-white dark:border-gray-800 
-            ${isOpenPopover 
-              ? 'bg-gray-300 dark:bg-gray-600 scale-110' 
-              : 'bg-gray-200 dark:bg-gray-700'
-            } 
+            ${isOpenPopover ? 'bg-gray-300 dark:bg-gray-600 scale-110' : 'bg-gray-200 dark:bg-gray-700' } 
             text-gray-700 dark:text-white 
             flex items-center justify-center text-sm font-medium -ml-1 
             cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-600 

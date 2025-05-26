@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom'
 const BOARD_INVITATION_STATUS = {
   PENDING: 'PENDING',
   ACCEPTED: 'ACCEPTED',
-  REJECTED: 'REJECTED',
+  REJECTED: 'REJECTED'
 }
 
 const Notification = () => {
@@ -40,7 +40,7 @@ const Notification = () => {
 
   // Lấy dữ liệu notifications từ Redux
   const notifications = useSelector(selectCurrentNotifications)
-  
+
   // Fetch danh sách lời mời invitations
   const dispatch = useDispatch()
 
@@ -50,7 +50,7 @@ const Notification = () => {
   useEffect(() => {
     dispatch(fetchInvitationsAPI())
 
-    // Tạo function xử lý khi nhận được sự kiện real-time 
+    // Tạo function xử lý khi nhận được sự kiện real-time
     const onReceiveNewInvitation = (invitation) => {
       // Nếu user đang đăng nhập hiện tại đang lưu trong redux chính là invitee trong bản ghi invitation
       if (invitation.inviteeId === currentUser._id) {
@@ -73,11 +73,11 @@ const Notification = () => {
 
   const updateBoardInvitation = (status, invitationId) => {
     dispatch(updateBoardInvitationAPI({ status, invitationId }))
-    .then((res) => {
-      if (res.payload.boardInvitation.status === BOARD_INVITATION_STATUS.ACCEPTED) {
-        navigate(`/boards/${res.payload.boardInvitation.boardId}`)
-      }
-    })
+      .then((res) => {
+        if (res.payload.boardInvitation.status === BOARD_INVITATION_STATUS.ACCEPTED) {
+          navigate(`/boards/${res.payload.boardInvitation.boardId}`)
+        }
+      })
 
   }
 
@@ -96,7 +96,7 @@ const Notification = () => {
       </button>
 
       {isNotificationOpen && (
-        <div 
+        <div
           className="absolute right-0 mt-1 w-[420px] min-w-[320px] bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-fadeIn"
           role="dialog"
           aria-label="Notification panel"
@@ -125,8 +125,8 @@ const Notification = () => {
             ) : (
               <div className="p-4 space-y-3">
                 {notifications?.map((notification, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className="p-4 bg-white dark:bg-gray-700/50 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-gray-600/50"
                   >
                     <div className="flex flex-col space-y-3">

@@ -1,19 +1,44 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { ChevronLeft, ChevronRight, Search, Sparkles, ChevronUp, FolderOpen, Plus, Ellipsis, Pencil, Star, Trash2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Search, Sparkles, ChevronUp, FolderOpen, Plus, Ellipsis, Pencil, Star, Trash2, Square, X } from 'lucide-react'
+import { useForm } from 'react-hook-form'
 import ProjectItem from '../Project/ProjectItem'
 import CreateProjectForm from '../Project/CreateProjectForm'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { selectCurrentUser } from '~/redux/user/userSlice'
-import { Link } from 'react-router-dom'
+import { updateCurrentActiveBoard, selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { Link, useNavigate } from 'react-router-dom'
 import { FORM_CREATE_PROJECT_WIDTH, FORM_CREATE_PROJECT_HEIGHT, OPTIONS_PROJECT_HEIGHT } from '~/utils/constants'
-import { fetchBoardsForSidebarAPI } from '~/apis'
+import { fetchBoardsForSidebarAPI, updateBoardDetailsAPI, deleteBoardAPI } from '~/apis'
+import ColorPickerPopup from '../Project/ColorPickerPopup'
+import FieldErrorAlert from '../UI/FieldErrorAlert'
+import { FIELD_REQUIRED_MESSAGE } from '~/utils/validators'
+import { toast } from 'react-toastify'
+import { useConfirm } from '~/Context/ConfirmProvider'
+
 
 const SideBar = ({ isOpen, toggleSidebar }) => {
 
+  const dispatch = useDispatch()
+  const { confirm } = useConfirm()
   const currentUser = useSelector(selectCurrentUser)
+  const activeBoard = useSelector(selectCurrentActiveBoard)
+  const navigate = useNavigate()
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors, isDirty, isValid }
+  } = useForm({
+    defaultValues: {
+      title: ''
+    },
+    mode: 'onChange' // Validate realtime
+  })
 
   const [showInput, setShowInput] = useState(false) // Hiển thị form tạo board hay không
-  const [toggleFavoriteProject, setToggleFavoriteProject] = useState(false) // Hiển thị danh sách dự án đã đánh dấu hay không
+  const [toggleFavoriteProject, setToggleFavoriteProject] = useState(true) // Hiển thị danh sách dự án đã đánh dấu hay không
   const [showOptionsProject, setShowOptionsProject] = useState(null) // Hiển thị menu lựa chọn cho dự án đang nhấn (null vì có thể set nhiều dự án khác)
 
   const [optionProjectPosition, setOptionProjectPosition] = useState(null) // Vị trí của menu lựa chọn dự án
@@ -27,6 +52,13 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
 
   const formCreateProjectRef = useRef(null) // Tham chiếu form tạo board
   const OptionProjectRef = useRef(null) // Tham chiếu menu lựa chọn dự án
+
+  const [showColorPicker, setShowColorPicker] = useState(false)
+  const [colorPickerPosition, setColorPickerPosition] = useState(null)
+
+  const [showRenameModal, setShowRenameModal] = useState(false)
+  const [renamingBoardId, setRenamingBoardId] = useState(null)
+  const renameInputRef = useRef(null)
 
   const getListBoards = async () => {
     setLoading(true)
@@ -71,6 +103,35 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
           })
         }
       }
+
+      // Xử lý color picker popup khi cuộn
+      if (showColorPicker && OptionProjectRef.current) {
+        // Tìm button thay đổi màu nền trong options menu
+        const colorChangeButton = OptionProjectRef.current.querySelector('.color-change-button')
+        if (colorChangeButton) {
+          const rect = colorChangeButton.getBoundingClientRect()
+          const viewportHeight = window.innerHeight
+          const viewportWidth = window.innerWidth
+
+          let top = rect.bottom + 5
+          let left = rect.left
+
+          if (top + 138 > viewportHeight) {
+            top = rect.top - 138 - 10
+          }
+
+          if (left + 256 > viewportWidth) {
+            left = rect.right - 256
+          }
+
+          setColorPickerPosition(prev => {
+            if (prev?.top !== top || prev?.left !== left) {
+              return { top, left }
+            }
+            return prev
+          })
+        }
+      }
     }
 
     const projectsContainer = projectsContainerRef.current
@@ -83,7 +144,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
         projectsContainer.removeEventListener('scroll', handleScroll)
       }
     }
-  }, [showOptionsProject])
+  }, [showOptionsProject, showColorPicker])
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -99,8 +160,14 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
         const currentProjectButton = optionsButtonRef.current[key]
 
         if (currentProjectButton?.contains(event.target)) return
+        if (showColorPicker && event.target.closest('.color-picker-popup')) return
 
         setShowOptionsProject(null)
+      }
+
+      // Color picker
+      if (showColorPicker && !event.target.closest('.color-picker-popup') && !event.target.closest('.color-change-button')) {
+        setShowColorPicker(false)
       }
     }
 
@@ -108,7 +175,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [showInput, showOptionsProject])
+  }, [showInput, showOptionsProject, showColorPicker])
 
   // Xử lý sự kiện nhấn nút + (Plus)
   const handlePlusClick = () => {
@@ -155,6 +222,195 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
     ))
   }
 
+  const handleFavoriteProject = async (e, projectKey) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    // Tìm board hiện tại để lấy trạng thái favorite
+    const currentBoard = boards.find(board => board._id === projectKey.id)
+    if (!currentBoard) return
+
+    const updatedBoard = await updateBoardDetailsAPI(projectKey.id, { favorite: !currentBoard.favorite })
+    if (updatedBoard) {
+      setBoards(prevBoards =>
+        prevBoards.map(board =>
+          board._id === projectKey.id ? { ...board, favorite: !board.favorite } : board
+        )
+      )
+      setShowOptionsProject(null)
+    }
+  }
+
+  const handleChangeBackgroundColor = async (color) => {
+    // Tìm board hiện tại
+    const currentBoard = boards.find(board => board._id === showOptionsProject.id)
+    if (!currentBoard) return
+
+    const updatedBoard = await updateBoardDetailsAPI(showOptionsProject.id, { backgroundColor: color })
+    if (updatedBoard) {
+      setBoards(prevBoards =>
+        prevBoards.map(board =>
+          board._id === showOptionsProject.id ? { ...board, backgroundColor: color } : board
+        )
+      )
+      toast.success('Thay đổi màu nền thành công!')
+      if (activeBoard._id === showOptionsProject.id) {
+        dispatch(updateCurrentActiveBoard({ ...activeBoard, backgroundColor: color }))
+      }
+      setShowColorPicker(false)
+    }
+  }
+
+  const handleColorPickerClick = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    // Tìm board hiện tại
+    const currentBoard = boards.find(board => board._id === showOptionsProject.id)
+    if (!currentBoard) return
+
+    // Nếu color picker đang mở và click vào nút thay đổi màu nền thì đóng lại
+    if (showColorPicker && e.currentTarget.contains(e.target)) {
+      setShowColorPicker(false)
+      return
+    }
+
+    const button = e.currentTarget
+    const rect = button.getBoundingClientRect()
+    const viewportHeight = window.innerHeight
+    const viewportWidth = window.innerWidth
+
+    let top = rect.bottom + 5
+    let left = rect.left
+
+    if (top + 138 > viewportHeight) {
+      top = rect.top - 138 - 10
+    }
+
+    if (left + 256 > viewportWidth) {
+      left = rect.right - 256
+    }
+
+    setColorPickerPosition({ top, left })
+    setShowColorPicker(true)
+  }
+
+  // Tìm board hiện tại một lần và tái sử dụng
+  const currentBoard = showOptionsProject ? boards.find(board => board._id === showOptionsProject.id) : null
+
+  const handleRenameClick = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    const currentBoard = boards.find(board => board._id === showOptionsProject.id)
+    if (!currentBoard) return
+
+    setValue('title', currentBoard.title, {
+      shouldValidate: true, // Validate ngay khi set giá trị
+      shouldDirty: true // Đánh dấu là đã thay đổi
+    })
+    setRenamingBoardId(showOptionsProject.id)
+    setShowRenameModal(true)
+    setShowOptionsProject(null)
+  }
+
+  const onSubmit = async (data) => {
+    if (!renamingBoardId) return
+
+    const currentBoard = boards.find(board => board._id === renamingBoardId)
+    if (!currentBoard) return
+
+    const updatedBoard = await updateBoardDetailsAPI(renamingBoardId, { title: data.title.trim() })
+    if (updatedBoard) {
+      // Cập nhật state boards
+      setBoards(prevBoards =>
+        prevBoards.map(board =>
+          board._id === renamingBoardId ? { ...board, title: data.title.trim() } : board
+        )
+      )
+
+      // Cập nhật active board nếu đang active
+      if (activeBoard._id === renamingBoardId) {
+        dispatch(updateCurrentActiveBoard({ ...activeBoard, title: data.title.trim() }))
+      }
+
+      toast.success('Đổi tên bảng thành công!')
+      handleRenameCancel()
+    }
+  }
+
+  const handleRenameCancel = () => {
+    setShowRenameModal(false)
+    setRenamingBoardId(null)
+    reset()
+  }
+
+  // Cleanup khi component unmount
+  useEffect(() => {
+    return () => {
+      setShowRenameModal(false)
+      setRenamingBoardId(null)
+      reset()
+    }
+  }, [reset])
+
+  // Focus input when modal opens
+  useEffect(() => {
+    if (showRenameModal && renameInputRef.current) {
+      renameInputRef.current.focus()
+    }
+  }, [showRenameModal])
+
+  // Handle ESC key for color picker
+  useEffect(() => {
+    const handleEscKey = (e) => {
+      if (e.key === 'Escape' && showColorPicker) {
+        setShowColorPicker(false)
+      }
+    }
+
+    document.addEventListener('keydown', handleEscKey)
+    return () => {
+      document.removeEventListener('keydown', handleEscKey)
+    }
+  }, [showColorPicker])
+
+  const handleDeleteBoard = async (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    const currentBoard = boards.find(board => board._id === showOptionsProject.id)
+    if (!currentBoard) return
+
+    // Lưu boardId và board cần xóa trước khi đóng options
+    const boardIdToDelete = showOptionsProject.id
+    const boardToDelete = currentBoard
+
+    // Đóng menu options trước
+    setShowOptionsProject(null)
+
+    const result = await confirm({
+      title: 'Xoá Bảng',
+      message: `Hành động này sẽ xóa vĩnh viễn tất cả cột và nhiệm vụ thuộc bảng "${boardToDelete.title}"! Bạn có chắc chắn không?`,
+      modal: true
+    })
+
+    if (result) {
+      const response = await deleteBoardAPI(boardIdToDelete)
+
+      // Cập nhật state boards sau khi xóa
+      setBoards(prevBoards => prevBoards.filter(board => board._id !== boardIdToDelete))
+
+      // Nếu board đang active thì clear active board
+      if (activeBoard._id === boardIdToDelete) {
+        dispatch(updateCurrentActiveBoard(null))
+        // Điều hướng về trang chủ sau khi xóa thành công
+        navigate('/')
+      }
+
+      toast.success(response?.deleteResult || 'Xóa bảng thành công!')
+    }
+  }
 
   return (
     <>
@@ -167,6 +423,97 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
         />
       }
 
+      {/* Rename Modal */}
+      {showRenameModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={handleRenameCancel}
+        >
+          <div
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-[400px] p-6 animate-fadeIn"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Đổi tên bảng</h3>
+              <button
+                onClick={handleRenameCancel}
+                className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div>
+                <input
+                  {...register('title', {
+                    required: FIELD_REQUIRED_MESSAGE,
+                    minLength: {
+                      value: 3,
+                      message: 'Tên bảng phải có ít nhất 3 ký tự'
+                    },
+                    validate: (value) => {
+                      const currentBoard = boards.find(board => board._id === renamingBoardId)
+                      if (value.trim() === currentBoard?.title) {
+                        return 'Tên bảng phải khác tên hiện tại'
+                      }
+                      return true
+                    }
+                  })}
+                  ref={(e) => {
+                    register('title').ref(e)
+                    renameInputRef.current = e
+                  }}
+                  spellCheck={false}
+                  className={`w-full px-3 py-2 text-sm rounded-lg border 
+                    ${errors.title ? 'border-red-500 dark:border-red-500 focus:border-red-500 dark:focus:border-red-500' : 'border-gray-200 dark:border-gray-700 focus:border-sky-500 dark:focus:border-sky-400'}
+                    bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
+                    focus:outline-none focus:ring-1
+                    ${errors.title ? 'focus:ring-red-500 dark:focus:ring-red-500' : 'focus:ring-sky-500 dark:focus:ring-sky-400'}
+                    placeholder-gray-400 dark:placeholder-gray-500
+                    transition-colors duration-200`}
+                  placeholder="Tiêu đề bảng"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') {
+                      handleRenameCancel()
+                    }
+                  }}
+                />
+                <FieldErrorAlert errors={errors} fieldName="title" />
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={handleRenameCancel}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300
+                    hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  disabled={!isDirty || !isValid}
+                  className={`px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors 
+                    ${!isDirty || !isValid ? 'bg-sky-400/50 dark:bg-sky-500/50 cursor-not-allowed' : 'bg-sky-500 hover:bg-sky-600 dark:bg-sky-500 dark:hover:bg-sky-600'}`}
+                >
+                  Đổi tên
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Color Picker Popup */}
+      {showColorPicker && currentBoard && (
+        <ColorPickerPopup
+          position={colorPickerPosition}
+          selectedColor={currentBoard.backgroundColor}
+          onColorChange={handleChangeBackgroundColor}
+        />
+      )}
+
       {/* Options project */}
       {showOptionsProject && (
         <div
@@ -174,16 +521,28 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
           className="z-50 fixed bg-white dark:bg-gray-900 p-2 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 w-48 animate-fadeIn"
           style={{ top: optionProjectPosition?.top, left: optionProjectPosition?.left }} >
           <div className="flex flex-col gap-1.5">
-            <button className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 ease-in-out" >
+            <button
+              onClick={handleRenameClick}
+              className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 ease-in-out"
+            >
               <Pencil className="w-4 h-4" />
               <span>Đổi tên</span>
             </button>
             <button
-              className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 ease-in-out" >
-              <Star className="w-4 h-4" />
-              <span>Yêu thích</span>
+              onClick={(e) => handleFavoriteProject(e, showOptionsProject)}
+              className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 ease-in-out group" >
+              <Star className={`w-4 h-4 ${currentBoard?.favorite ? 'text-yellow-500 group-hover:text-gray-400' : 'text-gray-400 group-hover:text-yellow-500'}`} />
+              <span>{currentBoard?.favorite ? 'Bỏ đánh dấu' : 'Đánh dấu'}</span>
             </button>
-            <button className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 ease-in-out" >
+            <button
+              onClick={handleColorPickerClick}
+              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 ease-in-out color-change-button ${showColorPicker ? 'bg-gray-100 dark:bg-gray-700' : ''}`} >
+              <span className={`w-4 h-4 rounded-sm ${currentBoard?.backgroundColor || 'bg-sky-200'}`}></span>
+              <span>Thay đổi màu nền</span>
+            </button>
+            <button
+              onClick={handleDeleteBoard}
+              className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 ease-in-out" >
               <Trash2 className="w-4 h-4" />
               <span>Xoá</span>
             </button>

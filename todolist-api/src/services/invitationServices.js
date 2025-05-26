@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-catch */
 import { invitationModel } from '~/models/invitationModel'
 import { boardModel } from '~/models/boardModel'
 import { userModel } from '~/models/userModel'
@@ -15,7 +16,7 @@ const createNewBoardInvitation = async (inviterId, reqBody) => {
     // Tìm luôn board ra để lấy data xử lý
 
     const board = await boardModel.findOneById(reqBody.boardId)
-    
+
     // Nếu không tồn tại 1/3 thì reject
     if (!inviter || !invitee || !board) {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy người mời hoặc người được mời hoặc bảng!')
@@ -79,7 +80,7 @@ const updateBoardInvitation = async (userId, invitationId, status) => {
     // Note 2: Mảng memberIds và ownerId của board nó đang là kiểu dữ liệu ObjectId nên cho nó về String hết luôn để check
     const boardOwnerAndMemberIds = [...getBoard.ownerIds, ...getBoard.memberIds].toString()
     if (status === BOARD_INVITATION_STATUS.ACCEPTED && boardOwnerAndMemberIds.includes(userId)) {
-        throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Bạn đã là thành viên của bảng này!')
+      throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Bạn đã là thành viên của bảng này!')
     }
 
     // Tạo dữ liệu để update bản ghi Invitation
@@ -98,7 +99,7 @@ const updateBoardInvitation = async (userId, invitationId, status) => {
     }
 
     return updatedInvitation
-    
+
   } catch (error) { throw error }
 }
 

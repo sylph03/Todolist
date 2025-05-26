@@ -109,14 +109,14 @@ const unshiftNewComment = async (cardId, commentData) => {
   } catch (error) { throw new Error (error) }
 }
 
-// 
+//
 const updateMembers = async (cardId, incomingMemberInfo) => {
   try {
     // Tạo biến updateCondition ban đầu là rỗng
     let updateCondition = {}
     if (incomingMemberInfo.action === CARD_MEMBER_ACTION.ADD) {
       updateCondition = { $push: { memberIds: new ObjectId(String(incomingMemberInfo.userId)) } }
-    } 
+    }
     if (incomingMemberInfo.action === CARD_MEMBER_ACTION.REMOVE) {
       updateCondition = { $pull: { memberIds: new ObjectId(String(incomingMemberInfo.userId)) } }
     }
@@ -130,6 +130,13 @@ const updateMembers = async (cardId, incomingMemberInfo) => {
   } catch (error) { throw new Error (error) }
 }
 
+const deleteManyByBoardId = async (boardId) => {
+  try {
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).deleteMany({ boardId: new ObjectId(String(boardId)) })
+    return result
+  } catch (error) { throw new Error(error) }
+}
+
 export const cardModel = {
   CARD_COLLECTION_NAME,
   CARD_COLLECTION_SCHEMA,
@@ -139,5 +146,6 @@ export const cardModel = {
   deleteManyByColumnId,
   deleteOneById,
   unshiftNewComment,
-  updateMembers
+  updateMembers,
+  deleteManyByBoardId
 }

@@ -15,6 +15,8 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   columnOrderIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
   ownerIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
   memberIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
+  favorite: Joi.boolean().default(false),
+  backgroundColor: Joi.string().default('bg-sky-200'),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false)
@@ -201,9 +203,17 @@ const getBoardsForSidebar = async (userId) => {
       ] }
     ]
 
-    // Query để lấy tất cả boards
+    // Query để lấy tất cả boards với các trường cần thiết cho sidebar
     const boards = await GET_DB().collection(BOARD_COLLECTION_NAME)
       .find({ $and: queryConditions })
+      .project({
+        _id: 1,
+        title: 1,
+        description: 1,
+        backgroundColor: 1,
+        favorite: 1,
+        slug: 1
+      })
       .sort({ createdAt: 1 }) //  mới nhất xuống dưới
       .toArray()
 
@@ -227,6 +237,15 @@ const pushMemberIds = async (boardId, userId) => {
   } catch (error) { throw new Error(error) }
 }
 
+const deleteOneById = async (boardId) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).deleteOne({ _id: new ObjectId(String(boardId)) })
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
@@ -238,5 +257,6 @@ export const boardModel = {
   pullColumnOrderIds,
   getBoards,
   getBoardsForSidebar,
-  pushMemberIds
+  pushMemberIds,
+  deleteOneById
 }

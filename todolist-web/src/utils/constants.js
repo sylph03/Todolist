@@ -28,5 +28,5 @@ export const CARD_MEMBER_ACTION = {
 
 // Form dimensions
 export const FORM_CREATE_PROJECT_WIDTH = 352
-export const FORM_CREATE_PROJECT_HEIGHT = 401
-export const OPTIONS_PROJECT_HEIGHT = 138
+export const FORM_CREATE_PROJECT_HEIGHT = 495
+export const OPTIONS_PROJECT_HEIGHT = 180

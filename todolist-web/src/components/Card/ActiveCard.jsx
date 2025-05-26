@@ -148,7 +148,7 @@ const ActiveCard = () => {
           {/* Card Cover */}
           {activeCard?.cover && (
             <div className="w-full relative rounded-t-xl">
-              <div className="h-[146px] w-auto md:h-[176px] mx-auto bg-sky-200 overflow-hidden rounded-t-xl bg-sky-200 dark:bg-gray-700">
+              <div className="h-[146px] w-auto md:h-[176px] mx-auto overflow-hidden rounded-t-xl bg-sky-200 dark:bg-gray-700">
                 <img
                   src={activeCard.cover}
                   alt="cover"
@@ -199,7 +199,7 @@ const ActiveCard = () => {
             {/* Right: Actions */}
             <div className="w-full md:w-64 flex-shrink-0 flex flex-col gap-6">
               <div className="space-y-2">
-                <button 
+                <button
                   onClick={() => onUpdateCardMembers({
                     userId: currentUser?._id,
                     action: activeCard?.memberIds.includes(currentUser?._id) ? CARD_MEMBER_ACTION.REMOVE : CARD_MEMBER_ACTION.ADD
@@ -209,7 +209,7 @@ const ActiveCard = () => {
                   {activeCard?.memberIds.includes(currentUser?._id) ? 'Rời khỏi' : 'Tham gia'}
                 </button>
                 <div className="relative">
-                  <button 
+                  <button
                     ref={membersButtonRef}
                     onClick={() => setIsShowMembers(prev => !prev)}
                     className={`w-full flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition ${isShowMembers ? 'bg-gray-200 dark:bg-gray-600' : ''}`}>

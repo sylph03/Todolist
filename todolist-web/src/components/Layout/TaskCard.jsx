@@ -317,7 +317,7 @@ const TaskCard = ({ card }) => {
                   style={{ width: textCardWidth ? `${textCardWidth}px` : 'auto' }}
                 />
               )}
-              <div 
+              <div
                 className={`px-4 pt-4 pb-2 bg-white dark:bg-gray-800 ${card?.cover ? 'rounded-b-xl' : 'rounded-xl'}`}
                 style={{ width: textCardWidth ? `${textCardWidth}px` : 'auto' }}
               >

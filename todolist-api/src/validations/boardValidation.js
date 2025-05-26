@@ -13,7 +13,9 @@ const createNew = async (req, res, next) => {
       'string.trim' : 'Tiêu đề không được có khoảng trắng đầu hoặc cuối'
     }),
     description: Joi.string().max(255).trim().strict().allow('').optional(),
-    columnOrderIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([])
+    columnOrderIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
+    favorite: Joi.boolean().default(false),
+    backgroundColor: Joi.string().default('bg-sky-200')
   })
 
   try {
@@ -33,7 +35,9 @@ const update = async (req, res, next) => {
   const correctCondition = Joi.object({
     title: Joi.string().min(3).max(30).trim().strict(),
     description: Joi.string().max(255).trim().strict().allow('').optional(),
-    columnOrderIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE))
+    columnOrderIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)),
+    favorite: Joi.boolean(),
+    backgroundColor: Joi.string()
   })
 
   try {
