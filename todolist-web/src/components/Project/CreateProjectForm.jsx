@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { X } from 'lucide-react'
 import { createNewBoardAPI } from '~/apis'
 import { useForm } from 'react-hook-form'
@@ -13,12 +13,58 @@ const CreateProjectForm = ({ formCreateProjectRef, setShowInput, formPosition, a
   })
   const [showColorPicker, setShowColorPicker] = useState(false)
   const colorButtonRef = useRef(null)
+  const colorPickerRef = useRef(null)
 
   const selectedColor = watch('backgroundColor')
+
+  // Handle both Escape key press and click outside
+  useEffect(() => {
+    const handleEscapeKey = (e) => {
+      if (e.key === 'Escape') {
+        if (showColorPicker) {
+          setShowColorPicker(false)
+        } else {
+          setShowInput(false)
+        }
+      }
+    }
+
+    const handleClickOutside = (e) => {
+      // Xử lý click outside cho form
+      if (formCreateProjectRef.current && !formCreateProjectRef.current.contains(e.target)) {
+        // Kiểm tra nếu click vào color picker thì không đóng form
+        if (colorPickerRef.current?.contains(e.target)) return
+        // Kiểm tra nếu click vào nút Plus thì không đóng form
+        if (e.target.closest('.plus-button')) return
+        setShowInput(false)
+      }
+
+      // Xử lý click outside cho color picker
+      if (showColorPicker && colorPickerRef.current && !colorPickerRef.current.contains(e.target)) {
+        if (colorButtonRef.current?.contains(e.target)) return
+        setShowColorPicker(false)
+      }
+    }
+
+    document.addEventListener('keydown', handleEscapeKey)
+    document.addEventListener('mousedown', handleClickOutside)
+
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey)
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showColorPicker, setShowInput])
 
   const handleColorPickerClick = (e) => {
     e.preventDefault()
     e.stopPropagation()
+
+    // Nếu color picker đang mở và click vào nút thay đổi màu nền thì đóng lại
+    if (showColorPicker && e.currentTarget.contains(e.target)) {
+      setShowColorPicker(false)
+      return
+    }
+
     setShowColorPicker(!showColorPicker)
   }
 
@@ -87,7 +133,9 @@ const CreateProjectForm = ({ formCreateProjectRef, setShowInput, formPosition, a
               type="button"
               ref={colorButtonRef}
               onClick={handleColorPickerClick}
-              className="w-full flex items-center justify-between rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 px-4 py-3 hover:border-sky-500 dark:hover:border-sky-500 transition-all duration-200"
+              className={`w-full flex items-center justify-between rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 px-4 py-3 hover:border-sky-500 dark:hover:border-sky-500 transition-all duration-200 ${
+                showColorPicker ? 'border-sky-500 dark:border-sky-500' : ''
+              }`}
             >
               <div className="flex items-center gap-3">
                 <span className={`w-6 h-6 rounded-md ${selectedColor}`}></span>
@@ -97,14 +145,16 @@ const CreateProjectForm = ({ formCreateProjectRef, setShowInput, formPosition, a
               </div>
             </button>
             {showColorPicker && (
-              <ColorPickerPopup
-                position={{
-                  top: colorButtonRef.current?.getBoundingClientRect().bottom + 5,
-                  left: colorButtonRef.current?.getBoundingClientRect().left
-                }}
-                selectedColor={selectedColor}
-                onColorChange={handleColorChange}
-              />
+              <div ref={colorPickerRef} onClick={(e) => e.stopPropagation()}>
+                <ColorPickerPopup
+                  position={{
+                    top: colorButtonRef.current?.getBoundingClientRect().bottom + 5,
+                    left: colorButtonRef.current?.getBoundingClientRect().left
+                  }}
+                  selectedColor={selectedColor}
+                  onColorChange={handleColorChange}
+                />
+              </div>
             )}
           </div>
         </div>

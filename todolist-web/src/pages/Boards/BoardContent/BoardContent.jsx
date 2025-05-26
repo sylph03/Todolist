@@ -7,6 +7,7 @@ import { MouseSensor, TouchSensor } from '~/libs/DndKitSensors'
 import { SortableContext, horizontalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import { cloneDeep, isEmpty } from 'lodash'
 import { generatePlaceholderCard } from '~/utils/formatters'
+import EmptyColumn from '~/components/Cloumn/EmptyColumn'
 
 const ACIVE_DRAG_ITEM_TYPE = {
   COLUMN: 'ACIVE_DRAG_ITEM_TYPE_COLUMN',
@@ -275,6 +276,9 @@ const BoardContent = ({ board, isSidebarOpen, moveColumns, moveCardInTheSameColu
               {orderedColumns?.map(column => (
                 <TaskColumn key={column._id} column={column}/>
               ))}
+              {orderedColumns?.length === 0 && (
+                <EmptyColumn />
+              )}
             </div>
           </SortableContext>
           <DragOverlay dropAnimation={dropAnimation}>

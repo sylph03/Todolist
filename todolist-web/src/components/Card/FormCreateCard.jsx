@@ -11,7 +11,7 @@ import { FIELD_REQUIRED_MESSAGE } from '~/utils/validators'
 import DescriptionMdEditor from '~/components/Card/DescriptionMdEditor'
 import { singleFileValidator } from '~/utils/validators'
 
-const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }) => {
+const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, defaultColumn }) => {
   const dispatch = useDispatch()
   const [isOpenStatusOption, setIsOpenStatusOption] = useState(false)
   const [coverImage, setCoverImage] = useState(null)
@@ -22,7 +22,7 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
   const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm({
     defaultValues: {
       title: '',
-      status: ''
+      status: defaultColumn?.title || ''
     },
     mode: 'onChange'
   })
@@ -33,6 +33,13 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board }
     value: column.title,
     label: column.title
   })) || []
+
+  // Reset form when defaultColumn changes
+  useEffect(() => {
+    if (defaultColumn) {
+      setValue('status', defaultColumn.title, { shouldValidate: true })
+    }
+  }, [defaultColumn, setValue])
 
   const handleUpdateCardDescription = (description) => {
     setCardDescription(description)

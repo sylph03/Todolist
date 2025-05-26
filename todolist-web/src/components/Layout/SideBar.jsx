@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { ChevronLeft, ChevronRight, Search, Sparkles, ChevronUp, FolderOpen, Plus, Ellipsis, Pencil, Star, Trash2, Square, X } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import ProjectItem from '../Project/ProjectItem'
@@ -14,6 +14,8 @@ import FieldErrorAlert from '../UI/FieldErrorAlert'
 import { FIELD_REQUIRED_MESSAGE } from '~/utils/validators'
 import { toast } from 'react-toastify'
 import { useConfirm } from '~/Context/ConfirmProvider'
+import RenameModal from '../UI/RenameModal'
+import { debounce } from 'lodash'
 
 
 const SideBar = ({ isOpen, toggleSidebar }) => {
@@ -60,6 +62,11 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
   const [renamingBoardId, setRenamingBoardId] = useState(null)
   const renameInputRef = useRef(null)
 
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filteredBoards, setFilteredBoards] = useState([])
+  const [isSearching, setIsSearching] = useState(false)
+  const searchInputRef = useRef(null)
+
   const getListBoards = async () => {
     setLoading(true)
     const response = await fetchBoardsForSidebarAPI()
@@ -76,6 +83,62 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
   useEffect(() => {
     getListBoards()
   }, [])
+
+  // Debounced search function
+  const debouncedSearch = useCallback(
+    debounce((query) => {
+      if (!query.trim()) {
+        setFilteredBoards(boards)
+        setIsSearching(false)
+        return
+      }
+
+      const searchQuery = query.toLowerCase().trim()
+      const filtered = boards.filter(board => 
+        board.title.toLowerCase().includes(searchQuery) ||
+        (board.description && board.description.toLowerCase().includes(searchQuery))
+      )
+      setFilteredBoards(filtered)
+      setIsSearching(false)
+    }, 300),
+    [boards]
+  )
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    const value = e.target.value
+    setSearchQuery(value)
+    setIsSearching(true)
+    debouncedSearch(value)
+  }
+
+  // Handle search input blur
+  const handleSearchBlur = () => {
+    // Đảm bảo giá trị cuối cùng được cập nhật
+    debouncedSearch.flush()
+  }
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel()
+    }
+  }, [debouncedSearch])
+
+  // Filter boards based on search query
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredBoards(boards)
+      return
+    }
+
+    const query = searchQuery.toLowerCase().trim()
+    const filtered = boards.filter(board => 
+      board.title.toLowerCase().includes(query) ||
+      (board.description && board.description.toLowerCase().includes(query))
+    )
+    setFilteredBoards(filtered)
+  }, [searchQuery, boards])
 
   // Xử lý dropdown khi cuộn
   useEffect(() => {
@@ -178,7 +241,10 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
   }, [showInput, showOptionsProject, showColorPicker])
 
   // Xử lý sự kiện nhấn nút + (Plus)
-  const handlePlusClick = () => {
+  const handlePlusClick = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+
     if (plusButtonRef.current) {
       const rect = plusButtonRef.current.getBoundingClientRect()
       let top = rect.top - 30
@@ -305,44 +371,38 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
     const currentBoard = boards.find(board => board._id === showOptionsProject.id)
     if (!currentBoard) return
 
-    setValue('title', currentBoard.title, {
-      shouldValidate: true, // Validate ngay khi set giá trị
-      shouldDirty: true // Đánh dấu là đã thay đổi
-    })
     setRenamingBoardId(showOptionsProject.id)
     setShowRenameModal(true)
     setShowOptionsProject(null)
   }
 
-  const onSubmit = async (data) => {
+  const handleRenameSubmit = async (newTitle) => {
     if (!renamingBoardId) return
 
     const currentBoard = boards.find(board => board._id === renamingBoardId)
     if (!currentBoard) return
 
-    const updatedBoard = await updateBoardDetailsAPI(renamingBoardId, { title: data.title.trim() })
+    const updatedBoard = await updateBoardDetailsAPI(renamingBoardId, { title: newTitle })
     if (updatedBoard) {
       // Cập nhật state boards
       setBoards(prevBoards =>
         prevBoards.map(board =>
-          board._id === renamingBoardId ? { ...board, title: data.title.trim() } : board
+          board._id === renamingBoardId ? { ...board, title: newTitle } : board
         )
       )
 
       // Cập nhật active board nếu đang active
       if (activeBoard._id === renamingBoardId) {
-        dispatch(updateCurrentActiveBoard({ ...activeBoard, title: data.title.trim() }))
+        dispatch(updateCurrentActiveBoard({ ...activeBoard, title: newTitle }))
       }
 
       toast.success('Đổi tên bảng thành công!')
-      handleRenameCancel()
     }
   }
 
   const handleRenameCancel = () => {
     setShowRenameModal(false)
     setRenamingBoardId(null)
-    reset()
   }
 
   // Cleanup khi component unmount
@@ -364,8 +424,12 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
   // Handle ESC key for color picker
   useEffect(() => {
     const handleEscKey = (e) => {
-      if (e.key === 'Escape' && showColorPicker) {
-        setShowColorPicker(false)
+      if (e.key === 'Escape') {
+        if (showColorPicker) {
+          setShowColorPicker(false)
+        } else if (showOptionsProject) {
+          setShowOptionsProject(null)
+        }
       }
     }
 
@@ -424,86 +488,21 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
       }
 
       {/* Rename Modal */}
-      {showRenameModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-          onClick={handleRenameCancel}
-        >
-          <div
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-[400px] p-6 animate-fadeIn"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Đổi tên bảng</h3>
-              <button
-                onClick={handleRenameCancel}
-                className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              >
-                <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div>
-                <input
-                  {...register('title', {
-                    required: FIELD_REQUIRED_MESSAGE,
-                    minLength: {
-                      value: 3,
-                      message: 'Tên bảng phải có ít nhất 3 ký tự'
-                    },
-                    validate: (value) => {
-                      const currentBoard = boards.find(board => board._id === renamingBoardId)
-                      if (value.trim() === currentBoard?.title) {
-                        return 'Tên bảng phải khác tên hiện tại'
-                      }
-                      return true
-                    }
-                  })}
-                  ref={(e) => {
-                    register('title').ref(e)
-                    renameInputRef.current = e
-                  }}
-                  spellCheck={false}
-                  className={`w-full px-3 py-2 text-sm rounded-lg border 
-                    ${errors.title ? 'border-red-500 dark:border-red-500 focus:border-red-500 dark:focus:border-red-500' : 'border-gray-200 dark:border-gray-700 focus:border-sky-500 dark:focus:border-sky-400'}
-                    bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
-                    focus:outline-none focus:ring-1
-                    ${errors.title ? 'focus:ring-red-500 dark:focus:ring-red-500' : 'focus:ring-sky-500 dark:focus:ring-sky-400'}
-                    placeholder-gray-400 dark:placeholder-gray-500
-                    transition-colors duration-200`}
-                  placeholder="Tiêu đề bảng"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Escape') {
-                      handleRenameCancel()
-                    }
-                  }}
-                />
-                <FieldErrorAlert errors={errors} fieldName="title" />
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={handleRenameCancel}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300
-                    hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                >
-                  Hủy
-                </button>
-                <button
-                  type="submit"
-                  disabled={!isDirty || !isValid}
-                  className={`px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors 
-                    ${!isDirty || !isValid ? 'bg-sky-400/50 dark:bg-sky-500/50 cursor-not-allowed' : 'bg-sky-500 hover:bg-sky-600 dark:bg-sky-500 dark:hover:bg-sky-600'}`}
-                >
-                  Đổi tên
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <RenameModal
+        isOpen={showRenameModal}
+        onClose={handleRenameCancel}
+        onSubmit={handleRenameSubmit}
+        title="Đổi tên bảng"
+        currentValue={renamingBoardId ? boards.find(board => board._id === renamingBoardId)?.title : ''}
+        validateValue={(value) => {
+          const currentBoard = boards.find(board => board._id === renamingBoardId)
+          if (value.trim() === currentBoard?.title) {
+            return 'Tên bảng phải khác tên hiện tại'
+          }
+          return true
+        }}
+        placeholder="Tiêu đề bảng"
+      />
 
       {/* Color Picker Popup */}
       {showColorPicker && currentBoard && (
@@ -584,8 +583,12 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
             <div className="px-3 pt-2">
               <div className="relative">
                 <input
+                  ref={searchInputRef}
                   type="text"
-                  placeholder="Tìm kiếm ..."
+                  placeholder="Tìm kiếm bảng..."
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  onBlur={handleSearchBlur}
                   className="w-full pl-10 pr-4 py-2 rounded-xl border border-sky-400/30 dark:border-slate-700/30
                     bg-white/10 dark:bg-gray-800/50 text-white dark:text-gray-100
                     focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/30
@@ -593,6 +596,11 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
                     backdrop-blur-sm"
                 />
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-100 dark:text-gray-400" />
+                {isSearching && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/50 border-t-white"></div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -611,7 +619,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
               {/* Danh sách đã đánh dấu */}
               {toggleFavoriteProject &&
                 <div className="flex flex-col gap-2 w-full max-w-full animate-fadeIn">
-                  {boards?.map((board) => (
+                  {filteredBoards?.map((board) => (
                     board.favorite && (
                       <ProjectItem
                         key={`favorite-${board._id}`}
@@ -628,6 +636,11 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
                       Đang tải...
                     </div>
                   )}
+                  {/* {!loading && filteredBoards.filter(board => board.favorite).length === 0 && (
+                    <div className="text-center text-white/70 dark:text-gray-400 py-2">
+                      {searchQuery ? 'Không tìm thấy bảng đã đánh dấu' : 'Chưa có bảng nào được đánh dấu'}
+                    </div>
+                  )} */}
                 </div>
               }
             </div>
@@ -650,7 +663,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
                   <div
                     onClick={handlePlusClick}
                     ref={plusButtonRef}
-                    className="transition-all duration-200 hover:scale-110"
+                    className="plus-button transition-all duration-200 hover:scale-110"
                   >
                     <Plus className={`w-7 h-7 p-1 dark:text-gray-300 cursor-pointer text-gray-200 hover:text-white transition-all duration-200 ${showInput ? 'text-white dark:text-white rotate-45' : 'text-gray-200'}`} />
                   </div>
@@ -658,7 +671,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
               </div>
               {/* Danh sách dự án */}
               <div className="flex flex-col gap-2 w-full max-w-full">
-                {boards?.map((board) => (
+                {filteredBoards?.map((board) => (
                   <ProjectItem
                     key={`normal-${board._id}`}
                     project={board}
@@ -672,6 +685,11 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
                     Đang tải...
                   </div>
                 )}
+                {/* {!loading && filteredBoards.length === 0 && (
+                  <div className="text-center text-white/70 dark:text-gray-400 py-2">
+                    {searchQuery ? 'Không tìm thấy bảng nào' : 'Chưa có bảng nào'}
+                  </div>
+                )} */}
               </div>
             </div>
           </div>

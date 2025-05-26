@@ -53,7 +53,7 @@ const deleteItem = async (cardId) => {
     // Xóa card
     await cardModel.deleteOneById(cardId)
 
-    // Xóa cardId trong cardOrderIds của Board chứa nó
+    // Xóa cardId trong cardOrderIds của Column chứa nó
     await columnModel.pullCardOrderIds(targetCard)
 
     return { deleteResult: 'Nhiệm vụ đã được xóa thành công!' }
