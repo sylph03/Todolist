@@ -100,7 +100,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
       )
       setFilteredBoards(filtered)
       setIsSearching(false)
-    }, 300),
+    }, 500),
     [boards]
   )
 
@@ -420,24 +420,6 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
       renameInputRef.current.focus()
     }
   }, [showRenameModal])
-
-  // Handle ESC key for color picker
-  useEffect(() => {
-    const handleEscKey = (e) => {
-      if (e.key === 'Escape') {
-        if (showColorPicker) {
-          setShowColorPicker(false)
-        } else if (showOptionsProject) {
-          setShowOptionsProject(null)
-        }
-      }
-    }
-
-    document.addEventListener('keydown', handleEscKey)
-    return () => {
-      document.removeEventListener('keydown', handleEscKey)
-    }
-  }, [showColorPicker])
 
   const handleDeleteBoard = async (e) => {
     e.preventDefault()

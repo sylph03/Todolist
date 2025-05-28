@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react'
-import { Plus, Search, Archive, Columns2 } from 'lucide-react'
+import { Plus, Archive, Columns2 } from 'lucide-react'
 import { useSelector } from 'react-redux'
 import { selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import FormCreateCard from '~/components/Card/FormCreateCard'
@@ -7,6 +7,7 @@ import FormCreateColumn from '~/components/Cloumn/FormCreateColumn'
 import { toast } from 'react-toastify'
 import BoardUserGroup from '~/pages/Boards/BoardUserGroup'
 import InviteBoardUser from '~/pages/Boards/InviteBoardUser'
+import SearchActionCard from '~/components/Card/SearchActionCard'
 
 const BoardActions = () => {
   const board = useSelector(selectCurrentActiveBoard)
@@ -67,17 +68,7 @@ const BoardActions = () => {
         {/* Right Actions: Thanh tìm kiếm và thêm users vào board */}
         <div className="flex gap-3">
           {/* Thanh tìm kiếm */}
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Tìm kiếm nhiệm vụ..."
-              className="max-w-[300px] pl-10 pr-4 py-[7px] rounded-xl border border-gray-300 dark:border-gray-700
-                bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-sm
-                focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500
-                transition duration-200 placeholder-gray-500 dark:placeholder-gray-400"
-            />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-gray-400" />
-          </div>
+          <SearchActionCard />
 
           {/* Nút mời users vào board */}
           <InviteBoardUser boardId={board?._id}/>

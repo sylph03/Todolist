@@ -2,6 +2,7 @@
 import { StatusCodes } from 'http-status-codes'
 import { cardModel } from '~/models/cardModel'
 import { columnModel } from '~/models/columnModel'
+import { boardModel } from '~/models/boardModel'
 import ApiError from '~/utils/ApiError'
 import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 
@@ -97,8 +98,18 @@ const update = async (cardId, reqBody, cardCoverFile, userInfo) => {
   } catch (error) { throw error }
 }
 
+const getCards = async (userId, queryFilters) => {
+  try {
+
+    const results = await cardModel.getCards(userId, queryFilters)
+
+    return results
+  } catch (error) { throw error }
+}
+
 export const cardService = {
   createNew,
   deleteItem,
-  update
+  update,
+  getCards
 }

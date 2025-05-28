@@ -33,7 +33,7 @@ const createNew = async (req, res, next) => {
     if (error instanceof ApiError) {
       next(error)
     } else {
-      next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
     }
   }
 }
@@ -79,7 +79,7 @@ const update = async (req, res, next) => {
     if (error instanceof ApiError) {
       next(error)
     } else {
-      next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
+    next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message))
     }
   }
 }

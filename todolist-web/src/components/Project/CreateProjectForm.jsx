@@ -30,15 +30,6 @@ const CreateProjectForm = ({ formCreateProjectRef, setShowInput, formPosition, a
     }
 
     const handleClickOutside = (e) => {
-      // Xử lý click outside cho form
-      if (formCreateProjectRef.current && !formCreateProjectRef.current.contains(e.target)) {
-        // Kiểm tra nếu click vào color picker thì không đóng form
-        if (colorPickerRef.current?.contains(e.target)) return
-        // Kiểm tra nếu click vào nút Plus thì không đóng form
-        if (e.target.closest('.plus-button')) return
-        setShowInput(false)
-      }
-
       // Xử lý click outside cho color picker
       if (showColorPicker && colorPickerRef.current && !colorPickerRef.current.contains(e.target)) {
         if (colorButtonRef.current?.contains(e.target)) return
@@ -146,14 +137,14 @@ const CreateProjectForm = ({ formCreateProjectRef, setShowInput, formPosition, a
             </button>
             {showColorPicker && (
               <div ref={colorPickerRef} onClick={(e) => e.stopPropagation()}>
-                <ColorPickerPopup
-                  position={{
-                    top: colorButtonRef.current?.getBoundingClientRect().bottom + 5,
-                    left: colorButtonRef.current?.getBoundingClientRect().left
-                  }}
-                  selectedColor={selectedColor}
-                  onColorChange={handleColorChange}
-                />
+              <ColorPickerPopup
+                position={{
+                  top: colorButtonRef.current?.getBoundingClientRect().bottom + 5,
+                  left: colorButtonRef.current?.getBoundingClientRect().left
+                }}
+                selectedColor={selectedColor}
+                onColorChange={handleColorChange}
+              />
               </div>
             )}
           </div>

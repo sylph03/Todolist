@@ -29,8 +29,22 @@ const update = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const getCards = async (req, res, next) => {
+  try {
+    const userId = req.jwtDecoded._id
+    // Lấy query parameters từ request
+    const { q } = req.query
+    // Parse query string thành object nếu có
+    const queryFilters = q ? JSON.parse(q) : null
+
+    const result = await cardService.getCards(userId, queryFilters)
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) { next(error) }
+}
+
 export const cardController = {
   createNew,
   deleteItem,
-  update
+  update,
+  getCards
 }

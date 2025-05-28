@@ -137,6 +137,35 @@ const deleteManyByBoardId = async (boardId) => {
   } catch (error) { throw new Error(error) }
 }
 
+const getCards = async (userId, queryFilters) => {
+  try {
+    const queryConditions = [
+      // Điều kiện 1: Card chưa bị xóa
+      { _destroy: false }
+    ]
+
+    // Xử lý truy vấn query cho từng trường hợp tìm kiếm card như title
+    if (queryFilters) {
+      Object.keys(queryFilters).forEach(key => {
+        // queryFilters[key] ví dụ queryFilters[title] nếu phía FE đẩy lên q[title]
+        // Có phân biệt chữ hoa chữ thường
+        // queryConditions.push({ [key]: { $regex: queryFilters[key] } })
+
+        // Không phân biệt chữ hoa chữ thường
+        queryConditions.push({ [key]: { $regex: new RegExp(queryFilters[key], 'i') }})
+      })
+    }
+
+    const cards = await GET_DB().collection(CARD_COLLECTION_NAME)
+      .find({ $and: queryConditions })
+      .sort({ title: 1 })
+      .toArray()
+
+    return cards
+
+  } catch (error) { throw new Error(error) }
+}
+
 export const cardModel = {
   CARD_COLLECTION_NAME,
   CARD_COLLECTION_SCHEMA,
@@ -147,5 +176,6 @@ export const cardModel = {
   deleteOneById,
   unshiftNewComment,
   updateMembers,
-  deleteManyByBoardId
+  deleteManyByBoardId,
+  getCards
 }

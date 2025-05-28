@@ -31,19 +31,6 @@ const TaskColumn = ({ column, cursor }) => {
   const renameInputRef = useRef(null)
 
   const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    formState: { errors, isDirty, isValid }
-  } = useForm({
-    defaultValues: {
-      title: ''
-    },
-    mode: 'onChange'
-  })
-
-  const {
     attributes,
     listeners,
     setNodeRef,

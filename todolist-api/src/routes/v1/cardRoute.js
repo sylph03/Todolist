@@ -8,6 +8,8 @@ const Router = express.Router()
 
 Router.route('/')
   .post(authMiddleware.isAuthorized, multerUploadMiddleware.upload.single('cardCover'), cardValidation.createNew, cardController.createNew)
+  .get(authMiddleware.isAuthorized, cardController.getCards)
+
 
 Router.route('/:id')
   .delete(authMiddleware.isAuthorized, cardValidation.deleteItem, cardController.deleteItem)
