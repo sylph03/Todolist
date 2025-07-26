@@ -6,3 +6,6 @@ export const socketIoInstance = io(API_ROOT, {
   timeout: 20000,               // Timeout mỗi lần connect là 20 giây
   transports: ['websocket', 'polling'] // Ưu tiên websocket
 })
+// import { io } from 'socket.io-client'
+// import { API_ROOT } from './utils/constants'
+// export const socketIoInstance = io(API_ROOT)

@@ -1,25 +1,30 @@
-import { useEffect } from 'react'
+import React, { useEffect } from "react"
 
 /**
- * Custom hook để xử lý sự kiện click outside
- * @param {Array} refs - Mảng các ref cần kiểm tra
- * @param {Function} callback - Callback function được gọi khi click outside
- * @param {Array} dependencies - Các dependencies cho useEffect
- */
-export const useClickOutside = (refs, callback, dependencies = []) => {
+  * @param {React.RefObject} ref - ref của phần tử cần kiểm tra
+  * @param {Function} callback - hàm được gọi khi click outside
+  * @param {React.RefObject[]} ignoreRefs - mảng ref cần bỏ qua
+*/
+
+export default function useClickOutside(ref, callback, ignoreRefs = []) {
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      // Kiểm tra xem click có nằm ngoài tất cả các ref không
-      const isOutside = refs.every(ref => 
-        ref.current && !ref.current.contains(event.target)
-      )
+    const handleClick = (event) => {
+      const clickedInsideIgnored = ignoreRefs.some(
+        (ignoreRef) =>
+          ignoreRef.current && ignoreRef.current.contains(event.target)
+      );
+
+      if (clickedInsideIgnored) return;
       
-      if (isOutside) {
+      // Nếu DOM đã gán thành công (ref.current tồn tại) và click xảy ra bên ngoài phần tử đó → thì thực hiện hành động đóng component (callback)
+      if (ref.current && !ref.current.contains(event.target)) {
         callback()
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [refs, callback, ...dependencies])
-} 
+    document.addEventListener('mousedown', handleClick)
+    return () => {
+      document.removeEventListener('mousedown', handleClick)
+    }
+  }, [ref, callback, ignoreRefs])
+}

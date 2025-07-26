@@ -8,6 +8,9 @@ import { useDispatch } from 'react-redux'
 import { updateCurrentActiveCard, showActiveCard } from '~/redux/activeCard/activeCardSlice'
 import { updateCardDetailsAPI } from '~/apis'
 import { updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
+import useClickOutside from '~/hooks/useClickOutside'
+import useEscapeKey from '~/hooks/useEscapeKey'
+import useScrollAndResize from '~/hooks/useScrollAndResize'
 
 const CardIndicators = ({ card }) => {
   return (
@@ -52,6 +55,8 @@ const TaskCard = ({ card }) => {
   const [showPopup, setShowPopup] = useState(false)
   const [inputValue, setInputValue] = useState(card?.title)
   const [isLeftPosition, setIsLeftPosition] = useState(false)
+  const [isCardScaled, setIsCardScaled] = useState(false) // State để giữ trạng thái scale của card khi mở popup
+  const [showMoveCardPopup, setShowMoveCardPopup] = useState(false) // State để theo dõi trạng thái MoveCardPopup(nút Di chuyển ở component OptionListCard)
 
   const [textCardCardPosition, setTextCardCardPosition] = useState(null)
   const [optionsCardPosition, setOptionsCardPosition] = useState(null)
@@ -132,7 +137,8 @@ const TaskCard = ({ card }) => {
 
   // Xử lý khi nhấn nút edit ở card
   const handleEditClick = () => {
-    // e.stopPropagation() // Ngăn sự kiện kéo khi click
+    // Nếu đang hover thì giữ scale (giúp khi mở popup, card không bị "giật" về kích thước ban đầu)
+    setIsCardScaled(true)
     updatePopupPosition()
     setInputValue(card?.title) // Reset input value to current card title
     setShowPopup(prev => !prev)
@@ -144,46 +150,40 @@ const TaskCard = ({ card }) => {
     handleEditClick()
   }
 
+  // Xử lý đóng popup
+  const handleClosePopup = () => {
+    if (stateConfirm.isOpen) return
+
+    // Nếu MoveCardPopup đang mở thì chỉ đóng nó
+    if (showMoveCardPopup) {
+      setShowMoveCardPopup(false)
+    } else {
+      // Nếu MoveCardPopup không mở thì đóng popup chính
+      setShowPopup(false)
+    }
+  }
+
+  // Xử lý khi nhấn ra ngoài popup
+  useClickOutside(popupRef, handleClosePopup)
+
+  // Xử lý khi nhấn Esc
+  useEscapeKey(handleClosePopup)
+
+  useScrollAndResize(() => {
+    if (showPopup) {
+      updatePopupPosition()
+    }
+  })
+
+  // Reset vị trí popup và hiệu ứng khi đóng popup.
   useEffect(() => {
     if (!showPopup) {
       setTextCardCardPosition(null)
       setOptionsCardPosition(null)
+      setIsCardScaled(false) // Khi đóng popup, reset trạng thái scale về mặc định
       return
     }
-
-    // Xử lý khi nhấn ra ngoài popup
-    const handleClickOutside = (event) => {
-      if (stateConfirm.isOpen) return
-
-      if (popupRef.current && !popupRef.current.contains(event.target)) {
-        setShowPopup(false)
-      }
-    }
-
-    // Nhấn Esc thoát popup
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') setShowPopup(false)
-    }
-
-    // Lắng nghe sự kiện kích thước trình duyệt thay đổi hoặc cuộn để đảm bảo popup luôn bám theo contentCard
-    const handleScrollOrResize = () => {
-      updatePopupPosition()
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    document.addEventListener('keydown', handleKeyDown)
-
-    window.addEventListener('scroll', handleScrollOrResize, true)
-    window.addEventListener('resize', handleScrollOrResize)
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      document.removeEventListener('keydown', handleKeyDown)
-
-      window.removeEventListener('scroll', handleScrollOrResize, true)
-      window.removeEventListener('resize', handleScrollOrResize)
-    }
-  }, [showPopup, stateConfirm.isOpen, updatePopupPosition])
+  }, [showPopup])
 
   // Khi nhấn edit ở card thì focus input và bôi xanh
   useEffect(() => {
@@ -246,9 +246,13 @@ const TaskCard = ({ card }) => {
           transition-all 
           duration-200 
           ease-in-out 
-          hover:scale-[1.01] 
           group
           select-none
+
+          // Nếu popup đang mở và card đang được scale, giữ scale-[1.01];
+          // Nếu popup đóng, áp dụng hover:scale-[1.01] như bình thường
+          ${showPopup ? (isCardScaled ? 'scale-[1.01]' : '') : 'hover:scale-[1.01]'}
+          
         `}
         ref={setNodeRef}
         style={dndKitCardStyles}
@@ -351,6 +355,9 @@ const TaskCard = ({ card }) => {
                 setShowPopup={setShowPopup}
                 updateCardTitle={handleSaveTitle}
                 isLeftPosition={isLeftPosition}
+                popupRef={popupRef}
+                setShowMoveCardPopup={setShowMoveCardPopup}
+                showMoveCardPopup={showMoveCardPopup}
               />
             </div>
           </div>
@@ -361,63 +368,3 @@ const TaskCard = ({ card }) => {
 }
 
 export default TaskCard
-// Theo dõi cập nhật vị trí popup (opstions card)
-// const updatePopupPosition = useCallback(() => {
-//   if (contentCardRef.current) {
-//     const rect = contentCardRef.current.getBoundingClientRect()
-//     const heightOptionsCard = 270
-//     const widthOptionsCard = 120
-//     const heightCard = rect.height
-//     const SAFE_MARGIN = 16 // Khoảng cách an toàn với màn hình
-
-//     if (rect.width !== textCardWidth) {
-//       setTextCardWidth(rect.width)
-//     }
-
-//     let topTextCard = rect.top
-//     let leftTextCard = rect.left
-
-//     // Tính toán vị trí cho options card
-//     let topOptionsCard = rect.top + heightCard + 8
-//     let leftOptionsCard = rect.right - widthOptionsCard
-
-//     // Kiểm tra và điều chỉnh vị trí text card nếu cần
-//     if (topTextCard + heightCard > window.innerHeight - SAFE_MARGIN) {
-//       topTextCard = window.innerHeight - heightCard - SAFE_MARGIN
-//     }
-
-//     // Kiểm tra và điều chỉnh vị trí nếu vượt quá màn hình trên
-//     if (topTextCard < SAFE_MARGIN) {
-//       topTextCard = SAFE_MARGIN
-//     }
-
-//     // Tính toán vị trí options card dựa trên vị trí mới của text card
-//     const spaceBelow = window.innerHeight - (topTextCard + heightCard + SAFE_MARGIN)
-//     const spaceAbove = topTextCard - SAFE_MARGIN
-
-//     if (spaceBelow >= heightOptionsCard) {
-//       // Nếu có đủ không gian phía dưới, đặt options card ở dưới
-//       topOptionsCard = topTextCard + heightCard + 8
-//     } else if (spaceAbove >= heightOptionsCard) {
-//       // Nếu có đủ không gian phía trên, đặt options card ở trên
-//       topOptionsCard = topTextCard - heightOptionsCard - 8
-//     } else {
-//       // Nếu không đủ không gian ở cả trên và dưới, đặt options card ở vị trí có nhiều không gian hơn
-//       if (spaceBelow > spaceAbove) {
-//         topOptionsCard = window.innerHeight - heightOptionsCard - SAFE_MARGIN
-//       } else {
-//         topOptionsCard = SAFE_MARGIN
-//       }
-//     }
-
-//     // Kiểm tra và điều chỉnh vị trí ngang nếu cần
-//     if (leftOptionsCard < SAFE_MARGIN) {
-//       leftOptionsCard = SAFE_MARGIN
-//     } else if (leftOptionsCard + widthOptionsCard > window.innerWidth - SAFE_MARGIN) {
-//       leftOptionsCard = window.innerWidth - widthOptionsCard - SAFE_MARGIN
-//     }
-
-//     setOptionsCardPosition({ top: topOptionsCard, left: leftOptionsCard })
-//     setTextCardCardPosition({ top: topTextCard, left: leftTextCard })
-//   }
-// }, [textCardWidth])

@@ -11,10 +11,15 @@ import { updateCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
 import { singleFileValidator } from '~/utils/validators'
 import { updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { showActiveCard } from '~/redux/activeCard/activeCardSlice'
+import MoveCardPopup from './MoveCardPopup'
+import { useState, useRef } from 'react'
+import useClickOutside from '~/hooks/useClickOutside'
 
-const OptionListCard = ({ card, setShowPopup, updateCardTitle, isLeftPosition }) => {
+const OptionListCard = ({ card, setShowPopup, updateCardTitle, isLeftPosition, popupRef, setShowMoveCardPopup, showMoveCardPopup }) => {
   const dispatch = useDispatch()
   const board = useSelector(selectCurrentActiveBoard)
+
+  const moveButtonRef = useRef(null)
 
   const { confirm } = useConfirm()
 
@@ -24,8 +29,13 @@ const OptionListCard = ({ card, setShowPopup, updateCardTitle, isLeftPosition })
     setShowPopup(false)
   }
 
-  const handleMoveCard = () => {
-    console.log('Di chuyển thẻ')
+
+  const handleShowMoveCardPopup = () => {
+    setShowMoveCardPopup(prev => !prev) // Cập nhật trạng thái cho TaskCard
+  }
+
+  const handleCloseMoveCardPopup = () => {
+    setShowMoveCardPopup(false) // Cập nhật trạng thái cho TaskCard
   }
 
   const handleArchiveCard = () => {
@@ -89,7 +99,7 @@ const OptionListCard = ({ card, setShowPopup, updateCardTitle, isLeftPosition })
 
   const options = [
     { icon: <CreditCard className="w-4 h-4 text-gray-600 dark:text-gray-300" />, label: 'Mở thẻ', onClick: handleOpenCard },
-    { icon: <MoveRight className="w-4 h-4 text-gray-600 dark:text-gray-300" />, label: 'Di chuyển', onClick: handleMoveCard },
+    { icon: <MoveRight className="w-4 h-4 text-gray-600 dark:text-gray-300" />, label: 'Di chuyển', onClick: handleShowMoveCardPopup },
     { icon: <Archive className="w-4 h-4 text-gray-600 dark:text-gray-300" />, label: 'Lưu trữ', onClick: handleArchiveCard },
     { icon: <Image className="w-4 h-4 text-gray-600 dark:text-gray-300" />, label: 'Ảnh bìa', onClick: onUpdateCardCover, isFileUpload: true },
     { icon: <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />, label: 'Xóa', onClick: handleDeleteCard, isDanger: true }
@@ -106,21 +116,32 @@ const OptionListCard = ({ card, setShowPopup, updateCardTitle, isLeftPosition })
           onClick={item.onClick}
           isFileUpload={item.isFileUpload}
           isLeftPosition={isLeftPosition}
+          ref={item.label === 'Di chuyển' ? moveButtonRef : null}
+          showMoveCardPopup={item.label === 'Di chuyển' ? showMoveCardPopup : undefined}
         />
       ))}
 
       <div
         onClick={updateCardTitle}
         className={`flex items-center justify-center px-4 py-2 rounded-md ${isLeftPosition ? 'ml-auto' : ''} font-medium cursor-pointer
-                   bg-gradient-to-r from-sky-500 to-blue-500 dark:from-sky-600 dark:to-blue-600 text-white
-                   hover:from-sky-600 hover:to-blue-600 dark:hover:from-sky-700 dark:hover:to-blue-700 w-fit
-                   active:from-sky-700 active:to-blue-700 dark:active:from-sky-800 dark:active:to-blue-800
-                   transition-all duration-200 ease-in-out
+                   bg-sky-500 hover:bg-sky-600 text-white
+                   w-fit transition-all duration-200 ease-in-out
                    shadow-sm hover:shadow-md dark:shadow-gray-900/50
                    dark:border dark:border-gray-700`}
       >
         Lưu
       </div>
+
+      {/* Popup move card */}
+      {showMoveCardPopup && (
+        <MoveCardPopup
+          onClose={handleCloseMoveCardPopup}
+          board={board}
+          card={card}
+          moveButtonRef={moveButtonRef}
+          setShowPopup={setShowPopup}
+        />
+      )}
     </div>
   )
 }

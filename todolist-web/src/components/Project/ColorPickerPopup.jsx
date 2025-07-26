@@ -15,7 +15,8 @@ const colorOptions = [
   { name: 'Green', value: 'bg-green-200' },
   { name: 'Emerald', value: 'bg-emerald-200' },
   { name: 'Teal', value: 'bg-teal-200' },
-  { name: 'Cyan', value: 'bg-cyan-200' }
+  { name: 'Cyan', value: 'bg-cyan-200' },
+  { name: 'Slate', value: 'bg-slate-200' }
 ]
 
 const ColorPickerPopup = ({

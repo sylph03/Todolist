@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { X, Image, ChevronUp } from 'lucide-react'
+import { X, Image } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { createNewCardAPI } from '~/apis'
@@ -10,10 +10,11 @@ import FieldErrorAlert from '~/components/UI/FieldErrorAlert'
 import { FIELD_REQUIRED_MESSAGE } from '~/utils/validators'
 import DescriptionMdEditor from '~/components/Card/DescriptionMdEditor'
 import { singleFileValidator } from '~/utils/validators'
+import { Listbox } from '@headlessui/react';
+import { ChevronDown } from 'lucide-react';
 
 const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, defaultColumn }) => {
   const dispatch = useDispatch()
-  const [isOpenStatusOption, setIsOpenStatusOption] = useState(false)
   const [coverImage, setCoverImage] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
   const [cardDescription, setCardDescription] = useState('')
@@ -46,7 +47,6 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
   }
 
   const handleClickCancelFormCreateCard = useCallback(() => {
-    setIsOpenStatusOption(false)
     setIsShowFormCreateCard(false)
     reset()
     setCoverImage(null)
@@ -56,7 +56,6 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
 
   const handleSelect = (value) => {
     setValue('status', value, { shouldValidate: true })
-    setIsOpenStatusOption(false)
   }
 
   const handleImageChange = (e) => {
@@ -232,45 +231,31 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
                     Trạng thái <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <div
-                      onClick={() => setIsOpenStatusOption(!isOpenStatusOption)}
-                      className={`${
-                        isOpenStatusOption ? 'border-sky-500 ring-1 ring-sky-500/20' : ''
-                      } w-full cursor-pointer rounded-xl border ${
-                        errors['status'] ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                      } bg-white dark:bg-gray-900 py-3 px-4 text-gray-800 dark:text-gray-100 hover:border-sky-500 dark:hover:border-sky-500 transition-all duration-300`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className={errors['status'] ? 'text-red-500' : ''}>
-                          {status ? options.find((opt) => opt.value === status)?.label : 'Chọn trạng thái...'}
-                        </span>
-                        <ChevronUp
-                          className={`${
-                            isOpenStatusOption ? 'rotate-180 opacity-100' : 'opacity-0'
-                          } transition-all duration-300 text-gray-500 dark:text-gray-300 w-5 h-5`}
-                        />
+                    <Listbox value={status} onChange={handleSelect}>
+                      <div className="relative">
+                        <Listbox.Button className={`w-full py-3 px-4 text-md text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-900 border ${errors['status'] ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all hover:border-sky-500 dark:hover:border-sky-500 flex justify-between items-center`}>
+                          {options.find((opt) => opt.value === status)?.label || 'Chọn trạng thái'}
+                          <ChevronDown className="w-5 h-5 ml-2" />
+                        </Listbox.Button>
+                        <Listbox.Options className="absolute z-10 mt-2 p-2 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 shadow-lg animate-fadeIn max-h-[200px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+                          {options.map((option) => (
+                            <Listbox.Option
+                              key={option.value}
+                              value={option.value}
+                              className={({ active, selected }) =>
+                                `px-4 py-2 cursor-pointer rounded-lg mb-1 transition-all duration-200 ${
+                                  selected ? 'bg-sky-100 dark:bg-gray-800 text-sky-500 font-medium shadow-sm' : ''
+                                } ${active ? 'hover:bg-slate-100 dark:hover:bg-gray-700 hover:shadow-sm' : ''}`
+                              }
+                            >
+                              <div className="flex items-center gap-2">
+                                <span>{option.label}</span>
+                              </div>
+                            </Listbox.Option>
+                          ))}
+                        </Listbox.Options>
                       </div>
-                    </div>
-
-                    {isOpenStatusOption && (
-                      <ul className="absolute z-10 mt-2 p-2 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 shadow-lg animate-fadeIn max-h-[200px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
-                        {options.map((option) => (
-                          <li
-                            key={option.value}
-                            onClick={() => handleSelect(option.value)}
-                            className={`px-4 py-2.5 cursor-pointer rounded-lg mb-1 transition-all duration-200 ${
-                              status === option.value
-                                ? 'bg-sky-100 dark:bg-gray-800 bg-sky-100 text-sky-500 font-medium shadow-sm'
-                                : 'hover:bg-slate-100 dark:hover:bg-gray-700 hover:shadow-sm'
-                            }`}
-                          >
-                            <div className="flex items-center gap-2">
-                              <span>{option.label}</span>
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
+                    </Listbox>
                   </div>
                   <FieldErrorAlert errors={errors} fieldName={'status'} />
                   <input

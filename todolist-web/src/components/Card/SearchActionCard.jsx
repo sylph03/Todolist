@@ -86,7 +86,7 @@ const SearchActionCard = () => {
     debouncedSearch(value)
   }
 
-  // Khi select chọn một card thì mở thể đó showActiveCard và update currentActiveCard
+  // Khi select chọn một card thì mở thẻ đó showActiveCard và update currentActiveCard
   const handleSelectedCard = (card) => {
     setOpen(false)
     setSearchValue('')

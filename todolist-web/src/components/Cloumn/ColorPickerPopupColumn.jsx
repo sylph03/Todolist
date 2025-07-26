@@ -16,7 +16,8 @@ const colorOptions = [
   { name: 'Lime', bgTitleColumn: 'bg-lime-500 dark:bg-lime-600', bgColumn: 'bg-lime-100 dark:bg-lime-900/20' },
   { name: 'Emerald', bgTitleColumn: 'bg-emerald-500 dark:bg-emerald-600', bgColumn: 'bg-emerald-100 dark:bg-emerald-900/20' },
   { name: 'Teal', bgTitleColumn: 'bg-teal-500 dark:bg-teal-600', bgColumn: 'bg-teal-100 dark:bg-teal-900/20' },
-  { name: 'Cyan', bgTitleColumn: 'bg-cyan-500 dark:bg-cyan-600', bgColumn: 'bg-cyan-100 dark:bg-cyan-900/20' }
+  { name: 'Cyan', bgTitleColumn: 'bg-cyan-500 dark:bg-cyan-600', bgColumn: 'bg-cyan-100 dark:bg-cyan-900/20' },
+  { name: 'Slate', bgTitleColumn: 'bg-slate-500 dark:bg-slate-600', bgColumn: 'bg-slate-100 dark:bg-slate-900/20' }
 ];
 
 
