@@ -5,10 +5,9 @@ import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 
 const createNew = async (req, res, next) => {
   const correctCondition = Joi.object({
-    title: Joi.string().required().min(3).max(30).trim().strict().messages({
+    title: Joi.string().required().max(30).trim().strict().messages({
       'any.required' : 'Tiêu đề là bắt buộc',
       'string.empty' : 'Tiêu đề không được để trống',
-      'string.min' : 'Tiêu đề phải có ít nhất 3 ký tự',
       'string.max' : 'Tiêu đề phải có ít hơn 30 ký tự',
       'string.trim' : 'Tiêu đề không được có khoảng trắng đầu hoặc cuối'
     }),
@@ -33,7 +32,7 @@ const createNew = async (req, res, next) => {
 const update = async (req, res, next) => {
   // Không dùng required() trong trường hợp update
   const correctCondition = Joi.object({
-    title: Joi.string().min(3).max(30).trim().strict(),
+    title: Joi.string().max(30).trim().strict(),
     description: Joi.string().max(255).trim().strict().allow('').optional(),
     columnOrderIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)),
     favorite: Joi.boolean(),

@@ -9,8 +9,8 @@ import { pagingSkipValue } from '~/utils/algorithms'
 // Định nghĩa Collection (Name & Schema)
 const BOARD_COLLECTION_NAME = 'boards'
 const BOARD_COLLECTION_SCHEMA = Joi.object({
-  title: Joi.string().required().min(3).max(30).trim().strict(),
-  slug: Joi.string().required().min(3).trim().strict(),
+  title: Joi.string().required().max(30).trim().strict(),
+  slug: Joi.string().required().trim().strict(),
   description: Joi.string().max(255).trim().strict().allow('').optional(),
   columnOrderIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
   ownerIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),

@@ -10,7 +10,7 @@ const CARD_COLLECTION_SCHEMA = Joi.object({
   boardId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
   columnId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
 
-  title: Joi.string().required().min(3).max(50).trim().strict(),
+  title: Joi.string().required().max(50).trim().strict(),
   description: Joi.string().allow('').optional(),
   cover: Joi.string().uri().allow('').optional(),
 
@@ -139,23 +139,34 @@ const deleteManyByBoardId = async (boardId) => {
 
 const getCards = async (userId, queryFilters) => {
   try {
+    // Bước 1: Lấy danh sách board mà user là owner hoặc member
+    // Chỉ những board này user mới có quyền xem card bên trong
+    const boards = await GET_DB().collection('boards').find({
+      $or: [
+        { ownerIds: { $all: [new ObjectId(String(userId))] } }, // user là owner
+        { memberIds: { $all: [new ObjectId(String(userId))] } } // user là member
+      ],
+      _destroy: false // board chưa bị xóa
+    }).project({ _id: 1 }).toArray()
+    const boardIds = boards.map(b => b._id)
+
+    // Bước 2: Tạo điều kiện truy vấn card
+    // - Chỉ lấy card chưa bị xóa
+    // - Chỉ lấy card thuộc các board mà user có quyền truy cập
     const queryConditions = [
-      // Điều kiện 1: Card chưa bị xóa
-      { _destroy: false }
+      { _destroy: false },
+      { boardId: { $in: boardIds } }
     ]
 
-    // Xử lý truy vấn query cho từng trường hợp tìm kiếm card như title
+    // Bước 3: Thêm các điều kiện tìm kiếm khác (nếu có), ví dụ tìm theo title
+    // Sử dụng $regex không phân biệt hoa thường
     if (queryFilters) {
       Object.keys(queryFilters).forEach(key => {
-        // queryFilters[key] ví dụ queryFilters[title] nếu phía FE đẩy lên q[title]
-        // Có phân biệt chữ hoa chữ thường
-        // queryConditions.push({ [key]: { $regex: queryFilters[key] } })
-
-        // Không phân biệt chữ hoa chữ thường
         queryConditions.push({ [key]: { $regex: new RegExp(queryFilters[key], 'i') }})
       })
     }
 
+    // Bước 4: Truy vấn và trả về danh sách card phù hợp
     const cards = await GET_DB().collection(CARD_COLLECTION_NAME)
       .find({ $and: queryConditions })
       .sort({ title: 1 })
