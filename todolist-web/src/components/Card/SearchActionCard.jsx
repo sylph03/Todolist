@@ -106,12 +106,13 @@ const SearchActionCard = () => {
         onFocus={() => searchValue && setOpen(true)}
         spellCheck={false}
         placeholder="Tìm kiếm nhiệm vụ..."
-        className="max-w-[300px] pl-10 pr-4 py-[7px] rounded-xl border border-gray-300 dark:border-gray-700
-          bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-sm
+        className="max-w-[300px] pl-10 pr-4 py-[7px] rounded-lg border border-transparent dark:border-gray-700
+          bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-200 text-sm font-medium
           focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500
-          transition duration-200 placeholder-gray-500 dark:placeholder-gray-400"
+          transition-all duration-200 placeholder-gray-600 dark:placeholder-gray-200
+          shadow-sm hover:shadow-md focus:bg-white dark:focus:bg-gray-800 focus:shadow-md"
       />
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-gray-400" />
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-600 dark:text-gray-200" />
 
       {/* Dropdown kết quả tìm kiếm */}
       {open && (

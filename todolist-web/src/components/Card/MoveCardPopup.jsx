@@ -14,9 +14,11 @@ const MoveCardPopup = ({ onClose, board, card, moveButtonRef, setShowPopup }) =>
   const [selectColumn, setSelectColumn] = useState(null)
   const [selectPosition, setSelectPosition] = useState(null)
   const [positionOverFlowColumnOptions, setPositionOverFlowColumnOptions] = useState(false)
+  const [positionOverFlowPositionOptions, setPositionOverFlowPositionOptions] = useState(false)
   
   const movePopupRef = useRef(null)
   const buttonColumnOptionsRef = useRef(null)
+  const buttonPositionOptionsRef = useRef(null)
   
   const dispatch = useDispatch()
   // Lưu columnId ban đầu để so sánh khi đổi column
@@ -86,7 +88,21 @@ const MoveCardPopup = ({ onClose, board, card, moveButtonRef, setShowPopup }) =>
         setPositionOverFlowColumnOptions(false)
       }
     }
-  }, [selectColumn])
+  }, [selectColumn, buttonColumnOptionsRef.current])
+
+  useEffect(()=>{
+    if (buttonPositionOptionsRef.current) {
+      const positionOptions = buttonPositionOptionsRef.current.getBoundingClientRect()
+      const spaceBelow = window.innerHeight - positionOptions.bottom
+      const spaceAbove = positionOptions.top
+
+      if (spaceBelow < 200 && spaceAbove > 200) {
+        setPositionOverFlowPositionOptions(true)
+      } else {
+        setPositionOverFlowPositionOptions(false)
+      }
+    }
+  }, [selectPosition, buttonPositionOptionsRef.current])
 
   useEffect(() => {
     if (card && board) {
@@ -258,11 +274,14 @@ const MoveCardPopup = ({ onClose, board, card, moveButtonRef, setShowPopup }) =>
             <label className="text-sm font-medium text-gray-900 dark:text-gray-200 mb-1">Vị trí</label>
             <Listbox value={selectPosition} onChange={setSelectPosition} disabled={!selectColumn}>
               <div className="relative">
-                <Listbox.Button className="w-full p-2 text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-600 transition-all hover:border-sky-400 dark:hover:border-sky-500 flex justify-between items-center">
+                <Listbox.Button
+                  ref={buttonPositionOptionsRef}
+                  className="w-full p-2 text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-600 transition-all hover:border-sky-400 dark:hover:border-sky-500 flex justify-between items-center"
+                >
                   {selectPosition !== null ? selectPosition + 1 : "Chọn vị trí"}
                   <ChevronDown className="w-4 h-4" />
                 </Listbox.Button>
-                <Listbox.Options className="absolute z-10 mt-2 p-2 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 shadow-lg dark:shadow-2xl animate-fadeIn max-h-[200px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+                <Listbox.Options className={`absolute z-10 p-2 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 shadow-lg dark:shadow-2xl animate-fadeIn max-h-[200px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent ${positionOverFlowPositionOptions ? 'bottom-full mb-2' : 'mt-2'}`}>
                   {positionOptions.map((index) => (
                     <Listbox.Option
                       key={index}

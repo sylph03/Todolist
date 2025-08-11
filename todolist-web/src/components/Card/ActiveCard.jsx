@@ -14,6 +14,8 @@ import { toast } from 'react-toastify'
 import UserGroup from './UserGroup'
 import { CARD_MEMBER_ACTION } from '~/utils/constants'
 import MembersPopover from './MembersPopover'
+import useClickOutside from '~/hooks/useClickOutside'
+import useEscapeKey from '~/hooks/useEscapeKey'
 
 const ActiveCard = () => {
   const dispatch = useDispatch()
@@ -29,42 +31,13 @@ const ActiveCard = () => {
   const board = useSelector(selectCurrentActiveBoard)
   const column = board?.columns?.find(column => column._id === activeCard?.columnId)
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (modalRef.current && !modalRef.current.contains(event.target)) {
-        // Trigger blur event on the title input if it exists and is focused
-        if (titleInputRef.current && document.activeElement === titleInputRef.current) {
-          titleInputRef.current.blur()
-        }
-        // Small delay to allow the blur event to complete
-        setTimeout(() => {
-          dispatch(hideActiveCard())
-          dispatch(clearCurrentActiveCard())
-        }, 100)
-      }
-    }
+  useClickOutside(modalRef, () => {
+    handleModalClose()
+  })
 
-    const handleEscapeKey = (event) => {
-      if (event.key === 'Escape') {
-        // Trigger blur event on the title input if it exists and is focused
-        if (titleInputRef.current && document.activeElement === titleInputRef.current) {
-          titleInputRef.current.blur()
-        }
-        // Small delay to allow the blur event to complete
-        setTimeout(() => {
-          dispatch(hideActiveCard())
-          dispatch(clearCurrentActiveCard())
-        }, 100)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    document.addEventListener('keydown', handleEscapeKey)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      document.removeEventListener('keydown', handleEscapeKey)
-    }
-  }, [dispatch])
+  useEscapeKey(() => {
+    handleModalClose()
+  })
 
   const handleModalClose = () => {
     // Trigger blur event on the title input if it exists and is focused

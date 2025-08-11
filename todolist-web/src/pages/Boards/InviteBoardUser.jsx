@@ -69,7 +69,7 @@ const InviteBoardUser = ({ boardId }) => {
       <button
         ref={buttonRef}
         onClick={handleTogglePopover}
-        className={`flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-200 font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95 ${isOpenPopover ? 'bg-gray-200 dark:bg-gray-900' : ''}`}
+        className={`flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-200 font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95 ${isOpenPopover ? 'bg-gray-200 dark:bg-gray-900' : ''}`}
         title="Mời users vào board"
         aria-label="Mời"
       >

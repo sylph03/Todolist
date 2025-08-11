@@ -12,6 +12,8 @@ import DescriptionMdEditor from '~/components/Card/DescriptionMdEditor'
 import { singleFileValidator } from '~/utils/validators'
 import { Listbox } from '@headlessui/react';
 import { ChevronDown } from 'lucide-react';
+import useClickOutside from '~/hooks/useClickOutside';
+import useEscapeKey from '~/hooks/useEscapeKey';
 
 const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, defaultColumn }) => {
   const dispatch = useDispatch()
@@ -143,36 +145,20 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
   }
 
   // Handle both Escape key press and click outside
-  useEffect(() => {
-    if (!isShowFormCreateCard) return
+  useClickOutside(formRef, () => {
+    handleClickCancelFormCreateCard()
+  })
 
-    const handleEscapeKey = (e) => {
-      if (e.key === 'Escape') {
-        handleClickCancelFormCreateCard()
-      }
-    }
-
-    const handleClickOutside = (e) => {
-      if (formRef.current && !formRef.current.contains(e.target)) {
-        handleClickCancelFormCreateCard()
-      }
-    }
-
-    document.addEventListener('keydown', handleEscapeKey)
-    document.addEventListener('mousedown', handleClickOutside)
-
-    return () => {
-      document.removeEventListener('keydown', handleEscapeKey)
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isShowFormCreateCard, handleClickCancelFormCreateCard])
+  useEscapeKey(() => {
+    handleClickCancelFormCreateCard()
+  })
 
   if (!isShowFormCreateCard) return null
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 dark:bg-black/40 animate-fadeIn overflow-y-auto overflow-x-hidden">
       <div className="min-h-screen flex items-center justify-center p-4">
-        <div ref={formRef} className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 p-8 rounded-xl shadow-2xl w-full max-w-[820px] transition-all duration-300 animate-slideUp relative my-8">
+        <div ref={formRef} className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 p-6 md:p-8 rounded-xl shadow-2xl w-full max-w-[700px] transition-all duration-300 animate-slideUp relative my-8">
           {/* Close button */}
           <button
             onClick={handleClickCancelFormCreateCard}
@@ -182,14 +168,14 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
             <X className="w-5 h-5" />
           </button>
 
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 text-gray-800 dark:text-gray-100">
+          <h2 className="text-xl md:text-2xl font-bold text-center mb-6 md:mb-8 text-gray-800 dark:text-gray-100">
             Tạo Nhiệm Vụ Mới
           </h2>
 
-          <form onSubmit={handleSubmit(addNewCard)} className="flex flex-col gap-8">
-            <div className="flex flex-col md:flex-row gap-8">
+          <form onSubmit={handleSubmit(addNewCard)} className="flex flex-col gap-6 md:gap-8">
+            <div className="flex flex-col lg:flex-row gap-6 md:gap-8">
               {/* Thông tin nhiệm vụ */}
-              <div className="flex flex-col flex-1 gap-6">
+              <div className="flex flex-col flex-1 gap-4 md:gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Tên nhiệm vụ <span className="text-red-500">*</span>
@@ -225,7 +211,7 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
               </div>
 
               {/* Cài đặt bên phải */}
-              <div className="flex flex-col w-60 h-fit p-6 gap-6 bg-gray-50 dark:bg-gray-900/50 rounded-xl shadow-inner border border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col w-full lg:w-64 h-fit p-4 md:p-6 gap-4 md:gap-6 bg-gray-50 dark:bg-gray-900/50 rounded-xl shadow-inner border border-gray-200 dark:border-gray-700">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Trạng thái <span className="text-red-500">*</span>
@@ -233,23 +219,23 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
                   <div className="relative">
                     <Listbox value={status} onChange={handleSelect}>
                       <div className="relative">
-                        <Listbox.Button className={`w-full py-3 px-4 text-md text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-900 border ${errors['status'] ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all hover:border-sky-500 dark:hover:border-sky-500 flex justify-between items-center`}>
+                        <Listbox.Button className={`w-full py-2.5 md:py-3 px-3 md:px-4 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-900 border ${errors['status'] ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all hover:border-sky-500 dark:hover:border-sky-500 flex justify-between items-center`}>
                           {options.find((opt) => opt.value === status)?.label || 'Chọn trạng thái'}
-                          <ChevronDown className="w-5 h-5 ml-2" />
+                          <ChevronDown className="w-4 h-4 md:w-5 md:h-5 ml-2" />
                         </Listbox.Button>
-                        <Listbox.Options className="absolute z-10 mt-2 p-2 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 shadow-lg animate-fadeIn max-h-[200px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+                        <Listbox.Options className="absolute z-10 mt-2 p-2 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 shadow-lg animate-fadeIn max-h-[180px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
                           {options.map((option) => (
                             <Listbox.Option
                               key={option.value}
                               value={option.value}
                               className={({ active, selected }) =>
-                                `px-4 py-2 cursor-pointer rounded-lg mb-1 transition-all duration-200 ${
+                                `px-3 md:px-4 py-1.5 md:py-2 cursor-pointer rounded-lg mb-1 transition-all duration-200 ${
                                   selected ? 'bg-sky-100 dark:bg-gray-800 text-sky-500 font-medium shadow-sm' : ''
                                 } ${active ? 'hover:bg-slate-100 dark:hover:bg-gray-700 hover:shadow-sm' : ''}`
                               }
                             >
                               <div className="flex items-center gap-2">
-                                <span>{option.label}</span>
+                                <span className="text-sm">{option.label}</span>
                               </div>
                             </Listbox.Option>
                           ))}
@@ -272,7 +258,7 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
                   </label>
                   <div className="flex items-center gap-3">
                     <div className="flex-1 relative">
-                      <label className="min-h-[90px] w-full h-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-300 cursor-pointer hover:border-sky-500 dark:hover:border-sky-500 transition duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-center gap-2 relative overflow-hidden">
+                      <label className="min-h-[80px] md:min-h-[90px] w-full h-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-300 cursor-pointer hover:border-sky-500 dark:hover:border-sky-500 transition duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-center gap-2 relative overflow-hidden">
                         {imagePreview ? (
                           <>
                             <img
@@ -286,8 +272,8 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
                           </>
                         ) : (
                           <>
-                            <Image className="w-5 h-5" />
-                            <span>Chọn ảnh bìa</span>
+                            <Image className="w-4 h-4 md:w-5 md:h-5" />
+                            <span className="text-sm">Chọn ảnh bìa</span>
                           </>
                         )}
                         <input
@@ -300,10 +286,11 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
                       {imagePreview && (
                         <button
                           onClick={handleRemoveImage}
-                          className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all duration-200 z-10"
+                          className="absolute top-2 right-2 w-5 h-5 md:w-6 md:h-6 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all duration-200 z-10"
                           title="Xóa ảnh"
+                          type="button"
                         >
-                          <X className="w-5 h-5" />
+                          <X className="w-4 h-4 md:w-5 md:h-5" />
                         </button>
                       )}
                     </div>

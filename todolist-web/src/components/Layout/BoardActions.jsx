@@ -34,8 +34,7 @@ const BoardActions = () => {
           {/* Nút Thêm nhiệm vụ */}
           <button
             onClick={handleClickCreateCard}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-600
-            text-white font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-200 font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95"
             title={!board?.columns?.length ? 'Vui lòng tạo cột trước khi thêm nhiệm vụ' : 'Thêm nhiệm vụ'}
             aria-label="Thêm nhiệm vụ"
           >
@@ -46,7 +45,7 @@ const BoardActions = () => {
           {/* Nút Thêm cột */}
           <button
             onClick={handleClickCreateColumn}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-500 hover:bg-teal-600 text-white font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-200 font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95"
             title="Thêm cột"
             aria-label="Thêm cột"
           >
@@ -56,7 +55,7 @@ const BoardActions = () => {
 
           {/* Nút nhiệm vụ lưu trữ*/}
           <button
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-200 font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95"
             title="Lưu nhiệm vụ"
             aria-label="Lưu nhiệm vụ"
           >

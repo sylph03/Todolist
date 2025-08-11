@@ -9,6 +9,12 @@ import React, { useEffect } from "react"
 export default function useClickOutside(ref, callback, ignoreRefs = []) {
   useEffect(() => {
     const handleClick = (event) => {
+      // Kiểm tra click có phải trên scrollbar không
+      const isScrollbarClick = isClickOnScrollbar(event)
+      if (isScrollbarClick) {
+        return
+      }
+
       const clickedInsideIgnored = ignoreRefs.some(
         (ignoreRef) =>
           ignoreRef.current && ignoreRef.current.contains(event.target)
@@ -27,4 +33,36 @@ export default function useClickOutside(ref, callback, ignoreRefs = []) {
       document.removeEventListener('mousedown', handleClick)
     }
   }, [ref, callback, ignoreRefs])
+}
+
+// Hàm kiểm tra scrollbar
+const isClickOnScrollbar = (event) => {
+  const element = event.target
+  
+  // Kiểm tra nếu element có scrollbar
+  if (element.scrollHeight > element.clientHeight || 
+      element.scrollWidth > element.clientWidth) {
+    
+    const rect = element.getBoundingClientRect()
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
+    
+    // Kiểm tra vertical scrollbar
+    if (element.scrollHeight > element.clientHeight) {
+      const scrollbarWidth = element.offsetWidth - element.clientWidth
+      if (x > element.clientWidth) {
+        return true
+      }
+    }
+    
+    // Kiểm tra horizontal scrollbar
+    if (element.scrollWidth > element.clientWidth) {
+      const scrollbarHeight = element.offsetHeight - element.clientHeight
+      if (y > element.clientHeight) {
+        return true
+      }
+    }
+  }
+  
+  return false
 }
