@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { X, Settings, BadgeInfo } from 'lucide-react'
+import { X, Settings, BadgeInfo, AlertTriangle } from 'lucide-react'
 import { useSelector } from 'react-redux'
 import { selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import useClickOutside from '~/hooks/useClickOutside'
