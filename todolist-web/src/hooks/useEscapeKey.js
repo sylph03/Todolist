@@ -1,8 +1,8 @@
-import { useEffect } from "react"
+import { useEffect } from 'react'
 
 /**
  * Custom hook xử lý sự kiện nhấn phím Escape
- * 
+ *
  * @param {Function} callback - Hàm được gọi khi nhấn phím Escape
  * @param {boolean} enabled - Nếu là false thì hook sẽ không hoạt động (tuỳ chọn, mặc định true)
  */

@@ -9,7 +9,6 @@ import { toast } from 'react-toastify'
 import { useDispatch, useSelector } from 'react-redux'
 import { updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
-import { useForm } from 'react-hook-form'
 import FieldErrorAlert from '../UI/FieldErrorAlert'
 import { FIELD_REQUIRED_MESSAGE } from '~/utils/validators'
 import FormCreateCard from '../Card/FormCreateCard'
@@ -58,7 +57,6 @@ const TaskColumn = ({ column, cursor }) => {
       const buttonRect = ellipsisButtonRef.current.getBoundingClientRect()
       const menuRect = menuRef.current.getBoundingClientRect()
       const viewportWidth = window.innerWidth
-      const viewportHeight = window.innerHeight
 
       // Tính toán vị trí mặc định (bên phải nút)
       let top = buttonRect.bottom + 5
@@ -181,15 +179,15 @@ const TaskColumn = ({ column, cursor }) => {
     }
 
     // Cập nhật cả bgTitleColumn và bgColumn
-    const response = await updateColumnDetailsAPI(column._id, { 
+    const response = await updateColumnDetailsAPI(column._id, {
       bgTitleColumn: selectedColor.bgTitleColumn,
-      bgColumn: selectedColor.bgColumn 
+      bgColumn: selectedColor.bgColumn
     })
 
     if (response) {
       // Cập nhật column trong active board
-      const updatedColumns = activeBoard.columns.map(col => 
-        col._id === column._id 
+      const updatedColumns = activeBoard.columns.map(col =>
+        col._id === column._id
           ? { ...col, bgTitleColumn: selectedColor.bgTitleColumn, bgColumn: selectedColor.bgColumn }
           : col
       )
@@ -216,8 +214,8 @@ const TaskColumn = ({ column, cursor }) => {
     const response = await updateColumnDetailsAPI(column._id, { title: newTitle })
     if (response) {
       // Cập nhật column trong active board
-      const updatedColumns = activeBoard.columns.map(col => 
-        col._id === column._id 
+      const updatedColumns = activeBoard.columns.map(col =>
+        col._id === column._id
           ? { ...col, title: newTitle }
           : col
       )
@@ -246,6 +244,13 @@ const TaskColumn = ({ column, cursor }) => {
   const handleAddCardClick = (e) => {
     e.preventDefault()
     e.stopPropagation()
+    
+    // Kiểm tra WIP limit trước khi mở form
+    if (!canAddCard()) {
+      toast.warning(`Không thể thêm thẻ - cột "${column.title}" đã đạt giới hạn WIP!`)
+      return
+    }
+    
     setShowFormCreateCard(true)
     setShowMenu(false)
   }
@@ -278,6 +283,16 @@ const TaskColumn = ({ column, cursor }) => {
     }
   }
 
+  // Thêm vào đầu component, sau các state
+  const canAddCard = () => {
+    if (!activeBoard?.wipEnabled) return true
+    
+    const currentCardCount = orderedCards?.filter(card => !card.FE_PlaceholderCard).length || 0
+    const wipLimit = activeBoard?.wipLimit || 5
+    
+    return currentCardCount < wipLimit
+  }
+
   return (
     <>
       <div className="select-none min-w-[352px] w-[352px] h-HEIGHT_BOARD_COLUMN min-h-HEIGHT_BOARD_COLUMN px-1" ref={setNodeRef} style={dndKitColumnStyles} {...attributes}>
@@ -289,15 +304,22 @@ const TaskColumn = ({ column, cursor }) => {
           >
             <span className="truncate">{column?.title}</span>
             <div className="flex items-center gap-2">
-              <button 
+              <button
                 ref={ellipsisButtonRef}
                 data-no-dnd="true"
                 onClick={handleEllipsisClick}
                 className={`p-1 hover:bg-white/20 rounded-lg transition-colors cursor-pointer ${showMenu ? 'bg-white/20' : ''}`}>
                 <Ellipsis className="w-5 h-5" />
               </button>
+
               <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
-                {orderedCards?.[0]?.FE_PlaceholderCard ? 0 : orderedCards?.length || 0}
+                {activeBoard?.wipEnabled ? 
+                  (<>
+                    <span>{orderedCards?.filter(card => !card.FE_PlaceholderCard).length || 0}</span>
+                    /<span>
+                    {activeBoard?.wipLimit || 0}</span> 
+                  </>)
+                  : orderedCards?.[0]?.FE_PlaceholderCard ? 0 : orderedCards?.length || 0}
               </span>
             </div>
           </div>
@@ -320,7 +342,7 @@ const TaskColumn = ({ column, cursor }) => {
       </div>
 
       {showMenu && (
-        <div 
+        <div
           ref={menuRef}
           className="fixed z-100 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 w-56 animate-fadeIn"
           style={{
@@ -344,7 +366,16 @@ const TaskColumn = ({ column, cursor }) => {
             <div className="flex flex-col gap-1">
               <button
                 onClick={handleAddCardClick}
-                className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 ease-in-out"
+                disabled={!canAddCard()}
+                className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 ease-in-out ${
+                  canAddCard()
+                    ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    : 'text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-50'
+                }`}
+                title={canAddCard() 
+                  ? 'Thêm thẻ mới' 
+                  : `Không thể thêm thẻ - đã đạt giới hạn WIP (${orderedCards?.filter(card => !card.FE_PlaceholderCard).length || 0}/${activeBoard?.wipLimit || 5})`
+                }
               >
                 <Plus className="w-4 h-4" />
                 <span>Thêm thẻ</span>

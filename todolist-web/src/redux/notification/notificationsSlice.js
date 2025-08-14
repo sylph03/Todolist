@@ -25,7 +25,7 @@ export const updateBoardInvitationAPI = createAsyncThunk(
 export const notificationsSlice = createSlice({
   name: 'notifications',
   initialState,
-  
+
   reducers: {
     clearCurrentNotifications: (state) => {
       state.currentNotifications = null

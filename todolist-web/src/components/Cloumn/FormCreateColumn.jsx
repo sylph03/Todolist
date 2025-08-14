@@ -21,7 +21,7 @@ const FormCreateColumn = ({ isShowFormCreateColumn, setIsShowFormCreateColumn })
   const colorButtonRef = useRef(null)
   const colorPickerRef = useRef(null)
 
-  const { register, handleSubmit, formState: { errors }, reset, setError } = useForm({
+  const { register, handleSubmit, formState: { errors }, reset } = useForm({
     defaultValues: {
       title: ''
     },
@@ -193,7 +193,7 @@ const FormCreateColumn = ({ isShowFormCreateColumn, setIsShowFormCreateColumn })
               ref={colorButtonRef}
               type="button"
               onClick={handleColorPickerClick}
-              className={`w-full p-3 rounded-xl border transition duration-200 focus:outline-none dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:border-sky-500 dark:hover:border-sky-500 flex items-center gap-2 ${
+              className={`w-full p-3 rounded-xl border transition duration-200 focus:outline-none bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:border-sky-500 dark:hover:border-sky-500 flex items-center gap-2 ${
                 showColorPicker ? 'border-sky-500 dark:border-sky-500' : ''
               }`}
             >
@@ -223,8 +223,8 @@ const FormCreateColumn = ({ isShowFormCreateColumn, setIsShowFormCreateColumn })
 
       {/* Color Picker Popup */}
       {showColorPicker && (
-        <div 
-          ref={colorPickerRef} 
+        <div
+          ref={colorPickerRef}
           onClick={(e) => e.stopPropagation()}
           className="color-picker-popup"
         >

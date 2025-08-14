@@ -10,10 +10,13 @@ import FieldErrorAlert from '~/components/UI/FieldErrorAlert'
 import { FIELD_REQUIRED_MESSAGE } from '~/utils/validators'
 import DescriptionMdEditor from '~/components/Card/DescriptionMdEditor'
 import { singleFileValidator } from '~/utils/validators'
-import { Listbox } from '@headlessui/react';
-import { ChevronDown } from 'lucide-react';
-import useClickOutside from '~/hooks/useClickOutside';
-import useEscapeKey from '~/hooks/useEscapeKey';
+import { Listbox } from '@headlessui/react'
+import { ChevronDown } from 'lucide-react'
+import useClickOutside from '~/hooks/useClickOutside'
+import useEscapeKey from '~/hooks/useEscapeKey'
+import TaskSuggestions from '~/components/AI/TaskSuggestions'
+import { Sparkles } from 'lucide-react'
+import { AlertTriangle } from 'lucide-react'
 
 const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, defaultColumn }) => {
   const dispatch = useDispatch()
@@ -21,6 +24,12 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
   const [imagePreview, setImagePreview] = useState(null)
   const [cardDescription, setCardDescription] = useState('')
   const formRef = useRef(null)
+
+  const [showAISuggestions, setShowAISuggestions] = useState(false)
+  const [aiInputValue, setAiInputValue] = useState('')
+
+  // Thêm ref cho input title
+  const titleInputRef = useRef(null)
 
   const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm({
     defaultValues: {
@@ -32,10 +41,46 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
 
   const status = watch('status')
 
-  const options = board?.columns?.map(column => ({
-    value: column.title,
-    label: column.title
-  })) || []
+  const canCreateCardInColumn = (columnTitle) => {
+    if (!board?.wipEnabled) return true
+    
+    const targetColumn = board.columns.find(col => col.title === columnTitle)
+    if (!targetColumn) return true
+    
+    const currentCardCount = targetColumn.cards?.filter(c => !c.FE_PlaceholderCard).length || 0
+    const wipLimit = board.wipLimit || 5
+    
+    return currentCardCount < wipLimit
+  }
+
+  const getWIPStatus = (columnTitle) => {
+    if (!board?.wipEnabled) return null
+    
+    const targetColumn = board.columns.find(col => col.title === columnTitle)
+    if (!targetColumn) return null
+    
+    const currentCardCount = targetColumn.cards?.filter(c => !c.FE_PlaceholderCard).length || 0
+    const wipLimit = board.wipLimit || 5
+    
+    return {
+      current: currentCardCount,
+      limit: wipLimit,
+      isAtLimit: currentCardCount >= wipLimit,
+      canAdd: currentCardCount < wipLimit
+    }
+  }
+
+  const options = board?.columns?.map(column => {
+    const wipStatus = getWIPStatus(column.title)
+    const isDisabled = wipStatus?.isAtLimit || false
+    
+    return {
+      value: column.title,
+      label: column.title,
+      disabled: isDisabled,
+      wipStatus: wipStatus
+    }
+  }) || []
 
   // Reset form when defaultColumn changes
   useEffect(() => {
@@ -43,6 +88,27 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
       setValue('status', defaultColumn.title, { shouldValidate: true })
     }
   }, [defaultColumn, setValue])
+
+  const handleAISuggestionSelect = ({ title, description, suggestedColumnTitle }) => {
+    // Cập nhật title
+    setValue('title', title, { shouldValidate: true })
+
+    // Cập nhật description
+    if (description) {
+      setCardDescription(description)
+    }
+
+    if (suggestedColumnTitle) {
+      setValue('status', suggestedColumnTitle, { shouldValidate: true })
+    }
+
+    // Ẩn AI suggestions
+    setShowAISuggestions(false)
+    setAiInputValue('')
+
+    // Thông báo thành công
+    toast.success('Đã áp dụng gợi ý AI!')
+  }
 
   const handleUpdateCardDescription = (description) => {
     setCardDescription(description)
@@ -90,6 +156,13 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
   }
 
   const addNewCard = async (data) => {
+    // Kiểm tra WIP limit trước khi tạo card
+    if (!canCreateCardInColumn(data.status)) {
+      const wipStatus = getWIPStatus(data.status)
+      toast.error(`Không thể tạo task - cột "${data.status}" đã đạt giới hạn WIP (${wipStatus.current}/${wipStatus.limit})!`)
+      return
+    }
+
     const selectedOption = options.find(option => option.value === data.status)
     const selectedColumn = board?.columns.find(column => column.title === selectedOption?.label)
 
@@ -172,7 +245,35 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
             Tạo Nhiệm Vụ Mới
           </h2>
 
-          <form onSubmit={handleSubmit(addNewCard)} className="flex flex-col gap-6 md:gap-8">
+          <div className="flex items-center gap-2 mb-2">
+            <button
+              type="button"
+              onClick={() => {
+                setShowAISuggestions(s => !s)
+                if (!showAISuggestions) {
+                  setAiInputValue(watch('title') || '')
+                  // Focus vào input title
+                  setTimeout(() => {
+                    const titleInput = document.querySelector('input[name="title"]')
+                    if (titleInput) titleInput.focus()
+                  }, 100) // Delay nhỏ để đảm bảo state đã update
+                }
+              }}
+              className="px-2 py-1 text-xs rounded bg-gray-100"
+            >
+              <Sparkles className="w-3 h-3 inline mr-1" /> Gợi ý AI
+            </button>
+          </div>
+
+          <TaskSuggestions
+            userInput={aiInputValue}
+            onSelectSuggestion={handleAISuggestionSelect}
+            board={board}
+            defaultColumn={defaultColumn}
+            columnTitle={status || defaultColumn?.title}
+            isVisible={showAISuggestions}
+          />
+          <form onSubmit={handleSubmit(addNewCard)} className="flex flex-col gap-6 md:gap-8 mt-4">
             <div className="flex flex-col lg:flex-row gap-6 md:gap-8">
               {/* Thông tin nhiệm vụ */}
               <div className="flex flex-col flex-1 gap-4 md:gap-6">
@@ -181,6 +282,8 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
                     Tên nhiệm vụ <span className="text-red-500">*</span>
                   </label>
                   <input
+                    ref={titleInputRef}
+                    name="title"
                     className={`w-full p-3 rounded-xl border transition duration-200 focus:outline-none dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 ${
                       errors['title']
                         ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-400 hover:border-red-500'
@@ -189,11 +292,13 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
                     placeholder="Nhập tên nhiệm vụ..."
                     {...register('title', {
                       required: FIELD_REQUIRED_MESSAGE,
-                      minLength: {
-                        value: 3,
-                        message: 'Tên nhiệm vụ phải có ít nhất 3 ký tự'
-                      }
                     })}
+                    onChange={(e) => {
+                      // Sync với AI input
+                      if (showAISuggestions) {
+                        setAiInputValue(e.target.value)
+                      }
+                    }}
                   />
                   <FieldErrorAlert errors={errors} fieldName={'title'} />
                 </div>
@@ -224,26 +329,59 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
                           <ChevronDown className="w-4 h-4 md:w-5 md:h-5 ml-2" />
                         </Listbox.Button>
                         <Listbox.Options className="absolute z-10 mt-2 p-2 w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 shadow-lg animate-fadeIn max-h-[180px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
-                          {options.map((option) => (
-                            <Listbox.Option
-                              key={option.value}
-                              value={option.value}
-                              className={({ active, selected }) =>
-                                `px-3 md:px-4 py-1.5 md:py-2 cursor-pointer rounded-lg mb-1 transition-all duration-200 ${
-                                  selected ? 'bg-sky-100 dark:bg-gray-800 text-sky-500 font-medium shadow-sm' : ''
-                                } ${active ? 'hover:bg-slate-100 dark:hover:bg-gray-700 hover:shadow-sm' : ''}`
-                              }
-                            >
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm">{option.label}</span>
-                              </div>
-                            </Listbox.Option>
-                          ))}
+                          {options.map((option) => {
+                            const wipStatus = option.wipStatus
+                            const isDisabled = option.disabled
+                            
+                            return (
+                              <Listbox.Option
+                                key={option.value}
+                                value={option.value}
+                                disabled={isDisabled}
+                                className={({ active, selected }) =>
+                                  `px-3 md:px-4 py-1.5 md:py-2 cursor-pointer rounded-lg mb-1 transition-all duration-200 ${
+                                    selected ? 'bg-sky-100 dark:bg-gray-800 text-sky-500 font-medium shadow-sm' : ''
+                                  } ${active && !isDisabled ? 'hover:bg-slate-100 dark:hover:bg-gray-700 hover:shadow-sm' : ''} ${
+                                    isDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                                  }`
+                                }
+                              >
+                                <div className="flex items-center justify-between w-full">
+                                  <span className="text-sm">{option.label}</span>
+                                  {wipStatus && (
+                                    <span className={`text-xs px-2 py-1 rounded-full ${
+                                      wipStatus.isAtLimit 
+                                        ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400' 
+                                        : 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
+                                    }`}>
+                                      {wipStatus.current}/{wipStatus.limit}
+                                    </span>
+                                  )}
+                                </div>
+                              </Listbox.Option>
+                            )
+                          })}
                         </Listbox.Options>
                       </div>
                     </Listbox>
                   </div>
                   <FieldErrorAlert errors={errors} fieldName={'status'} />
+                  {status && board?.wipEnabled && (() => {
+                    const wipStatus = getWIPStatus(status)
+                    if (wipStatus?.isAtLimit) {
+                      return (
+                        <div className="p-3 mt-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <AlertTriangle className="w-4 h-4 text-red-500" />
+                            <span className="text-sm text-red-700 dark:text-red-300">
+                              Cột "{status}" đã đạt giới hạn WIP ({wipStatus.current}/{wipStatus.limit})
+                            </span>
+                          </div>
+                        </div>
+                      )
+                    }
+                    return null
+                  })()}
                   <input
                     type="hidden"
                     {...register('status', {

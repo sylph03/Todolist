@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import MDEditor from '@uiw/react-md-editor'
 import rehypeSanitize from 'rehype-sanitize'
 import { useDarkMode } from '../../Context/ThemeContext'
@@ -14,11 +14,16 @@ const DescriptionMdEditor = ({ cardDescriptionProp, handleUpdateCardDescription,
   // State xử lý giá trị markdown khi chỉnh sửa
   const [cardDescription, setCardDescription] = useState(cardDescriptionProp)
 
+  useEffect(() => {
+    setCardDescription(cardDescriptionProp)
+  }, [cardDescriptionProp])
+
   const onMarkdownEditMode = () => {
     setMarkdownEditMode(true)
-    if (!isCreateCard) {
-      setCardDescription(cardDescriptionProp)
-    }
+    // Không cần set lại cardDescription vì đã có trong useEffect
+    // if (!isCreateCard) {
+    //   setCardDescription(cardDescriptionProp)
+    // }
   }
 
   const updateCardDescription = () => {
@@ -31,6 +36,8 @@ const DescriptionMdEditor = ({ cardDescriptionProp, handleUpdateCardDescription,
     setCardDescription(cardDescriptionProp)
   }
 
+  const editorHeight = isCreateCard ? 135 : 100
+
   return (
     <div className={`${isCreateCard ? 'mb-0' : 'mb-6'}`}>
       {
@@ -40,55 +47,59 @@ const DescriptionMdEditor = ({ cardDescriptionProp, handleUpdateCardDescription,
           <span className="font-semibold text-gray-900 dark:text-gray-100">Mô tả</span>
         </div>
       }
-      {markdownEditMode ? (
-        <div className="space-y-4 animate-fadeIn">
-          <div
-            data-color-mode={darkMode ? 'dark' : 'light'}
-            className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"
-          >
-            <MDEditor
-              value={cardDescription}
-              onChange={setCardDescription}
-              previewOptions={{ rehypePlugins: [[rehypeSanitize]] }}
-              height={isCreateCard ? 135 : 200}
-              preview="edit"
-            />
-          </div>
 
-          <div className="flex gap-3 mt-3">
-            <button
-              onClick={updateCardDescription}
-              className="px-4 py-2 bg-sky-600 text-white rounded-md font-medium hover:bg-sky-700 transition-colors duration-200"
+      <div className="transition-all duration-300 ease-in-out">
+        {markdownEditMode ? (
+          <div className="space-y-4 animate-fadeIn">
+            <div
+              data-color-mode={darkMode ? 'dark' : 'light'}
+              className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden shadow-sm"
+              style={isCreateCard ? { minHeight: 'auto' } : { minHeight: 'auto' }}
             >
-              Lưu
-            </button>
-            <button
-              onClick={handleCancel}
-              className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-md font-medium hover:bg-gray-200 dark:hover:bg-gray-700 active:bg-gray-300 dark:active:bg-gray-600 transition-colors duration-200"
-            >
-                Hủy
-            </button>
+              <MDEditor
+                value={cardDescription}
+                onChange={setCardDescription}
+                previewOptions={{ rehypePlugins: [[rehypeSanitize]] }}
+                height={editorHeight}
+                preview="edit"
+              />
+            </div>
+
+            <div className="flex gap-3 mt-3">
+              <button
+                onClick={updateCardDescription}
+                className="px-4 py-2 bg-sky-600 text-white rounded-md font-medium hover:bg-sky-700 transition-colors duration-200"
+              >
+                Lưu
+              </button>
+              <button
+                onClick={handleCancel}
+                className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-md font-medium hover:bg-gray-200 dark:hover:bg-gray-700 active:bg-gray-300 dark:active:bg-gray-600 transition-colors duration-200"
+              >
+                  Hủy
+              </button>
+            </div>
           </div>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {
-            !cardDescription ?
+        ) : (
+          <div className="space-y-4">
+            {!cardDescription ? (
               <button
                 onClick={onMarkdownEditMode}
                 className={`w-full text-left border border-gray-200 dark:border-gray-700 dark:text-gray-400 bg-gray-50 text-gray-600 hover:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all duration-200 ${
                   isCreateCard ? 'px-3 pt-3 pb-25 bg-white dark:bg-gray-900 rounded-xl' : 'rounded-lg pt-4 pb-12 px-4 dark:bg-gray-900'
                 }`}
+                style={{ minHeight: editorHeight }}
               >
                 Thêm mô tả chi tiết ...
               </button>
-              :
+            ) : (
               <div
                 onClick={onMarkdownEditMode}
                 data-color-mode={darkMode ? 'dark' : 'light'}
                 className={`rounded-lg bg-white dark:bg-gray-800 border transition-all duration-200 cursor-text px-6.5 pb-3 pt-2 hover:border-sky-500 ${
                   isCreateCard ? 'border-gray-200 dark:border-gray-700' : 'border-transparent'
                 }`}
+                style={isCreateCard ? { height: editorHeight, overflowY: 'auto' } : { minHeight: editorHeight }}
               >
                 <MDEditor.Markdown
                   source={cardDescription}
@@ -99,9 +110,10 @@ const DescriptionMdEditor = ({ cardDescriptionProp, handleUpdateCardDescription,
                   }}
                 />
               </div>
-          }
-        </div>
-      )}
+            )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

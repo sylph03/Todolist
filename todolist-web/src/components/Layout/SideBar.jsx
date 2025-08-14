@@ -84,6 +84,11 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
     getListBoards()
   }, [])
 
+  // Khởi tạo filteredBoards khi boards thay đổi
+  useEffect(() => {
+    setFilteredBoards(boards)
+  }, [boards])
+
   // Debounced search function
   const debouncedSearch = useCallback(
     debounce((query) => {
@@ -94,7 +99,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
       }
 
       const searchQuery = query.toLowerCase().trim()
-      const filtered = boards.filter(board => 
+      const filtered = boards.filter(board =>
         board.title.toLowerCase().includes(searchQuery) ||
         (board.description && board.description.toLowerCase().includes(searchQuery))
       )
@@ -125,20 +130,22 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
     }
   }, [debouncedSearch])
 
+  // Filter boards based on search query - REMOVED DUPLICATE LOGIC
+  // Logic này đã được xử lý trong debouncedSearch function để tránh double filtering
   // Filter boards based on search query
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredBoards(boards)
-      return
-    }
+  // useEffect(() => {
+  //   if (!searchQuery.trim()) {
+  //     setFilteredBoards(boards)
+  //     return
+  //   }
 
-    const query = searchQuery.toLowerCase().trim()
-    const filtered = boards.filter(board => 
-      board.title.toLowerCase().includes(query) ||
-      (board.description && board.description.toLowerCase().includes(query))
-    )
-    setFilteredBoards(filtered)
-  }, [searchQuery, boards])
+  //   const query = searchQuery.toLowerCase().trim()
+  //   const filtered = boards.filter(board =>
+  //     board.title.toLowerCase().includes(query) ||
+  //     (board.description && board.description.toLowerCase().includes(query))
+  //   )
+  //   setFilteredBoards(filtered)
+  // }, [searchQuery, boards])
 
   // Xử lý dropdown khi cuộn
   useEffect(() => {

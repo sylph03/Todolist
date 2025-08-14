@@ -2,7 +2,7 @@
 import { StatusCodes } from 'http-status-codes'
 import { cardModel } from '~/models/cardModel'
 import { columnModel } from '~/models/columnModel'
-import { boardModel } from '~/models/boardModel'
+// import { boardModel } from '~/models/boardModel'
 import ApiError from '~/utils/ApiError'
 import { CloudinaryProvider } from '~/providers/CloudinaryProvider'
 

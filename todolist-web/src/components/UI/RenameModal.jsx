@@ -137,4 +137,4 @@ const RenameModal = ({
   )
 }
 
-export default RenameModal 
+export default RenameModal

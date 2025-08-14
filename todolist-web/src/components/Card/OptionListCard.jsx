@@ -12,10 +12,9 @@ import { singleFileValidator } from '~/utils/validators'
 import { updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { showActiveCard } from '~/redux/activeCard/activeCardSlice'
 import MoveCardPopup from './MoveCardPopup'
-import { useState, useRef } from 'react'
-import useClickOutside from '~/hooks/useClickOutside'
+import { useRef } from 'react'
 
-const OptionListCard = ({ card, setShowPopup, updateCardTitle, isLeftPosition, popupRef, setShowMoveCardPopup, showMoveCardPopup }) => {
+const OptionListCard = ({ card, setShowPopup, updateCardTitle, isLeftPosition, setShowMoveCardPopup, showMoveCardPopup }) => {
   const dispatch = useDispatch()
   const board = useSelector(selectCurrentActiveBoard)
 

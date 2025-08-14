@@ -25,7 +25,7 @@ const SearchActionCard = () => {
 
   useEffect(() => {
     // Khi đóng phần list kết quả lại thì đồng thời clear cho cards về null
-    if (!open) { 
+    if (!open) {
       setCards(null)
       setSearchValue('')
     }
@@ -59,7 +59,7 @@ const SearchActionCard = () => {
     const searchQuery = { title: escapedSearchValue }
     const searchPath = `?q=${JSON.stringify(searchQuery)}`
     const result = await getCardsAPI(searchPath)
-    
+
     // Kiểm tra và xử lý kết quả trả về
     if (Array.isArray(result)) {
       setCards(result)
@@ -73,14 +73,14 @@ const SearchActionCard = () => {
   const handleInputSearchChange = (e) => {
     const value = e.target.value
     setSearchValue(value)
-    
+
     if (!value) {
       setCards(null)
       setLoading(false)
       setOpen(false)
       return
     }
-    
+
     setOpen(true)
     setLoading(true)
     debouncedSearch(value)
@@ -140,8 +140,8 @@ const SearchActionCard = () => {
                       <div className="flex items-start gap-3">
                         {card.cover ? (
                           <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden">
-                            <img 
-                              src={card.cover} 
+                            <img
+                              src={card.cover}
                               alt={card.title}
                               className="w-full h-full object-cover"
                             />

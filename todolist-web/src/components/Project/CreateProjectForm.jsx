@@ -137,14 +137,14 @@ const CreateProjectForm = ({ formCreateProjectRef, setShowInput, formPosition, a
             </button>
             {showColorPicker && (
               <div ref={colorPickerRef} onClick={(e) => e.stopPropagation()}>
-              <ColorPickerPopup
-                position={{
-                  top: colorButtonRef.current?.getBoundingClientRect().bottom + 5,
-                  left: colorButtonRef.current?.getBoundingClientRect().left
-                }}
-                selectedColor={selectedColor}
-                onColorChange={handleColorChange}
-              />
+                <ColorPickerPopup
+                  position={{
+                    top: colorButtonRef.current?.getBoundingClientRect().bottom + 5,
+                    left: colorButtonRef.current?.getBoundingClientRect().left
+                  }}
+                  selectedColor={selectedColor}
+                  onColorChange={handleColorChange}
+                />
               </div>
             )}
           </div>

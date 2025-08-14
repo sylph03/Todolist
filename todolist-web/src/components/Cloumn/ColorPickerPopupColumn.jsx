@@ -18,7 +18,7 @@ const colorOptions = [
   { name: 'Teal', bgTitleColumn: 'bg-teal-500 dark:bg-teal-600', bgColumn: 'bg-teal-100 dark:bg-teal-900/20' },
   { name: 'Cyan', bgTitleColumn: 'bg-cyan-500 dark:bg-cyan-600', bgColumn: 'bg-cyan-100 dark:bg-cyan-900/20' },
   { name: 'Slate', bgTitleColumn: 'bg-slate-500 dark:bg-slate-600', bgColumn: 'bg-slate-100 dark:bg-slate-900/20' }
-];
+]
 
 
 const ColorPickerPopup = ({

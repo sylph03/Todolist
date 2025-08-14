@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import Appbar from '~/components/Layout/AppBar'
 import { Plus, LayoutGrid, Search, Star, Sparkles, Clock, ChevronRight, Users, Settings, FolderOpen, Calendar, BookOpen, Archive, CheckCircle } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
@@ -28,25 +28,46 @@ const Boards = () => {
   const page = parseInt(query.get('page') || '1', 10)
 
   // Debounced search function
-  const debouncedSearch = useCallback(
-    debounce((query) => {
-      if (!query.trim()) {
-        fetchBoardsAPI(location.search).then(updateStateData)
-        setIsSearching(false)
-        return
-      }
+  // const debouncedSearch = useCallback(
+  //   debounce((query) => {
+  //     if (!query.trim()) {
+  //       fetchBoardsAPI(location.search).then(updateStateData)
+  //       setIsSearching(false)
+  //       return
+  //     }
 
-      setIsSearching(true)
-      // Thêm query search vào URL params
-      const searchParams = new URLSearchParams()
-      searchParams.set('q[title]', query.trim()) // Format query param theo model
-      searchParams.set('page', '1') // Reset về trang 1 khi tìm kiếm
-      
-      // Fetch boards với search params
-      fetchBoardsAPI(`?${searchParams.toString()}`).then(updateStateData)
+  //     setIsSearching(true)
+  //     // Thêm query search vào URL params
+  //     const searchParams = new URLSearchParams()
+  //     searchParams.set('q[title]', query.trim()) // Format query param theo model
+  //     searchParams.set('page', '1') // Reset về trang 1 khi tìm kiếm
+
+  //     // Fetch boards với search params
+  //     fetchBoardsAPI(`?${searchParams.toString()}`).then(updateStateData)
+  //     setIsSearching(false)
+  //   }, 500),
+  //   [location.search]
+  // )
+  const searchFn = useCallback((query) => {
+    if (!query.trim()) {
+      fetchBoardsAPI(location.search).then(updateStateData)
       setIsSearching(false)
-    }, 500),
-    [location.search]
+      return
+    }
+
+    setIsSearching(true)
+
+    const searchParams = new URLSearchParams()
+    searchParams.set('q[title]', query.trim())
+    searchParams.set('page', '1')
+
+    fetchBoardsAPI(`?${searchParams.toString()}`).then(updateStateData)
+    setIsSearching(false)
+  }, [location.search])
+
+  const debouncedSearch = useMemo(
+    () => debounce(searchFn, 500),
+    [searchFn]
   )
 
   // Handle search input change
@@ -313,7 +334,7 @@ const Boards = () => {
                         {searchQuery ? 'Không tìm thấy bảng nào' : 'Chưa có bảng nào'}
                       </h3>
                       <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md">
-                        {searchQuery 
+                        {searchQuery
                           ? 'Thử tìm kiếm với từ khóa khác hoặc tạo bảng mới'
                           : 'Nhấn vào nút "Tạo bảng mới" ở góc trên bên phải để bắt đầu quản lý công việc của bạn'
                         }

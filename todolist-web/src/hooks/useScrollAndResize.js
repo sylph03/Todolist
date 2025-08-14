@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 
 /**
  * Hook lắng nghe cả sự kiện scroll và resize
- * 
+ *
  * @param {Function} callback - Hàm được gọi khi scroll hoặc resize
  * @param {boolean} active - Có kích hoạt hay không (tuỳ chọn)
  */

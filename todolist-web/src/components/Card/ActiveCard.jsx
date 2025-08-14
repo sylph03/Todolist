@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react'
+import React, { useRef, useState, useCallback } from 'react'
 import { X, Image, Calendar, Users, UserPlus, Paperclip, CheckSquare, Copy, Archive, Share2, FileText, Activity, Text, CircleCheck } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import { clearCurrentActiveCard, selectCurrentActiveCard, updateCurrentActiveCard, selectIsShowActiveCard, hideActiveCard } from '~/redux/activeCard/activeCardSlice'

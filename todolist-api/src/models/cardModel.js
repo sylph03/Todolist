@@ -162,7 +162,7 @@ const getCards = async (userId, queryFilters) => {
     // Sử dụng $regex không phân biệt hoa thường
     if (queryFilters) {
       Object.keys(queryFilters).forEach(key => {
-        queryConditions.push({ [key]: { $regex: new RegExp(queryFilters[key], 'i') }})
+        queryConditions.push({ [key]: { $regex: new RegExp(queryFilters[key], 'i') } })
       })
     }
 

@@ -17,6 +17,11 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   memberIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
   favorite: Joi.boolean().default(false),
   backgroundColor: Joi.string().default('bg-sky-200'),
+
+  // WIP Settings
+  wipEnabled: Joi.boolean().default(false),
+  wipLimit: Joi.number().min(1).max(100).default(5),
+
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false)
@@ -168,7 +173,7 @@ const getBoards = async (userId, page, itemsPerPage, queryFilters) => {
         // queryConditions.push({ [key]: { $regex: queryFilters[key] } })
 
         // Không phân biệt chữ hoa chữ thường
-        queryConditions.push({ [key]: { $regex: new RegExp(queryFilters[key], 'i') }})
+        queryConditions.push({ [key]: { $regex: new RegExp(queryFilters[key], 'i') } })
       })
     }
 

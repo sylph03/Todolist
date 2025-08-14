@@ -42,7 +42,7 @@ const deleteItem = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   const correctCondition = Joi.object({
-    title: Joi.string().min(3).max(50).trim().strict(),
+    title: Joi.string().min(1).max(50).trim().strict(),
     description: Joi.string().allow('').optional(),
     cover: Joi.string().uri().allow('').optional()
   })

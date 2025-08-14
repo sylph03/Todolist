@@ -21,10 +21,10 @@ const createNew = async (userId, reqBody) => {
 
     const boardId = createdBoard.insertedId
 
-    // Tạo 4 column mặc định với dữ liệu chi tiết
+    // Tạo 3 column mặc định với dữ liệu chi tiết
     const defaultColumns = [
       { title: 'Nhiệm vụ', bgColumn: 'bg-red-100 dark:bg-red-900/20', bgTitleColumn: 'bg-red-500 dark:bg-red-600' },
-      { title: 'Chuẩn bị', bgColumn: 'bg-orange-100 dark:bg-orange-900/20', bgTitleColumn: 'bg-orange-500 dark:bg-orange-600' },
+      // { title: 'Chuẩn bị', bgColumn: 'bg-orange-100 dark:bg-orange-900/20', bgTitleColumn: 'bg-orange-500 dark:bg-orange-600' },
       { title: 'Đang làm', bgColumn: 'bg-yellow-100 dark:bg-yellow-900/20', bgTitleColumn: 'bg-yellow-500 dark:bg-yellow-600' },
       { title: 'Hoàn thành', bgColumn: 'bg-green-100 dark:bg-green-900/20', bgTitleColumn: 'bg-green-500 dark:bg-green-600' }
     ]
