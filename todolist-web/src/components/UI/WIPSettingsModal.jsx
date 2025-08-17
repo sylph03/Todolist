@@ -13,6 +13,15 @@ const WIPSettingsModal = ({ isOpen, onClose, onSave, currentSettings }) => {
 
   const WIPSettingsModalRef = useRef(null)
 
+  // Reset state khi modal mở hoặc currentSettings thay đổi
+  useEffect(() => {
+    if (isOpen) {
+      setWipEnabled(currentSettings?.enabled || false)
+      setWipLimit(currentSettings?.limit || 5)
+      setValidationError('')
+    }
+  }, [isOpen, currentSettings])
+
   // Reset validation error khi thay đổi settings
   useEffect(() => {
     setValidationError('')
@@ -22,9 +31,9 @@ const WIPSettingsModal = ({ isOpen, onClose, onSave, currentSettings }) => {
   const validateWIPSettings = () => {
     if (!wipEnabled) return true
 
-    // Kiểm tra xem có cột nào đang vượt quá limit mới không
+    // SỬA: Chỉ đếm active cards (không archived, không placeholder)
     const overLimitColumns = board?.columns?.filter(column => 
-      (column.cards?.length || 0) > wipLimit
+      column.cards?.filter(card => !card.FE_PlaceholderCard && !card.isArchived).length > wipLimit
     )
 
     if (overLimitColumns.length > 0) {
@@ -47,8 +56,9 @@ const WIPSettingsModal = ({ isOpen, onClose, onSave, currentSettings }) => {
   const renderWIPWarning = () => {
     if (!wipEnabled || !board?.columns) return null
 
+    // SỬA: Chỉ đếm active cards (không archived, không placeholder)
     const overLimitColumns = board.columns.filter(column => 
-      (column.cards?.length || 0) > wipLimit
+      column.cards?.filter(card => !card.FE_PlaceholderCard && !card.isArchived).length > wipLimit
     )
 
     if (overLimitColumns.length > 0) {
@@ -65,7 +75,9 @@ const WIPSettingsModal = ({ isOpen, onClose, onSave, currentSettings }) => {
                 {overLimitColumns.map(column => (
                   <li key={column._id} className="flex items-center justify-between">
                     <span>• {column.title}</span>
-                    <span className="font-medium">{column.cards?.length || 0} task</span>
+                    <span className="font-medium">
+                      {column.cards?.filter(card => !card.FE_PlaceholderCard && !card.isArchived).length || 0} task
+                    </span>
                   </li>
                 ))}
               </ul>

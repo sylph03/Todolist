@@ -173,7 +173,7 @@ const MoveCardPopup = ({ onClose, board, card, moveButtonRef, setShowPopup }) =>
     // Nếu di chuyển trong cùng column, không cần kiểm tra WIP limit
     if (columnId === card?.columnId) return true
     
-    const currentCardCount = targetColumn.cards?.filter(c => !c.FE_PlaceholderCard).length || 0
+    const currentCardCount = targetColumn.cards?.filter(c => !c.FE_PlaceholderCard && !c.isArchived).length || 0
     const wipLimit = board.wipLimit || 5
     
     return currentCardCount < wipLimit
@@ -185,7 +185,7 @@ const MoveCardPopup = ({ onClose, board, card, moveButtonRef, setShowPopup }) =>
     const targetColumn = board.columns.find(col => col._id === columnId)
     if (!targetColumn) return null
     
-    const currentCardCount = targetColumn.cards?.filter(c => !c.FE_PlaceholderCard).length || 0
+    const currentCardCount = targetColumn.cards?.filter(c => !c.FE_PlaceholderCard && !c.isArchived).length || 0
     const wipLimit = board.wipLimit || 5
     
     return {

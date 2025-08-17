@@ -47,7 +47,8 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
     const targetColumn = board.columns.find(col => col.title === columnTitle)
     if (!targetColumn) return true
     
-    const currentCardCount = targetColumn.cards?.filter(c => !c.FE_PlaceholderCard).length || 0
+    // Chỉ đếm các thẻ active (không archived, không placeholder)
+    const currentCardCount = targetColumn.cards?.filter(c => !c.FE_PlaceholderCard && !c.isArchived).length || 0
     const wipLimit = board.wipLimit || 5
     
     return currentCardCount < wipLimit
@@ -59,7 +60,8 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
     const targetColumn = board.columns.find(col => col.title === columnTitle)
     if (!targetColumn) return null
     
-    const currentCardCount = targetColumn.cards?.filter(c => !c.FE_PlaceholderCard).length || 0
+    // Chỉ đếm các thẻ active (không archived, không placeholder)
+    const currentCardCount = targetColumn.cards?.filter(c => !c.FE_PlaceholderCard && !c.isArchived).length || 0
     const wipLimit = board.wipLimit || 5
     
     return {
@@ -259,9 +261,14 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
                   }, 100) // Delay nhỏ để đảm bảo state đã update
                 }
               }}
-              className="px-2 py-1 text-xs rounded bg-gray-100"
+              className={`px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200 flex items-center gap-2 ${
+                showAISuggestions 
+                  ? 'bg-sky-500 hover:bg-sky-600 text-white shadow-md' 
+                  : 'bg-gradient-to-r from-sky-50 to-purple-50 dark:bg-gray-900 dark:from-gray-900/50 dark:to-gray-800/50 border border-gray-300 dark:border-gray-600 hover:border-sky-500 dark:hover:border-sky-500 text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800'
+              }`}
             >
-              <Sparkles className="w-3 h-3 inline mr-1" /> Gợi ý AI
+              <Sparkles className={`w-3 h-3 ${showAISuggestions ? 'text-white' : 'text-sky-500 dark:text-sky-400'}`} /> 
+              {showAISuggestions ? 'Đóng AI' : 'Gợi ý AI'}
             </button>
           </div>
 

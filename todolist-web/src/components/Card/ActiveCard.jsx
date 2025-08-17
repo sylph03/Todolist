@@ -103,7 +103,7 @@ const ActiveCard = () => {
   if (!isShowActiveCard || !activeCard) return null
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 dark:bg-black/40 animate-fadeIn overflow-y-auto overflow-x-hidden m-0">
+    <div className="fixed inset-0 z-60 bg-black/50 dark:bg-black/40 animate-fadeIn overflow-y-auto overflow-x-hidden m-0">
       {/* Modal Content */}
       <div className="min-h-screen flex items-center justify-center p-4">
         <div
@@ -130,6 +130,21 @@ const ActiveCard = () => {
                 <span className="absolute bottom-4 right-6 text-white bg-black/40 px-2 py-1 rounded text-xs font-medium flex items-center gap-1">
                   <Image className="w-4 h-4" />
                   Ảnh bìa
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Đã lưu trữ nếu có */}
+          {activeCard?.isArchived && activeCard?.archivedAt && (
+            <div className="px-6 py-3 bg-gray-100 dark:bg-gray-900">
+              <div className="flex items-center justify-center gap-2 text-gray-600 dark:text-gray-300">
+                <Archive className="w-4 h-4 flex-shrink-0" />
+                <span className="text-sm font-medium">
+                  Thẻ này đã được lưu trữ vào lúc <b>{new Date(activeCard.archivedAt).toLocaleString('vi-VN', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}</b>, <b>{new Date(activeCard.archivedAt).toLocaleDateString('vi-VN')}</b>
                 </span>
               </div>
             </div>

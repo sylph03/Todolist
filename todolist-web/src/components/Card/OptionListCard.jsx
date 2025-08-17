@@ -37,8 +37,93 @@ const OptionListCard = ({ card, setShowPopup, updateCardTitle, isLeftPosition, s
     setShowMoveCardPopup(false) // Cập nhật trạng thái cho TaskCard
   }
 
-  const handleArchiveCard = () => {
-    console.log('Lưu trữ thẻ')
+  const handleArchiveCard = async () => {
+    const response = await updateCardDetailsAPI(card._id, {
+      isArchived: true,
+      archivedAt: Date.now()
+    })
+    if (response) {
+      // Cập nhật card trong board
+      dispatch(updateCardInBoard(response))
+      
+      // Tạo board mới với dữ liệu đã cập nhật
+      const newBoard = cloneDeep(board)
+      const targetColumn = newBoard.columns.find(column => column.cardOrderIds.includes(card._id))
+      
+      if (targetColumn) {
+        // Cập nhật card trong targetColumn với dữ liệu mới
+        const cardIndex = targetColumn.cards.findIndex(c => c._id === card._id)
+        if (cardIndex !== -1) {
+          targetColumn.cards[cardIndex] = { ...targetColumn.cards[cardIndex], isArchived: true, archivedAt: Date.now() }
+        }
+        
+        // Đếm số active cards (không archived, không placeholder) với dữ liệu mới
+        const activeCards = targetColumn.cards.filter(c => !c.isArchived && !c.FE_PlaceholderCard)
+        
+        // Nếu không còn active cards nào, thêm placeholder
+        if (activeCards.length === 0) {
+          const placeholderCard = generatePlaceholderCard(targetColumn)
+          targetColumn.cards.push(placeholderCard)
+          targetColumn.cardOrderIds.push(placeholderCard._id)
+          
+          // Cập nhật board với placeholder
+          dispatch(updateCurrentActiveBoard(newBoard))
+        }
+      }
+      
+      toast.success('Đã lưu trữ nhiệm vụ!')
+      setShowPopup(false)
+    }
+  }
+
+  // mặc dù khi lưu trữ nhiệm vụ, thẻ không hiện thị những để đây vẫn có thể khôi phục
+  const handleUnarchiveCard = async () => {
+    // Kiểm tra WIP limit trước khi khôi phục
+    if (board?.wipEnabled) {
+      const targetColumn = board.columns.find(column => column.cardOrderIds.includes(card._id))
+      if (targetColumn) {
+        // Đếm số active cards hiện tại (không archived, không placeholder)
+        const currentActiveCards = targetColumn.cards.filter(c => !c.isArchived && !c.FE_PlaceholderCard)
+        const wipLimit = board?.wipLimit || 5
+        
+        // Nếu column đã đạt WIP limit, không cho phép khôi phục
+        if (currentActiveCards.length >= wipLimit) {
+          toast.error(`Không thể khôi phục nhiệm vụ! Cột "${targetColumn.title}" đã đạt giới hạn WIP (${currentActiveCards.length}/${wipLimit})`)
+          return
+        }
+      }
+    }
+
+    const response = await updateCardDetailsAPI(card._id, {
+      isArchived: false,
+      archivedAt: null
+    })
+    if (response) {
+      // Cập nhật card trong board
+      dispatch(updateCardInBoard(response))
+      
+      // Tạo board mới với dữ liệu đã cập nhật
+      const newBoard = cloneDeep(board)
+      const targetColumn = newBoard.columns.find(column => column.cardOrderIds.includes(card._id))
+      
+      if (targetColumn) {
+        // Cập nhật card trong targetColumn với dữ liệu mới
+        const cardIndex = targetColumn.cards.findIndex(c => c._id === card._id)
+        if (cardIndex !== -1) {
+          targetColumn.cards[cardIndex] = { ...targetColumn.cards[cardIndex], isArchived: false, archivedAt: null }
+        }
+        
+        // Xóa FE_PlaceholderCard nếu có (vì đã có active card)
+        targetColumn.cards = targetColumn.cards.filter(c => !c.FE_PlaceholderCard)
+        targetColumn.cardOrderIds = targetColumn.cardOrderIds.filter(id => !id.includes('placeholder'))
+        
+        // Cập nhật board
+        dispatch(updateCurrentActiveBoard(newBoard))
+      }
+      
+      toast.success('Đã khôi phục nhiệm vụ!')
+      setShowPopup(false)
+    }
   }
 
   const onUpdateCardCover = (event) => {
@@ -99,7 +184,11 @@ const OptionListCard = ({ card, setShowPopup, updateCardTitle, isLeftPosition, s
   const options = [
     { icon: <CreditCard className="w-4 h-4 text-gray-600 dark:text-gray-300" />, label: 'Mở thẻ', onClick: handleOpenCard },
     { icon: <MoveRight className="w-4 h-4 text-gray-600 dark:text-gray-300" />, label: 'Di chuyển', onClick: handleShowMoveCardPopup },
-    { icon: <Archive className="w-4 h-4 text-gray-600 dark:text-gray-300" />, label: 'Lưu trữ', onClick: handleArchiveCard },
+    { 
+      icon: <Archive className="w-4 h-4 text-gray-600 dark:text-gray-300" />, 
+      label: card.isArchived ? 'Khôi phục' : 'Lưu trữ', 
+      onClick: card.isArchived ? handleUnarchiveCard : handleArchiveCard 
+    },
     { icon: <Image className="w-4 h-4 text-gray-600 dark:text-gray-300" />, label: 'Ảnh bìa', onClick: onUpdateCardCover, isFileUpload: true },
     { icon: <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />, label: 'Xóa', onClick: handleDeleteCard, isDanger: true }
   ]

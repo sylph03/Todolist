@@ -71,9 +71,19 @@ const BoardContent = ({ board, isSidebarOpen, moveColumns, moveCardInTheSameColu
         // Xóa card ở column đang active
         nextActiveColumn.cards = nextActiveColumn.cards.filter(card => card._id !== activeDraggingCardId)
         // Thêm Placehoder Card nếu column rỗng (do kéo hết card đi)
-        if (isEmpty(nextActiveColumn.cards)) {
-          nextActiveColumn.cards = [generatePlaceholderCard(nextActiveColumn)]
+        // if (isEmpty(nextActiveColumn.cards)) {
+        //   nextActiveColumn.cards = [generatePlaceholderCard(nextActiveColumn)]
+        // }
+        // Kiểm tra active cards (không archived) để quyết định có cần placeholder không
+        const activeCards = nextActiveColumn.cards.filter(card => !card.isArchived)
+        if (isEmpty(activeCards)) {
+          // Thêm Placeholder Card nếu không còn active cards nào
+          const hasPlaceholder = nextActiveColumn.cards.some(card => card.FE_PlaceholderCard)
+          if (!hasPlaceholder) {
+            nextActiveColumn.cards.push(generatePlaceholderCard(nextActiveColumn))
+          }
         }
+        
         // Cập nhật lại mảng cardOrderIds
         nextActiveColumn.cardOrderIds = nextActiveColumn.cards.map(card => card._id)
       }
@@ -149,7 +159,7 @@ const BoardContent = ({ board, isSidebarOpen, moveColumns, moveCardInTheSameColu
     if (activeColumn._id !== overColumn._id) {
       // KIỂM TRA WIP LIMIT TRƯỚC KHI CHO PHÉP KÉO
       if (board?.wipEnabled) {
-        const targetColumnCardCount = overColumn.cards?.filter(c => !c.FE_PlaceholderCard && c._id !== activeDraggingCardId).length || 0
+        const targetColumnCardCount = overColumn.cards?.filter(c => !c.FE_PlaceholderCard && c._id !== activeDraggingCardId && !c.isArchived).length || 0
         const wipLimit = board?.wipLimit || 5
         
         // Nếu cột đích đã đạt WIP limit, return luôn - không cho kéo
@@ -184,7 +194,7 @@ const BoardContent = ({ board, isSidebarOpen, moveColumns, moveCardInTheSameColu
       if (oldColumnDraggingCard._id !== overColumn._id) {
         // KIỂM TRA WIP LIMIT TRƯỚC KHI CHO PHÉP THẢ
         if (board?.wipEnabled) {
-          const targetColumnCardCount = overColumn.cards?.filter(c => !c.FE_PlaceholderCard && c._id !== activeDraggingCardId).length || 0
+          const targetColumnCardCount = overColumn.cards?.filter(c => !c.FE_PlaceholderCard && c._id !== activeDraggingCardId && !c.isArchived).length || 0
           const wipLimit = board?.wipLimit || 5
           
           // Nếu cột đích đã đạt WIP limit, return luôn - không thả

@@ -221,6 +221,13 @@ const TaskCard = ({ card }) => {
     setInputValue(e.target.value)
   }
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleSaveTitle()
+    }
+  }
+
   const handleSaveTitle = async () => {
     const trimmedValue = inputValue.trim()
 
@@ -329,6 +336,7 @@ const TaskCard = ({ card }) => {
                   ref={inputRef}
                   value={inputValue}
                   onChange={handleInputChange}
+                  onKeyDown={handleKeyDown}
                   spellCheck={false}
                   className={`
                     w-full mb-2

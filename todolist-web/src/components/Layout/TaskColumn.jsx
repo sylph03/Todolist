@@ -51,6 +51,7 @@ const TaskColumn = ({ column, cursor }) => {
 
   // Cards đã được sắp xếp ở component cha cao nhất (boards/_id.jsx)
   const orderedCards = column.cards
+  const orderedCardsNotArchived = orderedCards.filter(card => !card.isArchived)
 
   const updateMenuPosition = () => {
     if (ellipsisButtonRef.current && menuRef.current) {
@@ -287,7 +288,8 @@ const TaskColumn = ({ column, cursor }) => {
   const canAddCard = () => {
     if (!activeBoard?.wipEnabled) return true
     
-    const currentCardCount = orderedCards?.filter(card => !card.FE_PlaceholderCard).length || 0
+    // SỬA: Filter cả isArchived và FE_PlaceholderCard
+    const currentCardCount = orderedCardsNotArchived?.filter(card => !card.FE_PlaceholderCard && !card.isArchived).length || 0
     const wipLimit = activeBoard?.wipLimit || 5
     
     return currentCardCount < wipLimit
@@ -315,21 +317,22 @@ const TaskColumn = ({ column, cursor }) => {
               <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
                 {activeBoard?.wipEnabled ? 
                   (<>
-                    <span>{orderedCards?.filter(card => !card.FE_PlaceholderCard).length || 0}</span>
+                    {/* SỬA: Filter cả isArchived và FE_PlaceholderCard */}
+                    <span>{orderedCardsNotArchived?.filter(card => !card.FE_PlaceholderCard && !card.isArchived).length || 0}</span>
                     /<span>
                     {activeBoard?.wipLimit || 0}</span> 
                   </>)
-                  : orderedCards?.[0]?.FE_PlaceholderCard ? 0 : orderedCards?.length || 0}
+                  : orderedCardsNotArchived?.[0]?.FE_PlaceholderCard ? 0 : orderedCardsNotArchived?.length || 0}
               </span>
             </div>
           </div>
 
           {/* Cards area */}
-          <SortableContext items={orderedCards?.map((card) => card._id)} strategy={verticalListSortingStrategy}>
+          <SortableContext items={orderedCardsNotArchived?.map((card) => card._id)} strategy={verticalListSortingStrategy}>
             <div className="w-full h-HEIGHT_COLUMN_CONTENT">
               <div className="p-4 space-y-3 overflow-y-auto overflow-x-hidden w-full h-full scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
-                {orderedCards?.length > 0 ? (
-                  orderedCards.map((card) => <TaskCard key={card._id} card={card} />)
+                {orderedCardsNotArchived?.length > 0 ? (
+                  orderedCardsNotArchived.map((card) => <TaskCard key={card._id} card={card} />)
                 ) : (
                   <div className="flex items-center justify-center h-24 text-gray-400 dark:text-gray-500 text-sm">
                     No tasks yet
@@ -374,7 +377,8 @@ const TaskColumn = ({ column, cursor }) => {
                 }`}
                 title={canAddCard() 
                   ? 'Thêm thẻ mới' 
-                  : `Không thể thêm thẻ - đã đạt giới hạn WIP (${orderedCards?.filter(card => !card.FE_PlaceholderCard).length || 0}/${activeBoard?.wipLimit || 5})`
+                  // SỬA: Filter cả isArchived và FE_PlaceholderCard
+                  : `Không thể thêm thẻ - đã đạt giới hạn WIP (${orderedCardsNotArchived?.filter(card => !card.FE_PlaceholderCard && !card.isArchived).length || 0}/${activeBoard?.wipLimit || 5})`
                 }
               >
                 <Plus className="w-4 h-4" />

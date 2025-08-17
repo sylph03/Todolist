@@ -97,17 +97,19 @@ const Board = () => {
 
 
     // Gọi API xử lý
-    let prevCardOrderIds = dndOrderedColumns.find(column => column._id === prevColumnId)?.cardOrderIds
+    let prevCardOrderIds = dndOrderedColumns.find(column => column._id === prevColumnId)?.cardOrderIds || []
 
     // Xử lý khi kéo phần tử card cuối cùng ra khỏi column (column rỗng có placeholder card, cần xóa đi trước khi gửi dữ liệu lên BE)
-    if (prevCardOrderIds[0].includes('placeholder-card')) prevCardOrderIds = []
+    // if (prevCardOrderIds[0].includes('placeholder-card')) prevCardOrderIds = []
+    // Loại bỏ tất cả placeholder cards khỏi prevCardOrderIds
+    prevCardOrderIds = prevCardOrderIds.filter(id => !id.includes('placeholder'))
 
     moveCardToDifferentColumnAPI({
       currentCardId,
       prevColumnId,
       prevCardOrderIds,
       nextColumnId,
-      nextCardOrderIds: dndOrderedColumns.find(column => column._id === nextColumnId)?.cardOrderIds
+      nextCardOrderIds: dndOrderedColumns.find(column => column._id === nextColumnId)?.cardOrderIds || []
     })
   }
 

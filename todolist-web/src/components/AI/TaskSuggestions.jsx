@@ -40,16 +40,16 @@ const TaskSuggestions = ({ userInput, onSelectSuggestion, board, defaultColumn, 
   if (!isVisible) return null
 
   return (
-    <div className="mt-3 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 rounded-lg border border-blue-200 dark:border-gray-600">
+    <div className="mt-3 p-4 bg-gradient-to-r from-sky-50 to-purple-50 dark:from-gray-900/50 dark:to-gray-800/50 rounded-lg border border-sky-200 dark:border-gray-700">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-blue-500" />
-          <span className="font-medium text-gray-700 dark:text-gray-200">Gợi ý tạo nhiệm vụ AI</span>
+          <Sparkles className="w-5 h-5 text-sky-500 dark:text-sky-400" />
+          <span className="font-medium text-gray-700 dark:text-gray-100">Gợi ý tạo nhiệm vụ AI</span>
         </div>
         <button
           onClick={handleGenerate}
           disabled={loading}
-          className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-md transition-colors disabled:opacity-50 shadow-sm"
+          className="flex items-center gap-2 px-3 py-2 bg-sky-500 hover:bg-sky-600 dark:bg-sky-500 dark:hover:bg-sky-600 text-white text-sm rounded-md transition-colors disabled:opacity-50 shadow-sm"
           title="Tạo gợi ý AI cho task này"
         >
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
@@ -73,7 +73,7 @@ const TaskSuggestions = ({ userInput, onSelectSuggestion, board, defaultColumn, 
                       description: suggestions.descriptionSuggestion,
                       suggestedColumnTitle: suggestions.suggestedColumnTitle
                     })}
-                    className="w-full text-left p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors text-sm font-medium"
+                    className="w-full text-left p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-sky-50 dark:hover:bg-gray-800 transition-colors text-sm font-medium text-gray-800 dark:text-gray-100"
                   >
                     {title}
                   </button>
@@ -85,7 +85,7 @@ const TaskSuggestions = ({ userInput, onSelectSuggestion, board, defaultColumn, 
           {suggestions.descriptionSuggestion && (
             <div>
               <h4 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">📝 Gợi ý mô tả:</h4>
-              <div className="p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-700 dark:text-gray-300">
+              <div className="p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-700 dark:text-gray-300">
                 {suggestions.descriptionSuggestion}
               </div>
             </div>
@@ -100,7 +100,7 @@ const TaskSuggestions = ({ userInput, onSelectSuggestion, board, defaultColumn, 
           )}
 
           {suggestions.estimatedHours && (
-            <div className="text-xs text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 p-2 rounded border">
+            <div className="text-xs text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 p-2 rounded border border-gray-200 dark:border-gray-600">
               ⏱️ Ước tính thời gian: <strong>{suggestions.estimatedHours} giờ</strong>
             </div>
           )}

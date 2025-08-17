@@ -70,12 +70,26 @@ export const activeBoardSlice = createSlice({
 
       board.columns.forEach(column => {
         // Xử lý vấn đề kéo thả card vào column rỗng
-        if (isEmpty(column.cards)) {
-          column.cards = [generatePlaceholderCard(column)]
-          column.cardOrderIds = [generatePlaceholderCard(column)._id]
-        } {
-          // Sắp xếp thứ tự các cards ở đây trước khi đưa dữ liệu xuống bên dưới các component con
-          column.cards = mapOrder(column.cards, column.cardOrderIds, '_id')
+        // if (isEmpty(column.cards)) {
+        //   column.cards = [generatePlaceholderCard(column)]
+        //   column.cardOrderIds = [generatePlaceholderCard(column)._id]
+        // } {
+        //   // Sắp xếp thứ tự các cards ở đây trước khi đưa dữ liệu xuống bên dưới các component con
+        //   column.cards = mapOrder(column.cards, column.cardOrderIds, '_id')
+        // Sắp xếp thứ tự các cards trước
+        column.cards = mapOrder(column.cards, column.cardOrderIds, '_id')
+        
+        // Xử lý vấn đề kéo thả card vào column rỗng
+        // Chỉ thêm placeholder khi không có active cards nào (không archived)
+        const activeCards = column.cards.filter(card => !card.isArchived)
+        if (isEmpty(activeCards)) {
+          // Thêm placeholder card nếu chưa có
+          const hasPlaceholder = column.cards.some(card => card.FE_PlaceholderCard)
+          if (!hasPlaceholder) {
+            const placeholderCard = generatePlaceholderCard(column)
+            column.cards.push(placeholderCard)
+            column.cardOrderIds.push(placeholderCard._id)
+          }
         }
       })
 
