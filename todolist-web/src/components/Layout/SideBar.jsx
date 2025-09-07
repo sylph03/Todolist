@@ -549,7 +549,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
         {/* Không gian làm việc */}
         <div className="flex flex-wrap items-center justify-between w-full px-4 py-3 bg-sky-500/50 dark:bg-[#1e293b]/50 backdrop-blur-sm border-b border-sky-400/30 dark:border-slate-700/30 transition-all duration-300">
           <Link to='/boards' className="flex items-center gap-3 cursor-pointer group">
-            <img src={currentUser?.avatar || 'https://inkythuatso.com/uploads/thumbnails/800/2023/03/9-anh-dai-dien-trang-inkythuatso-03-15-27-03.jpg'} alt="User Avatar" className="h-9 w-9 rounded-full object-cover shadow-md ring-2 ring-white/20 group-hover:ring-white/40 dark:ring-slate-400/20 dark:group-hover:ring-slate-400/40 transition-all duration-300" />
+            <img src={currentUser?.avatar || '/default-avatar.jpg'} alt="User Avatar" className="h-9 w-9 rounded-full object-cover shadow-md ring-2 ring-white/20 group-hover:ring-white/40 dark:ring-slate-400/20 dark:group-hover:ring-slate-400/40 transition-all duration-300" />
             <span className="font-semibold text-white dark:text-slate-100 text-base transition-all duration-300 group-hover:text-white/90">
               Không gian làm việc
             </span>

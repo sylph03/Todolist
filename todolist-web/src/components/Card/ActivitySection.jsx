@@ -52,7 +52,7 @@ const ActivitySection = ({ cardComments=[], onAddCardComment, currentUser }) => 
       </div>
       <div className="mb-4 flex items-center gap-2">
         <img
-          src={currentUser?.avatar || 'https://inkythuatso.com/uploads/thumbnails/800/2023/03/9-anh-dai-dien-trang-inkythuatso-03-15-27-03.jpg'}
+          src={currentUser?.avatar || '/default-avatar.jpg'}
           alt="User Avatar"
           className="w-8 h-8 rounded-full object-cover"
         />
@@ -74,7 +74,7 @@ const ActivitySection = ({ cardComments=[], onAddCardComment, currentUser }) => 
         {cardComments.map((comment, index) => (
           <div key={index} className="flex items-start gap-3 text-sm">
             <img
-              src={comment.userAvatar || 'https://inkythuatso.com/uploads/thumbnails/800/2023/03/9-anh-dai-dien-trang-inkythuatso-03-15-27-03.jpg'}
+              src={comment.userAvatar || '/default-avatar.jpg'}
               alt="User Avatar"
               className="w-8 h-8 rounded-full object-cover ring-2 ring-sky-100 dark:ring-sky-900"
             />

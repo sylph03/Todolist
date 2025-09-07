@@ -64,7 +64,7 @@ const Profile = () => {
         onClick={handleMenuClick}
       >
         <img
-          src={currentUser?.avatar || 'https://inkythuatso.com/uploads/thumbnails/800/2023/03/9-anh-dai-dien-trang-inkythuatso-03-15-27-03.jpg'}
+          src={currentUser?.avatar || '/default-avatar.jpg'}
           alt="User Avatar"
           className="h-8 w-8 rounded-full object-cover"
         />

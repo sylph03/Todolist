@@ -67,7 +67,7 @@ const UserGroup = ({ cardMemberIds = [], onUpdateCardMembers }) => {
         {FE_CardMembers.map((user, index) =>
           <div key={index} className="relative group">
             <img
-              src={user?.avatar || '/src/assets/users/default avatar.jpg'}
+              src={user?.avatar || '/default-avatar.jpg'}
               alt={user?.displayName || 'default avatar'}
               title={user?.displayName || 'default avatar'}
               className="w-9 h-9 rounded-full border-2 border-white dark:border-gray-800 object-cover

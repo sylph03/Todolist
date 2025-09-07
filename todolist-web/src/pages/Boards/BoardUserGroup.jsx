@@ -44,7 +44,7 @@ const BoardUserGroup = ({ boardUsers = [], limit = 5 }) => {
           return (
             <img
               key={index}
-              src={user?.avatar || '/src/assets/users/default avatar.jpg'}
+              src={user?.avatar || '/default-avatar.jpg'}
               alt={user?.displayName || 'default avatar'}
               title={user?.displayName || 'default avatar'}
               className={`w-8 h-8 rounded-full border-2 border-white dark:border-gray-800 object-cover ${index !== boardUsers.length - 1 ? '-ml-1' : ''} hover:scale-110 transition-transform duration-200 cursor-pointer`}
@@ -88,7 +88,7 @@ const BoardUserGroup = ({ boardUsers = [], limit = 5 }) => {
                   className="flex items-center gap-2 p-2 rounded-lg  dark:hover:bg-gray-700 transition-colors duration-200"
                 >
                   <img
-                    src={user?.avatar || '/src/assets/users/default avatar.jpg'}
+                    src={user?.avatar || '/default-avatar.jpg'}
                     alt={user?.displayName || 'default avatar'}
                     title={user?.displayName || 'default avatar'}
                     className="w-8 h-8 rounded-full object-cover ring-2 ring-gray-200 dark:ring-gray-700"

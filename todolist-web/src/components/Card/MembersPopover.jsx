@@ -89,7 +89,7 @@ const MembersPopover = ({
                   >
                     <div className="relative">
                       <img
-                        src={user?.avatar || '/src/assets/users/default avatar.jpg'}
+                        src={user?.avatar || '/default-avatar.jpg'}
                         alt={user?.displayName || 'default avatar'}
                         className="w-10 h-10 rounded-full border-2 border-white dark:border-gray-800 object-cover
                           shadow-sm"
@@ -136,7 +136,7 @@ const MembersPopover = ({
                   >
                     <div className="relative">
                       <img
-                        src={user?.avatar || '/src/assets/users/default avatar.jpg'}
+                        src={user?.avatar || '/s/default-avatar.jpg'}
                         alt={user?.displayName || 'default avatar'}
                         className="w-10 h-10 rounded-full border-2 border-white dark:border-gray-800 object-cover
                           shadow-sm"

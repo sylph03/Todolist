@@ -81,7 +81,7 @@ const AccountTab = () => {
           <div className="relative group">
             <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700">
               <img
-                src={`${currentUser?.avatar ? currentUser.avatar : 'src/assets/images/default-avatar.png'}`}
+                src={`${currentUser?.avatar ? currentUser.avatar : '/default-avatar.jpg'}`}
                 alt="User avatar"
                 className="w-full h-full object-cover transition-transform group-hover:scale-105"
               />
