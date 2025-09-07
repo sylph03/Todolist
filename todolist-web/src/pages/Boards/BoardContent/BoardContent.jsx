@@ -83,7 +83,7 @@ const BoardContent = ({ board, isSidebarOpen, moveColumns, moveCardInTheSameColu
             nextActiveColumn.cards.push(generatePlaceholderCard(nextActiveColumn))
           }
         }
-        
+
         // Cập nhật lại mảng cardOrderIds
         nextActiveColumn.cardOrderIds = nextActiveColumn.cards.map(card => card._id)
       }
@@ -161,7 +161,7 @@ const BoardContent = ({ board, isSidebarOpen, moveColumns, moveCardInTheSameColu
       if (board?.wipEnabled) {
         const targetColumnCardCount = overColumn.cards?.filter(c => !c.FE_PlaceholderCard && c._id !== activeDraggingCardId && !c.isArchived).length || 0
         const wipLimit = board?.wipLimit || 5
-        
+
         // Nếu cột đích đã đạt WIP limit, return luôn - không cho kéo
         if (targetColumnCardCount >= wipLimit) {
           return // Ngăn cả việc gọi moveCardBeetweenDifferentColumns
@@ -196,7 +196,7 @@ const BoardContent = ({ board, isSidebarOpen, moveColumns, moveCardInTheSameColu
         if (board?.wipEnabled) {
           const targetColumnCardCount = overColumn.cards?.filter(c => !c.FE_PlaceholderCard && c._id !== activeDraggingCardId && !c.isArchived).length || 0
           const wipLimit = board?.wipLimit || 5
-          
+
           // Nếu cột đích đã đạt WIP limit, return luôn - không thả
           if (targetColumnCardCount >= wipLimit) {
             return // Đơn giản chỉ return, không cần reset state

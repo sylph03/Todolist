@@ -43,27 +43,27 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
 
   const canCreateCardInColumn = (columnTitle) => {
     if (!board?.wipEnabled) return true
-    
+
     const targetColumn = board.columns.find(col => col.title === columnTitle)
     if (!targetColumn) return true
-    
+
     // Chỉ đếm các thẻ active (không archived, không placeholder)
     const currentCardCount = targetColumn.cards?.filter(c => !c.FE_PlaceholderCard && !c.isArchived).length || 0
     const wipLimit = board.wipLimit || 5
-    
+
     return currentCardCount < wipLimit
   }
 
   const getWIPStatus = (columnTitle) => {
     if (!board?.wipEnabled) return null
-    
+
     const targetColumn = board.columns.find(col => col.title === columnTitle)
     if (!targetColumn) return null
-    
+
     // Chỉ đếm các thẻ active (không archived, không placeholder)
     const currentCardCount = targetColumn.cards?.filter(c => !c.FE_PlaceholderCard && !c.isArchived).length || 0
     const wipLimit = board.wipLimit || 5
-    
+
     return {
       current: currentCardCount,
       limit: wipLimit,
@@ -75,7 +75,7 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
   const options = board?.columns?.map(column => {
     const wipStatus = getWIPStatus(column.title)
     const isDisabled = wipStatus?.isAtLimit || false
-    
+
     return {
       value: column.title,
       label: column.title,
@@ -261,13 +261,12 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
                   }, 100) // Delay nhỏ để đảm bảo state đã update
                 }
               }}
-              className={`px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200 flex items-center gap-2 ${
-                showAISuggestions 
-                  ? 'bg-sky-500 hover:bg-sky-600 text-white shadow-md' 
-                  : 'bg-gradient-to-r from-sky-50 to-purple-50 dark:bg-gray-900 dark:from-gray-900/50 dark:to-gray-800/50 border border-gray-300 dark:border-gray-600 hover:border-sky-500 dark:hover:border-sky-500 text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800'
+              className={`px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200 flex items-center gap-2 ${showAISuggestions
+                ? 'bg-sky-500 hover:bg-sky-600 text-white shadow-md'
+                : 'bg-gradient-to-r from-sky-50 to-purple-50 dark:bg-gray-900 dark:from-gray-900/50 dark:to-gray-800/50 border border-gray-300 dark:border-gray-600 hover:border-sky-500 dark:hover:border-sky-500 text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800'
               }`}
             >
-              <Sparkles className={`w-3 h-3 ${showAISuggestions ? 'text-white' : 'text-sky-500 dark:text-sky-400'}`} /> 
+              <Sparkles className={`w-3 h-3 ${showAISuggestions ? 'text-white' : 'text-sky-500 dark:text-sky-400'}`} />
               {showAISuggestions ? 'Đóng AI' : 'Gợi ý AI'}
             </button>
           </div>
@@ -291,14 +290,13 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
                   <input
                     ref={titleInputRef}
                     name="title"
-                    className={`w-full p-3 rounded-xl border transition duration-200 focus:outline-none dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 ${
-                      errors['title']
-                        ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-400 hover:border-red-500'
-                        : 'border-gray-300 dark:border-gray-600 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 hover:border-sky-500 dark:hover:border-sky-500'
+                    className={`w-full p-3 rounded-xl border transition duration-200 focus:outline-none dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 ${errors['title']
+                      ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-400 hover:border-red-500'
+                      : 'border-gray-300 dark:border-gray-600 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 hover:border-sky-500 dark:hover:border-sky-500'
                     }`}
                     placeholder="Nhập tên nhiệm vụ..."
                     {...register('title', {
-                      required: FIELD_REQUIRED_MESSAGE,
+                      required: FIELD_REQUIRED_MESSAGE
                     })}
                     onChange={(e) => {
                       // Sync với AI input
@@ -339,27 +337,24 @@ const FormCreateCard = ({ isShowFormCreateCard, setIsShowFormCreateCard, board, 
                           {options.map((option) => {
                             const wipStatus = option.wipStatus
                             const isDisabled = option.disabled
-                            
+
                             return (
                               <Listbox.Option
                                 key={option.value}
                                 value={option.value}
                                 disabled={isDisabled}
                                 className={({ active, selected }) =>
-                                  `px-3 md:px-4 py-1.5 md:py-2 cursor-pointer rounded-lg mb-1 transition-all duration-200 ${
-                                    selected ? 'bg-sky-100 dark:bg-gray-800 text-sky-500 font-medium shadow-sm' : ''
-                                  } ${active && !isDisabled ? 'hover:bg-slate-100 dark:hover:bg-gray-700 hover:shadow-sm' : ''} ${
-                                    isDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                                  `px-3 md:px-4 py-1.5 md:py-2 cursor-pointer rounded-lg mb-1 transition-all duration-200 ${selected ? 'bg-sky-100 dark:bg-gray-800 text-sky-500 font-medium shadow-sm' : ''
+                                  } ${active && !isDisabled ? 'hover:bg-slate-100 dark:hover:bg-gray-700 hover:shadow-sm' : ''} ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''
                                   }`
                                 }
                               >
                                 <div className="flex items-center justify-between w-full">
                                   <span className="text-sm">{option.label}</span>
                                   {wipStatus && (
-                                    <span className={`text-xs px-2 py-1 rounded-full ${
-                                      wipStatus.isAtLimit 
-                                        ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400' 
-                                        : 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
+                                    <span className={`text-xs px-2 py-1 rounded-full ${wipStatus.isAtLimit
+                                      ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
+                                      : 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
                                     }`}>
                                       {wipStatus.current}/{wipStatus.limit}
                                     </span>

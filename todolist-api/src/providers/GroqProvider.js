@@ -9,16 +9,15 @@ class GroqProvider {
   }
 
   async generateTaskSuggestions(userInput, context = {}) {
+    const {
+      boardTitle = '',
+      columnTitle = '',
+      columns = [],
+      wipLimit = 5,
+      wipEnabled = false,
+      existingTasks = []
+    } = context
     try {
-      const { 
-        boardTitle = '', 
-        columnTitle = '', 
-        columns = [], 
-        wipLimit = 5,
-        wipEnabled = false,
-        existingTasks = [] 
-      } = context
-
       const prompt = `
 Bạn là AI assistant chuyên hỗ trợ quản lý công việc. 
 
@@ -28,9 +27,9 @@ Dựa trên:
 - Input từ user: "${userInput}"
 - Board: "${boardTitle}"
 - Column hiện tại: "${columnTitle}"
-- Các Column đã có: ${columns.map(col => 
-  `${col.title} (${col.cardCount}/${wipLimit}${wipEnabled && col.cardCount >= wipLimit ? ' - ĐẠT LIMIT' : ''})`
-).join(', ')}
+- Các Column đã có: ${columns.map(col =>
+    `${col.title} (${col.cardCount}/${wipLimit}${wipEnabled && col.cardCount >= wipLimit ? ' - ĐẠT LIMIT' : ''})`
+  ).join(', ')}
 - Các task đã có: ${existingTasks.slice(0, 3).map(task => `"${task}"`).join(', ')}
 - Chế độ WIP: ${wipEnabled ? 'BẬT' : 'TẮT'}
 - Giới hạn WIP: ${wipLimit} task/cột
@@ -68,7 +67,7 @@ JSON format (giữ nguyên key, chỉ thay đổi value):
             content: prompt
           }
         ],
-        model: 'llama3-8b-8192',
+        model: 'llama-3.1-8b-instant',
         temperature: 0.7,
         max_tokens: 500
       })
@@ -94,11 +93,11 @@ JSON format (giữ nguyên key, chỉ thay đổi value):
         return {
           titleSuggestions: [
             `${userInput} - Nhiệm vụ 1`,
-            `${userInput} - Nhiệm vụ 2`, 
+            `${userInput} - Nhiệm vụ 2`,
             `${userInput} - Nhiệm vụ 3`
           ],
           descriptionSuggestion: `Chi tiết công việc liên quan đến: ${userInput}`,
-          suggestedColumnTitle: columns[0] || columnTitle || 'Todo',
+          suggestedColumnTitle: columns[0]?.title || columnTitle || 'Todo',
           estimatedHours: 2
         }
       }
@@ -112,7 +111,7 @@ JSON format (giữ nguyên key, chỉ thay đổi value):
           `${userInput} - Nhiệm vụ 3`
         ],
         descriptionSuggestion: `Chi tiết công việc liên quan đến: ${userInput}`,
-        suggestedColumnTitle: columns[0] || columnTitle || 'Todo',
+        suggestedColumnTitle: columns[0]?.title || columnTitle || 'Todo',
         estimatedHours: 2
       }
     }

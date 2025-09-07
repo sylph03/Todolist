@@ -245,13 +245,13 @@ const TaskColumn = ({ column, cursor }) => {
   const handleAddCardClick = (e) => {
     e.preventDefault()
     e.stopPropagation()
-    
+
     // Kiểm tra WIP limit trước khi mở form
     if (!canAddCard()) {
       toast.warning(`Không thể thêm thẻ - cột "${column.title}" đã đạt giới hạn WIP!`)
       return
     }
-    
+
     setShowFormCreateCard(true)
     setShowMenu(false)
   }
@@ -287,11 +287,11 @@ const TaskColumn = ({ column, cursor }) => {
   // Thêm vào đầu component, sau các state
   const canAddCard = () => {
     if (!activeBoard?.wipEnabled) return true
-    
+
     // SỬA: Filter cả isArchived và FE_PlaceholderCard
     const currentCardCount = orderedCardsNotArchived?.filter(card => !card.FE_PlaceholderCard && !card.isArchived).length || 0
     const wipLimit = activeBoard?.wipLimit || 5
-    
+
     return currentCardCount < wipLimit
   }
 
@@ -315,12 +315,12 @@ const TaskColumn = ({ column, cursor }) => {
               </button>
 
               <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
-                {activeBoard?.wipEnabled ? 
+                {activeBoard?.wipEnabled ?
                   (<>
                     {/* SỬA: Filter cả isArchived và FE_PlaceholderCard */}
                     <span>{orderedCardsNotArchived?.filter(card => !card.FE_PlaceholderCard && !card.isArchived).length || 0}</span>
                     /<span>
-                    {activeBoard?.wipLimit || 0}</span> 
+                      {activeBoard?.wipLimit || 0}</span>
                   </>)
                   : orderedCardsNotArchived?.[0]?.FE_PlaceholderCard ? 0 : orderedCardsNotArchived?.length || 0}
               </span>
@@ -375,8 +375,8 @@ const TaskColumn = ({ column, cursor }) => {
                     ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                     : 'text-gray-400 dark:text-gray-500 cursor-not-allowed opacity-50'
                 }`}
-                title={canAddCard() 
-                  ? 'Thêm thẻ mới' 
+                title={canAddCard()
+                  ? 'Thêm thẻ mới'
                   // SỬA: Filter cả isArchived và FE_PlaceholderCard
                   : `Không thể thêm thẻ - đã đạt giới hạn WIP (${orderedCardsNotArchived?.filter(card => !card.FE_PlaceholderCard && !card.isArchived).length || 0}/${activeBoard?.wipLimit || 5})`
                 }

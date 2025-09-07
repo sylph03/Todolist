@@ -17,7 +17,7 @@ const BoardActions = () => {
   const dispatch = useDispatch()
   const board = useSelector(selectCurrentActiveBoard)
   const { stateConfirm } = useConfirm()
-  
+
   const [isShowFormCreateCard, setIsShowFormCreateCard] = useState(false)
   const [isShowFormCreateColumn, setIsShowFormCreateColumn] = useState(false)
   const [showWIPModal, setShowWIPModal] = useState(false)
@@ -154,10 +154,9 @@ const BoardActions = () => {
           {/* Nút chế độ WIP - HIỂN THỊ TRẠNG THÁI THỰC TẾ */}
           <button
             onClick={handleOpenWIPModal}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95 ${
-              wipSettings.enabled
-                ? 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600'
-                : 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600'
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95 ${wipSettings.enabled
+              ? 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600'
+              : 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600'
             }`}
             title={wipSettings.enabled ? `WIP: ${wipSettings.limit} task/cột` : 'Bật chế độ giới hạn WIP'}
             aria-label="Chế độ WIP"
@@ -175,7 +174,7 @@ const BoardActions = () => {
           <SearchActionCard />
 
           {/* Nút mời users vào board */}
-          <InviteBoardUser boardId={board?._id}/>
+          <InviteBoardUser boardId={board?._id} />
 
           {/* Thêm users vào board */}
           <BoardUserGroup boardUsers={board?.FE_allUsers} />
