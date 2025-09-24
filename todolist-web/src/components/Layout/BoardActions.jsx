@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { Plus, Archive, Columns2, Settings } from 'lucide-react'
 import { useSelector, useDispatch } from 'react-redux'
 import { selectCurrentActiveBoard, updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
@@ -12,16 +12,26 @@ import SearchActionCard from '~/components/Card/SearchActionCard'
 import { updateBoardDetailsAPI } from '~/apis'
 import ArchiveModal from '../Card/ArchiveModal'
 import { useConfirm } from '~/Context/ConfirmProvider'
+import gsap from 'gsap'
+import { Draggable } from 'gsap/Draggable'
+import { InertiaPlugin } from 'gsap/InertiaPlugin'
+import useIsMobile from '~/hooks/useIsMobile'
+
+gsap.registerPlugin(Draggable, InertiaPlugin)
 
 const BoardActions = () => {
   const dispatch = useDispatch()
   const board = useSelector(selectCurrentActiveBoard)
   const { stateConfirm } = useConfirm()
+  const isMobile = useIsMobile()
 
   const [isShowFormCreateCard, setIsShowFormCreateCard] = useState(false)
   const [isShowFormCreateColumn, setIsShowFormCreateColumn] = useState(false)
   const [showWIPModal, setShowWIPModal] = useState(false)
   const [showArchiveModal, setShowArchiveModal] = useState(false)
+
+  const containerRef = useRef(null)
+  const contentRef = useRef(null)
 
   // WIP Settings state
   const [wipSettings, setWipSettings] = useState({
@@ -113,11 +123,37 @@ const BoardActions = () => {
     setShowArchiveModal(false)
   }
 
+  // kéo thả boardAction ở mb
+  useEffect(() => {
+    if (!containerRef.current || !contentRef.current || !isMobile) return
+
+    const draggable = Draggable.create(contentRef.current, {
+      type: 'x',
+      bounds: containerRef.current,
+      inertia: true,
+      edgeResistance: 0.85,
+      throwResistance: 500,
+      cursor: 'grab',
+      activeCursor: 'grabbing'
+    })
+
+    const handleResize = () => {
+      draggable[0].applyBounds(containerRef.current)
+    }
+
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+      draggable[0].kill()
+    }
+  }, [isMobile])
+
   return (
-    <>
-      <div className="flex flex-row justify-between items-center w-full h-HEIGHT_BOARD_BAR sticky top-0 left-0 z-10 bg-inherit gap-3 px-1">
+    <div ref={containerRef} className='w-full h-full relative z-1'>
+      <div ref={contentRef} className="flex flex-row justify-between items-center w-full max-lg:w-max h-HEIGHT_BOARD_BAR top-0 left-0 bg-inherit gap-3 px-1">
         {/* Right Actions: Các nút chức năng */}
-        <div className="flex gap-3">
+        <div className="flex gap-3 shrink-0">
           {/* Nút Thêm nhiệm vụ */}
           <button
             onClick={handleClickCreateCard}
@@ -169,7 +205,7 @@ const BoardActions = () => {
         </div>
 
         {/* Right Actions: Thanh tìm kiếm và thêm users vào board */}
-        <div className="flex gap-3">
+        <div className="flex gap-3 shrink-0">
           {/* Thanh tìm kiếm */}
           <SearchActionCard />
 
@@ -211,7 +247,7 @@ const BoardActions = () => {
         onClose={handleCloseArchiveModal}
         board={board}
       />
-    </>
+    </div>
   )
 }
 
