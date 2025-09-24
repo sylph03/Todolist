@@ -150,7 +150,7 @@ const BoardActions = () => {
   }, [isMobile])
 
   return (
-    <div ref={containerRef} className='w-full h-full relative z-1'>
+    <div ref={containerRef} className='w-full h-full sticky left-0 z-1'>
       <div ref={contentRef} className="flex flex-row justify-between items-center w-full max-lg:w-max h-HEIGHT_BOARD_BAR top-0 left-0 bg-inherit gap-3 px-1">
         {/* Right Actions: Các nút chức năng */}
         <div className="flex gap-3 shrink-0">
