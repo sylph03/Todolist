@@ -17,6 +17,9 @@ Router.route('/:id')
   .put(authMiddleware.isAuthorized, boardValidation.update, boardController.update)
   .delete(authMiddleware.isAuthorized, boardController.deleteBoard)
 
+Router.route('/:id/access')
+  .patch(authMiddleware.isAuthorized, boardController.updateLastAccessed)
+
 // API hỗ trợ việc di chuyển card giữa các column khác nhau trong một board
 Router.route('/supports/moving_card')
   .put(authMiddleware.isAuthorized, boardValidation.moveCardToDifferentColumn, boardController.moveCardToDifferentColumn)

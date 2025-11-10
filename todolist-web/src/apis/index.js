@@ -113,3 +113,31 @@ export const refreshTokenAPI = async () => {
 export const generateTaskSuggestionsAPI = async (userInput, context = {}) => {
   return await authorizedAxiosInstance.post(`${API_ROOT}/v1/ai/suggestions`, { userInput, context })
 }
+
+// Events (Calendar)
+export const getEventsAPI = async ({ boardId, from, to }) => {
+  const params = new URLSearchParams()
+  if (boardId) params.append('boardId', boardId)
+  if (from) params.append('from', from)
+  if (to) params.append('to', to)
+  const qs = params.toString() ? `?${params.toString()}` : ''
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/events${qs}`)
+  return response.data
+}
+
+export const createEventAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/events`, data)
+  return response.data
+}
+
+export const updateEventAPI = async (eventId, data) => {
+  console.log('updateEventAPI called with:', { eventId, data })
+  console.log('Full URL:', `${API_ROOT}/v1/events/${eventId}`)
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/events/${eventId}`, data)
+  return response.data
+}
+
+export const deleteEventAPI = async (eventId) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/events/${eventId}`)
+  return response.data
+}

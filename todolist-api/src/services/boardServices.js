@@ -140,6 +140,13 @@ const deleteBoard = async (boardId) => {
   } catch (error) { throw error }
 }
 
+const updateLastAccessed = async (boardId) => {
+  try {
+    const updatedBoard = await boardModel.updateLastAccessed(boardId)
+    return updatedBoard
+  } catch (error) { throw error }
+}
+
 export const boardService = {
   createNew,
   getDetails,
@@ -147,5 +154,6 @@ export const boardService = {
   moveCardToDifferentColumn,
   getBoards,
   getBoardsForSidebar,
-  deleteBoard
+  deleteBoard,
+  updateLastAccessed
 }

@@ -19,14 +19,15 @@ const colorOptions = [
   { name: 'Slate', value: 'bg-slate-200' }
 ]
 
-const ColorPickerPopup = ({
+const ColorPickerPopup = React.forwardRef(({
   position,
   selectedColor,
   onColorChange,
   className = ''
-}) => {
+}, ref) => {
   return (
     <div
+      ref={ref}
       className={`z-100 fixed bg-white dark:bg-gray-900 p-3 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 w-64 animate-fadeIn color-picker-popup ${className}`}
       style={position ? { top: position.top, left: position.left } : {}}
     >
@@ -34,7 +35,10 @@ const ColorPickerPopup = ({
         {colorOptions.map((color) => (
           <button
             key={color.value}
-            onClick={() => onColorChange(color.value)}
+            onClick={(e) => {
+              e.stopPropagation()
+              onColorChange(color.value)
+            }}
             className={`w-8 h-8 rounded-md ${color.value} hover:scale-110 transition-all duration-200 relative ${
               selectedColor === color.value ? 'ring-2 ring-offset-2 ring-gray-400 dark:ring-gray-500' : ''
             }`}
@@ -44,7 +48,7 @@ const ColorPickerPopup = ({
       </div>
     </div>
   )
-}
+})
 
 export { colorOptions }
 export default ColorPickerPopup

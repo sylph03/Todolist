@@ -24,6 +24,7 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
 
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
+  lastAccessedAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false)
 })
 
@@ -169,11 +170,11 @@ const getBoards = async (userId, page, itemsPerPage, queryFilters) => {
     if (queryFilters) {
       Object.keys(queryFilters).forEach(key => {
         // queryFilters[key] ví dụ queryFilters[title] nếu phía FE đẩy lên q[title]
-        // Có phân biệt chữ hoa chữ thường
-        // queryConditions.push({ [key]: { $regex: queryFilters[key] } })
-
+        // Escape các ký tự đặc biệt trong regex để tránh lỗi
+        const escapedQuery = queryFilters[key].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        
         // Không phân biệt chữ hoa chữ thường
-        queryConditions.push({ [key]: { $regex: new RegExp(queryFilters[key], 'i') } })
+        queryConditions.push({ [key]: { $regex: new RegExp(escapedQuery, 'i') } })
       })
     }
 
@@ -263,6 +264,20 @@ const deleteOneById = async (boardId) => {
   }
 }
 
+// Cập nhật lastAccessedAt khi user truy cập board
+const updateLastAccessed = async (boardId) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(String(boardId)) },
+      { $set: { lastAccessedAt: new Date() } },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const boardModel = {
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
@@ -275,5 +290,6 @@ export const boardModel = {
   getBoards,
   getBoardsForSidebar,
   pushMemberIds,
-  deleteOneById
+  deleteOneById,
+  updateLastAccessed
 }

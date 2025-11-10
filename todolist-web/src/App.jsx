@@ -33,6 +33,11 @@ function App() {
         {/* <Outlet /> của react-router-dom sẽ chạy vào các child route trong này  */}
 
         {/* Board Details */}
+        {/* Đặt các route cụ thể TRƯỚC route có dynamic parameter để tránh conflict */}
+        <Route path='/boards/calendar' element={<Boards/>} />
+        <Route path='/boards/starred' element={<Boards/>} />
+        <Route path='/boards/recent' element={<Boards/>} />
+        <Route path='/boards/team' element={<Boards/>} />
         <Route path='/boards/:boardId' element={<Board/>} />
         <Route path='/boards' element={<Boards/>} />
 

@@ -65,6 +65,14 @@ const deleteBoard = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const updateLastAccessed = async (req, res, next) => {
+  try {
+    const boardId = req.params.id
+    const result = await boardService.updateLastAccessed(boardId)
+    res.status(StatusCodes.OK).json({ success: true, board: result })
+  } catch (error) { next(error) }
+}
+
 export const boardController = {
   createNew,
   getDetails,
@@ -72,5 +80,6 @@ export const boardController = {
   moveCardToDifferentColumn,
   getBoards,
   getBoardsForSidebar,
-  deleteBoard
+  deleteBoard,
+  updateLastAccessed
 }
