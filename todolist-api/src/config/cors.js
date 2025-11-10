@@ -11,6 +11,11 @@ export const corsOptions = {
       return callback(null, true)
     }
 
+    // Cho phép requests không có origin (direct access, same-origin, Postman, etc.)
+    if (!origin) {
+      return callback(null, true)
+    }
+
     // Kiểm tra xem origin có phải là domain được chấp nhận hay không
     if (WHITELIST_DOMAINS.includes(origin)) {
       return callback(null, true)
