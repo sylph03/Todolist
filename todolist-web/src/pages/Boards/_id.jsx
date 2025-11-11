@@ -10,6 +10,7 @@ import { cloneDeep } from 'lodash'
 import { useParams } from 'react-router-dom'
 import PageLoadingSpinner from '~/components/UI/Loading/PageLoadingSpinner'
 import ActiveCard from '~/components/Card/ActiveCard'
+import { useRealtimeCardMove } from '~/hooks/useRealtimeCardMove'
 
 const Board = () => {
   const dispatch = useDispatch()
@@ -20,6 +21,9 @@ const Board = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   // Dùng state của Redux thay vì state component
   // const [board, setBoard] = useState(null)
+
+  // Sử dụng hook real-time cho di chuyển card
+  useRealtimeCardMove(boardId)
 
   useEffect(() => {
     // Call API
@@ -109,7 +113,8 @@ const Board = () => {
       prevColumnId,
       prevCardOrderIds,
       nextColumnId,
-      nextCardOrderIds: dndOrderedColumns.find(column => column._id === nextColumnId)?.cardOrderIds || []
+      nextCardOrderIds: dndOrderedColumns.find(column => column._id === nextColumnId)?.cardOrderIds || [],
+      boardId: board._id
     })
   }
 

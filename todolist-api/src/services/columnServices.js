@@ -63,7 +63,11 @@ const deleteItem = async (columnId) => {
     // Xóa columnId trong columnOrderIds của Board chứa nó
     await boardModel.pullColumnOrderIds(targetColumn)
 
-    return { delete: 'Cột và Thẻ của nó đã được xóa thành công!' }
+    return { 
+      delete: 'Cột và Thẻ của nó đã được xóa thành công!',
+      columnId: columnId,
+      boardId: targetColumn.boardId
+    }
   } catch (error) { throw error }
 }
 

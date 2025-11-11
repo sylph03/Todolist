@@ -57,6 +57,7 @@ const TaskCard = ({ card }) => {
   const [isLeftPosition, setIsLeftPosition] = useState(false)
   const [isCardScaled, setIsCardScaled] = useState(false) // State để giữ trạng thái scale của card khi mở popup
   const [showMoveCardPopup, setShowMoveCardPopup] = useState(false) // State để theo dõi trạng thái MoveCardPopup(nút Di chuyển ở component OptionListCard)
+  const [showDatePickerPopup, setShowDatePickerPopup] = useState(false)
 
   const [textCardCardPosition, setTextCardCardPosition] = useState(null)
   const [optionsCardPosition, setOptionsCardPosition] = useState(null)
@@ -64,6 +65,7 @@ const TaskCard = ({ card }) => {
   const contentCardRef = useRef({})
   const popupRef = useRef(null)
   const inputRef = useRef(null)
+  const optionsPopupRef = useRef(null)
 
   const { stateConfirm } = useConfirm()
 
@@ -90,8 +92,9 @@ const TaskCard = ({ card }) => {
   const updatePopupPosition = useCallback(() => {
     if (contentCardRef.current) {
       const rect = contentCardRef.current.getBoundingClientRect()
-      const heightOptionsCard = 270
-      const widthOptionsCard = 120
+      const optionsRect = optionsPopupRef.current ? optionsPopupRef.current.getBoundingClientRect() : null
+      const heightOptionsCard = optionsRect?.height || 300
+      const widthOptionsCard = optionsRect?.width || 120
       const heightCard = rect.height
       const SAFE_MARGIN = 16
 
@@ -154,13 +157,19 @@ const TaskCard = ({ card }) => {
   const handleClosePopup = () => {
     if (stateConfirm.isOpen) return
 
+    if (showDatePickerPopup) {
+      setShowDatePickerPopup(false)
+      return
+    }
+
     // Nếu MoveCardPopup đang mở thì chỉ đóng nó
     if (showMoveCardPopup) {
       setShowMoveCardPopup(false)
-    } else {
-      // Nếu MoveCardPopup không mở thì đóng popup chính
-      setShowPopup(false)
+      return
     }
+
+    // Nếu không có popup con nào mở thì đóng popup chính
+    setShowPopup(false)
   }
 
   // Xử lý khi nhấn ra ngoài popup
@@ -317,7 +326,7 @@ const TaskCard = ({ card }) => {
           <div ref={popupRef} className="relative">
             {/* Text Card Popup */}
             <div
-              className="fixed transition-all cursor-pointer"
+              className="fixed transition-all duration-200 ease-in-out cursor-pointer"
               style={{ top: textCardCardPosition?.top, left: textCardCardPosition?.left }}
             >
               {card?.cover && (
@@ -355,7 +364,8 @@ const TaskCard = ({ card }) => {
 
             {/* Options Popup */}
             <div
-              className="fixed transition-all"
+              ref={optionsPopupRef}
+              className="fixed transition-all duration-200 ease-in-out"
               style={{ top: optionsCardPosition?.top, left: optionsCardPosition?.left }}
             >
               <OptionListCard
@@ -366,6 +376,8 @@ const TaskCard = ({ card }) => {
                 popupRef={popupRef}
                 setShowMoveCardPopup={setShowMoveCardPopup}
                 showMoveCardPopup={showMoveCardPopup}
+                showDatePicker={showDatePickerPopup}
+                setShowDatePicker={setShowDatePickerPopup}
               />
             </div>
           </div>

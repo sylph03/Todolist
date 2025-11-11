@@ -11,6 +11,8 @@ import cookieParser from 'cookie-parser'
 import socketIO from 'socket.io'
 import http from 'http'
 import { inviteUserToBoardSocket } from './sockets/inviteUserToBoardSocket'
+import { boardRealtimeSocket } from './sockets/boardRealtimeSocket'
+import { setSocketIOInstance } from './utils/socketIO'
 
 const START_SERVER = () => {
   const app = express()
@@ -39,9 +41,14 @@ const START_SERVER = () => {
   const server = http.createServer(app)
   // Khởi tạo biến io với server và cors
   const io = socketIO(server, { cors: corsOptions })
+  
+  // Set io instance để có thể sử dụng từ controllers/services
+  setSocketIOInstance(io)
+  
   io.on('connection', (socket) => {
     // Gọi các socket tùy theo tính năng ở đây
     inviteUserToBoardSocket(socket)
+    boardRealtimeSocket(socket)
   })
 
   if (env.BUILD_MODE === 'production') {

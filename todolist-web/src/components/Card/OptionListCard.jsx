@@ -1,4 +1,4 @@
-import { CreditCard, MoveRight, Archive, Trash2, Image } from 'lucide-react'
+import { CreditCard, MoveRight, Archive, Trash2, Image, CalendarDays, Clock } from 'lucide-react'
 import OptionItemCard from './OptionItemCard'
 import { useConfirm } from '~/Context/ConfirmProvider'
 import { deleteCardDetailsAPI, updateCardDetailsAPI } from '~/apis'
@@ -12,13 +12,99 @@ import { singleFileValidator } from '~/utils/validators'
 import { updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { showActiveCard } from '~/redux/activeCard/activeCardSlice'
 import MoveCardPopup from './MoveCardPopup'
-import { useRef } from 'react'
+import DateRangePopup from './DateRangePopup'
+import { useEffect, useRef, useState } from 'react'
 
-const OptionListCard = ({ card, setShowPopup, updateCardTitle, isLeftPosition, setShowMoveCardPopup, showMoveCardPopup }) => {
+const getDateInputValue = (timestamp) => {
+  if (!timestamp) return ''
+  const date = new Date(Number(timestamp))
+  if (Number.isNaN(date.getTime())) return ''
+  const yyyy = date.getFullYear()
+  const mm = String(date.getMonth() + 1).padStart(2, '0')
+  const dd = String(date.getDate()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd}`
+}
+
+const getDateTimeInputValue = (timestamp) => {
+  if (!timestamp) return ''
+  const date = new Date(Number(timestamp))
+  if (Number.isNaN(date.getTime())) return ''
+  const yyyy = date.getFullYear()
+  const mm = String(date.getMonth() + 1).padStart(2, '0')
+  const dd = String(date.getDate()).padStart(2, '0')
+  const hh = String(date.getHours()).padStart(2, '0')
+  const min = String(date.getMinutes()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd}T${hh}:${min}`
+}
+
+const getDateValue = (timestamp) => {
+  if (!timestamp) return ''
+  const date = new Date(Number(timestamp))
+  if (Number.isNaN(date.getTime())) return ''
+  const yyyy = date.getFullYear()
+  const mm = String(date.getMonth() + 1).padStart(2, '0')
+  const dd = String(date.getDate()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd}`
+}
+
+const getTimeValue = (timestamp) => {
+  if (!timestamp) return ''
+  const date = new Date(Number(timestamp))
+  if (Number.isNaN(date.getTime())) return ''
+  const hh = String(date.getHours()).padStart(2, '0')
+  const min = String(date.getMinutes()).padStart(2, '0')
+  return `${hh}:${min}`
+}
+
+const toTimestamp = (value, endOfDay = false) => {
+  if (!value) return null
+  const [year, month, day] = value.split('-').map(Number)
+  if (!year || !month || !day) return null
+  const date = new Date(year, month - 1, day, endOfDay ? 23 : 0, endOfDay ? 59 : 0, endOfDay ? 59 : 0, endOfDay ? 999 : 0)
+  return date.getTime()
+}
+
+const toTimestampFromDateTime = (value) => {
+  if (!value) return null
+  // Format: YYYY-MM-DDTHH:mm
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return null
+  return date.getTime()
+}
+
+const toTimestampFromDateAndTime = (dateValue, timeValue) => {
+  if (!dateValue) return null
+  if (!timeValue) {
+    // Nếu không có time, set về cuối ngày
+    const [year, month, day] = dateValue.split('-').map(Number)
+    if (!year || !month || !day) return null
+    const date = new Date(year, month - 1, day, 23, 59, 59, 999)
+    return date.getTime()
+  }
+  // Ghép date và time
+  const [year, month, day] = dateValue.split('-').map(Number)
+  const [hours, minutes] = timeValue.split(':').map(Number)
+  if (!year || !month || !day || hours === undefined || minutes === undefined) return null
+  const date = new Date(year, month - 1, day, hours, minutes, 0, 0)
+  return date.getTime()
+}
+
+const OptionListCard = ({
+  card,
+  setShowPopup,
+  updateCardTitle,
+  isLeftPosition,
+  setShowMoveCardPopup,
+  showMoveCardPopup,
+  showDatePicker,
+  setShowDatePicker
+}) => {
   const dispatch = useDispatch()
   const board = useSelector(selectCurrentActiveBoard)
 
   const moveButtonRef = useRef(null)
+  const dateButtonRef = useRef(null)
+  const [isUpdatingDates, setIsUpdatingDates] = useState(false)
 
   const { confirm } = useConfirm()
 
@@ -30,6 +116,7 @@ const OptionListCard = ({ card, setShowPopup, updateCardTitle, isLeftPosition, s
 
 
   const handleShowMoveCardPopup = () => {
+    setShowDatePicker(false)
     setShowMoveCardPopup(prev => !prev) // Cập nhật trạng thái cho TaskCard
   }
 
@@ -181,6 +268,62 @@ const OptionListCard = ({ card, setShowPopup, updateCardTitle, isLeftPosition, s
     }
   }
 
+  const toggleDatePicker = () => {
+    setShowMoveCardPopup(false)
+    setShowDatePicker(prev => !prev)
+  }
+
+  const handleUpdateDates = async (payload, successMessage) => {
+    setIsUpdatingDates(true)
+    try {
+      const response = await updateCardDetailsAPI(card._id, payload)
+      dispatch(updateCardInBoard(response))
+      toast.success(successMessage)
+    } catch (error) {
+      console.error(error)
+      toast.error('Cập nhật ngày thất bại!')
+    } finally {
+      setIsUpdatingDates(false)
+    }
+  }
+
+  const handleStartDateChange = async (event) => {
+    const value = event.target.value
+    const timestamp = value ? toTimestamp(value) : null
+    const currentDue = card?.dueDate ? Number(card.dueDate) : null
+    if (timestamp && currentDue && timestamp > currentDue) {
+      toast.error('Ngày bắt đầu không thể sau hạn hoàn thành hiện tại!')
+      return
+    }
+    await handleUpdateDates({ startDate: timestamp }, timestamp ? 'Đã cập nhật ngày bắt đầu!' : 'Đã xoá ngày bắt đầu!')
+  }
+
+  const handleDueDateChange = async (dateValue, timeValue) => {
+    const timestamp = toTimestampFromDateAndTime(dateValue, timeValue)
+    const currentStart = card?.startDate ? Number(card.startDate) : null
+    if (timestamp && currentStart && timestamp < currentStart) {
+      toast.error('Hạn hoàn thành không thể trước ngày bắt đầu!')
+      return
+    }
+    await handleUpdateDates({ dueDate: timestamp }, timestamp ? 'Đã cập nhật hạn hoàn thành!' : 'Đã xoá hạn hoàn thành!')
+  }
+
+  const handleClearDates = async () => {
+    if (!card?.startDate && !card?.dueDate) return
+    await handleUpdateDates({ startDate: null, dueDate: null }, 'Đã xoá bộ ngày!')
+  }
+
+  useEffect(() => {
+    if (!showDatePicker) return
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        setShowDatePicker(false)
+      }
+    }
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [showDatePicker])
+
   const options = [
     { icon: <CreditCard className="w-4 h-4 text-gray-600 dark:text-gray-300" />, label: 'Mở thẻ', onClick: handleOpenCard },
     { icon: <MoveRight className="w-4 h-4 text-gray-600 dark:text-gray-300" />, label: 'Di chuyển', onClick: handleShowMoveCardPopup },
@@ -189,25 +332,55 @@ const OptionListCard = ({ card, setShowPopup, updateCardTitle, isLeftPosition, s
       label: card.isArchived ? 'Khôi phục' : 'Lưu trữ', 
       onClick: card.isArchived ? handleUnarchiveCard : handleArchiveCard 
     },
+    { icon: <CalendarDays className="w-4 h-4 text-gray-600 dark:text-gray-300" />, label: 'Ngày', onClick: toggleDatePicker },
     { icon: <Image className="w-4 h-4 text-gray-600 dark:text-gray-300" />, label: 'Ảnh bìa', onClick: onUpdateCardCover, isFileUpload: true },
     { icon: <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />, label: 'Xóa', onClick: handleDeleteCard, isDanger: true }
   ]
 
   return (
     <div className="flex flex-col gap-2">
-      {options.map((item, index) => (
-        <OptionItemCard
-          key={index}
-          icon={item.icon}
-          label={item.label}
-          isDanger={item.isDanger}
-          onClick={item.onClick}
-          isFileUpload={item.isFileUpload}
-          isLeftPosition={isLeftPosition}
-          ref={item.label === 'Di chuyển' ? moveButtonRef : null}
-          showMoveCardPopup={item.label === 'Di chuyển' ? showMoveCardPopup : undefined}
+      {options.map((item, index) => {
+        const itemRef =
+          item.label === 'Di chuyển'
+            ? moveButtonRef
+            : item.label === 'Ngày'
+              ? dateButtonRef
+              : null
+        const isActive =
+          item.label === 'Di chuyển'
+            ? showMoveCardPopup
+            : item.label === 'Ngày'
+              ? showDatePicker
+              : false
+        return (
+          <OptionItemCard
+            key={index}
+            icon={item.icon}
+            label={item.label}
+            isDanger={item.isDanger}
+            onClick={item.onClick}
+            isFileUpload={item.isFileUpload}
+            isLeftPosition={isLeftPosition}
+            ref={itemRef}
+            isActive={isActive}
+          />
+        )
+      })}
+
+      {showDatePicker && (
+        <DateRangePopup
+          anchorRef={dateButtonRef}
+          onClose={() => setShowDatePicker(false)}
+          card={card}
+          isUpdating={isUpdatingDates}
+          onStartDateChange={handleStartDateChange}
+          onDueDateChange={handleDueDateChange}
+          onClearDates={handleClearDates}
+          startDateValue={getDateInputValue(card?.startDate)}
+          dueDateValue={getDateValue(card?.dueDate)}
+          dueTimeValue={getTimeValue(card?.dueDate)}
         />
-      ))}
+      )}
 
       <div
         onClick={updateCardTitle}

@@ -37,6 +37,8 @@
 ## CHƯƠNG 2: CƠ SỞ LÝ THUYẾT VÀ CÔNG NGHỆ
 2.1. **Cơ sở lý thuyết**
    - Phương pháp quản lý dự án Kanban
+     - Sơ đồ mô tả phương pháp Kanban
+     - Quy trình làm việc với Kanban board
    - Quy trình quản lý công việc (Workflow Management)
    - Hệ thống quản lý người dùng và phân quyền
 
@@ -52,6 +54,7 @@
      - Tailwind CSS v4 (Utility-first CSS)
      - Lucide React (Icon library)
      - React Hook Form (Form management)
+     - React Day Picker v9 (Date picker component)
    - **Libraries & Tools**
      - @dnd-kit (Drag & Drop functionality)
      - Socket.IO Client (Real-time communication)
@@ -98,11 +101,22 @@
    - RESTful API Architecture
    - Real-time Communication Architecture
    - Database Schema Design
+   - Sơ đồ tổng quan kiến trúc hệ thống
 
 ---
 
 ## CHƯƠNG 3: PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
 3.1. **Phân tích yêu cầu**
+   - **Use Case Diagram**
+     - Biểu đồ Use Case tổng quan
+     - Các actor chính (User, Admin)
+     - Các use case chính của hệ thống
+   - **Mô tả Use Case chi tiết**
+     - Use Case: Đăng ký/Đăng nhập
+     - Use Case: Quản lý Board
+     - Use Case: Quản lý Card
+     - Use Case: Quản lý Calendar
+     - Use Case: Real-time Collaboration
    - Yêu cầu chức năng
      - Quản lý người dùng (Đăng ký, đăng nhập, xác thực tài khoản)
      - Quản lý bảng dự án (Board)
@@ -121,11 +135,16 @@
 
 3.2. **Thiết kế hệ thống**
    - **Kiến trúc tổng thể**
-     - Sơ đồ kiến trúc hệ thống
-     - Mô hình phân lớp (Presentation, Business Logic, Data Access)
+     - Sơ đồ kiến trúc hệ thống (System Architecture Diagram)
+     - Mô hình phân lớp (Layered Architecture Diagram)
+       - Presentation Layer
+       - Business Logic Layer
+       - Data Access Layer
+     - Sơ đồ luồng dữ liệu (Data Flow Diagram)
    
    - **Thiết kế Database**
-     - Schema thiết kế
+     - ER Diagram (Entity Relationship Diagram)
+     - Database Schema Diagram
      - Mối quan hệ giữa các collection
      - Các model chính:
        - User Model
@@ -137,9 +156,10 @@
    
    - **Thiết kế API**
      - RESTful API endpoints
+     - API Flow Diagram
      - Request/Response format
      - Error handling structure
-     - Authentication flow
+     - Authentication flow diagram
 
 3.3. **Thiết kế giao diện người dùng**
    - **Wireframes và Mockups**
@@ -157,6 +177,8 @@
 
 3.4. **Thiết kế các module chính**
    - **Module Authentication**
+     - Activity Diagram: Quy trình đăng ký/đăng nhập
+     - Sequence Diagram: Authentication flow
      - Đăng ký tài khoản
      - Đăng nhập
      - Xác thực email
@@ -164,6 +186,8 @@
      - Đăng xuất
    
    - **Module Quản lý Board**
+     - Activity Diagram: Quy trình quản lý board
+     - Sequence Diagram: Tạo/Cập nhật/Xóa board
      - Tạo/xóa/sửa board
      - Tìm kiếm và lọc board
      - Đánh dấu yêu thích
@@ -171,11 +195,16 @@
      - Cài đặt WIP (Work In Progress)
    
    - **Module Quản lý Column**
+     - Activity Diagram: Quy trình quản lý column
+     - Flowchart: Drag & Drop column
      - Tạo/xóa/sửa column
      - Sắp xếp lại thứ tự column (Drag & Drop)
      - Tùy chỉnh màu sắc
    
    - **Module Quản lý Card**
+     - Activity Diagram: Quy trình quản lý card
+     - Sequence Diagram: Di chuyển card giữa các column
+     - Flowchart: Quy trình tạo/cập nhật card
      - Tạo/xóa/sửa/xóa card
      - Di chuyển card giữa các column
      - Quản lý thành viên card
@@ -184,17 +213,23 @@
      - Tìm kiếm card
    
    - **Module Calendar**
+     - Activity Diagram: Quy trình quản lý sự kiện
+     - Sequence Diagram: Tạo/Cập nhật/Xóa event
      - Hiển thị lịch tháng
      - Tạo/sửa/xóa sự kiện
      - Tùy chỉnh màu sắc sự kiện
      - Liên kết sự kiện với board
    
    - **Module AI Suggestions**
+     - Sequence Diagram: AI suggestion flow
+     - Flowchart: Quy trình tạo gợi ý
      - Tích hợp Groq AI
      - Gợi ý tạo nhiệm vụ thông minh
      - Context-aware suggestions
    
    - **Module Real-time Updates**
+     - Sequence Diagram: Real-time communication flow
+     - Activity Diagram: Socket.IO event handling
      - Socket.IO integration
      - Real-time notifications
      - Collaborative editing
@@ -296,6 +331,7 @@
    - Di chuyển card (Drag & Drop)
    - Quản lý thành viên card
    - Mô tả card với Markdown
+   - Quản lý ngày tháng (ngày bắt đầu, hạn hoàn thành với thời gian)
    - Lưu trữ và khôi phục card
    - Tìm kiếm card trong board
    - Hoạt động (Activity log)
@@ -323,6 +359,25 @@
    - Collaborative updates
    - Invitation handling
    - Connection management
+   - **Sơ đồ Real-time Communication Architecture**
+   - **Sequence Diagram: Real-time update flow**
+   - Real-time đã triển khai
+     - Kiến trúc room: `board:{boardId}` (client join/leave theo board)
+     - Sự kiện Board/Column
+       - `BE_COLUMNS_REORDERED`: cập nhật thứ tự columns (columnOrderIds)
+       - `BE_COLUMN_CREATED`: thêm column mới (kèm placeholder card)
+       - `BE_COLUMN_UPDATED`: cập nhật thuộc tính column (tiêu đề, màu sắc,...)
+       - `BE_COLUMN_DELETED`: xóa column và đồng bộ columnOrderIds
+       - `BE_CARD_MOVED_IN_COLUMN`: sắp xếp thẻ trong cùng column (cardOrderIds)
+       - `BE_CARD_MOVED_BETWEEN_COLUMNS`: di chuyển thẻ giữa các column (refetch board)
+     - Sự kiện Card
+       - `BE_CARD_CREATED`: thêm thẻ mới (xóa placeholder nếu có)
+       - `BE_CARD_UPDATED`: sửa thẻ (tiêu đề, mô tả, cover, thành viên, bình luận,...)
+       - `BE_CARD_DELETED`: xóa thẻ (thêm placeholder nếu column rỗng)
+     - Frontend handler (Redux + hooks)
+       - Hook `useRealtimeCardMove` lắng nghe events, cập nhật `activeBoard`
+       - Tránh trùng lặp (kiểm tra tồn tại), giữ nguyên `cards/cardOrderIds` khi chỉ sửa thuộc tính column
+       - Tự động đóng ActiveCard modal nếu thẻ/column đang mở bị xóa
 
 5.8. **UI/UX Features**
    - Dark mode/Light mode
@@ -414,10 +469,33 @@
 
 ## PHỤ LỤC
 **Phụ lục A:** Các bảng trong database
+   - ER Diagram chi tiết
+   - Database Schema Diagram
+   - Mô tả các collection và fields
+
 **Phụ lục B:** API Documentation
+   - Danh sách đầy đủ các API endpoints
+   - Request/Response examples
+   - Error codes và messages
+
 **Phụ lục C:** Source code và screenshots
+   - Screenshots giao diện ứng dụng
+   - Code snippets quan trọng
+   - Cấu trúc thư mục dự án
+
 **Phụ lục D:** Hướng dẫn cài đặt và sử dụng
-**Phụ lục E:** Tài liệu tham khảo
+   - Hướng dẫn cài đặt môi trường
+   - Hướng dẫn chạy ứng dụng
+   - Hướng dẫn sử dụng các tính năng chính
+
+**Phụ lục E:** Các diagram và sơ đồ
+   - Use Case Diagram
+   - Activity Diagrams
+   - Sequence Diagrams
+   - Flowcharts
+   - Architecture Diagrams
+
+**Phụ lục F:** Tài liệu tham khảo
 
 ---
 

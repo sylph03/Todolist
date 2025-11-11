@@ -1,5 +1,6 @@
 import { StatusCodes } from 'http-status-codes'
 import { boardService } from '~/services/boardServices'
+import { emitToBoard } from '~/utils/socketIO'
 
 const createNew = async (req, res, next) => {
   try {
@@ -24,6 +25,15 @@ const update = async (req, res, next) => {
   try {
     const boardId = req.params.id
     const updatedBoard = await boardService.update(boardId, req.body)
+    
+    // Emit real-time event khi di chuyển column (columnOrderIds thay đổi)
+    if (req.body.columnOrderIds && Array.isArray(req.body.columnOrderIds)) {
+      emitToBoard(boardId, 'BE_COLUMNS_REORDERED', {
+        boardId: boardId,
+        columnOrderIds: req.body.columnOrderIds
+      })
+    }
+    
     // Có kết quả trả về phía client
     res.status(StatusCodes.OK).json(updatedBoard)
   } catch (error) { next(error) }
@@ -31,7 +41,26 @@ const update = async (req, res, next) => {
 
 const moveCardToDifferentColumn = async (req, res, next) => {
   try {
+    // Lấy boardId từ column để emit real-time event
+    let boardId = req.body.boardId
+    if (!boardId) {
+      const { columnModel } = await import('~/models/columnModel')
+      const column = await columnModel.findOneById(req.body.nextColumnId || req.body.prevColumnId)
+      if (column) {
+        boardId = String(column.boardId)
+      }
+    }
+    
     const result = await boardService.moveCardToDifferentColumn(req.body)
+    
+    // Emit real-time event cho di chuyển card giữa các column
+    if (boardId) {
+      emitToBoard(boardId, 'BE_CARD_MOVED_BETWEEN_COLUMNS', {
+        ...req.body,
+        boardId: boardId
+      })
+    }
+    
     // Có kết quả trả về phía client
     res.status(StatusCodes.OK).json(result)
   } catch (error) { next(error) }
