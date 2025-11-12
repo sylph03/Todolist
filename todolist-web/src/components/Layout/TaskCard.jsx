@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { SquarePen, Users, MessageSquare, Paperclip, Text } from 'lucide-react'
+import { SquarePen, Users, MessageSquare, Paperclip, Text, CalendarClock } from 'lucide-react'
 import OptionListCard from '../Card/OptionListCard'
 import { useConfirm } from '~/Context/ConfirmProvider'
 import { useDispatch } from 'react-redux'
@@ -13,8 +13,60 @@ import useEscapeKey from '~/hooks/useEscapeKey'
 import useScrollAndResize from '~/hooks/useScrollAndResize'
 
 const CardIndicators = ({ card }) => {
+  const renderDueDate = () => {
+    const parseDate = (value) => {
+      if (!value) return null
+      const date = new Date(Number(value))
+      return Number.isNaN(date.getTime()) ? null : date
+    }
+
+    const formatDate = (date) => date.toLocaleDateString('vi-VN', {
+      day: '2-digit',
+      month: '2-digit'
+    })
+
+    const startDate = parseDate(card?.startDate)
+    const dueDate = parseDate(card?.dueDate)
+
+    if (!startDate && !dueDate) return null
+
+    const referenceDate = dueDate || startDate
+    const now = new Date()
+    const diffMs = referenceDate.getTime() - now.getTime()
+    const ONE_DAY = 24 * 60 * 60 * 1000
+
+    let variant = 'upcoming'
+    if (diffMs < 0) variant = 'overdue'
+    else if (diffMs <= ONE_DAY) variant = 'soon'
+
+    const variantClasses = {
+      overdue: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800',
+      soon: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800',
+      upcoming: 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800'
+    }
+
+    const displayLabel = startDate && dueDate
+      ? `${formatDate(startDate)} → ${formatDate(dueDate)}`
+      : formatDate(startDate || dueDate)
+
+    const tooltipLabel = startDate && dueDate
+      ? `Khoảng thời gian: ${formatDate(startDate)} → ${formatDate(dueDate)}`
+      : `Thời gian: ${formatDate(startDate || dueDate)}`
+
+    return (
+      <div
+        className={`flex items-center gap-1 mb-2 px-2 py-1 rounded-md border text-xs font-semibold ${variantClasses[variant]}`}
+        title={tooltipLabel}
+      >
+        <CalendarClock className="size-3.5" />
+        <span>{displayLabel}</span>
+      </div>
+    )
+  }
+
   return (
-    <div className="flex items-center gap-4 text-xs text-gray-700 dark:text-gray-300">
+    <div className="flex flex-wrap items-center gap-2 text-xs text-gray-700 dark:text-gray-300">
+      {renderDueDate()}
       {/* Description */}
       {card?.description?.length > 0 && (
         <div className="flex items-center gap-1 mb-2" title="Nhiệm vụ đã có mô tả">

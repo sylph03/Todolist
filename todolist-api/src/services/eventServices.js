@@ -13,10 +13,31 @@ const createNew = async (userId, reqBody) => {
 
 const getEvents = async (userId, boardId, from, to) => {
   try {
-    // userId is available if later we add permission checks
-    const events = await eventModel.findByBoardInRange(boardId, from, to)
-    return events
-  } catch (error) { throw error }
+    // Nếu có boardId cụ thể, lấy events của board đó
+    if (boardId) {
+      const events = await eventModel.findByBoardInRange(boardId, from, to)
+      return events
+    }
+
+    // Nếu không có boardId, lấy events của tất cả boards mà user là owner/member
+    const { boardModel: boardModelModule } = await import('~/models/boardModel')
+    const userBoardsResult = await boardModelModule.getBoardsForSidebar(userId)
+    
+    // Lấy tất cả boardIds mà user có quyền truy cập
+    const boardIds = (userBoardsResult?.boards || []).map(board => board._id)
+    
+    // Tối ưu: Query tất cả events của các boards cùng lúc bằng $in operator (1 query thay vì N queries)
+    if (boardIds.length === 0) {
+      return []
+    }
+    
+    const allEvents = await eventModel.findByBoardsInRange(boardIds, from, to)
+    
+    return allEvents
+  } catch (error) { 
+    console.error('getEvents error:', error)
+    throw error 
+  }
 }
 
 const update = async (eventId, reqBody) => {

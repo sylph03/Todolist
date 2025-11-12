@@ -98,6 +98,12 @@ flowchart TB
   UC_Calendar -.-> UC_ManageEvents
 ```
 
+**Ghi chú quyền hạn chính:**
+- `UC_ManageEvents` chỉ khả dụng cho `actorOwner`; `actorMember` chỉ truy cập lịch thông qua `UC_Calendar`.
+- `UC_MoveCards` hỗ trợ cả Owner và Member, nhưng quản lý cột (`UC_ManageColumns`) chỉ Owner được phép.
+- Đánh dấu yêu thích board (`UC_Starred`) được lưu theo từng người dùng, áp dụng cho Owner và Member.
+- Sự kiện realtime (`UC_Realtime`) tự động thông báo Owner khi Member rời board, đồng thời cập nhật danh sách người dùng online (`UC_OnlineUsers`).
+
 Gợi ý chèn vào báo cáo: nhúng file hoặc copy đoạn code Mermaid vào công cụ hỗ trợ Mermaid; có thể chuyển sang PlantUML nếu cần.
 
 

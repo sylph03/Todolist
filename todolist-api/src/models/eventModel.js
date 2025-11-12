@@ -68,6 +68,29 @@ const findByBoardInRange = async (boardId, from, to) => {
   return results
 }
 
+// Tối ưu: Query events của nhiều boards cùng lúc (thay vì query từng board)
+const findByBoardsInRange = async (boardIds, from, to) => {
+  const query = { _destroy: false }
+
+  if (boardIds && boardIds.length > 0) {
+    query.boardId = { $in: boardIds.map(id => new ObjectId(String(id))) }
+  }
+
+  // If from/to provided, filter by startAt within [from, to]
+  if (from || to) {
+    query.startAt = {}
+    if (from) query.startAt.$gte = new Date(from)
+    if (to) query.startAt.$lte = new Date(to)
+  }
+
+  const results = await GET_DB().collection(EVENT_COLLECTION_NAME)
+    .find(query)
+    .sort({ startAt: 1 })
+    .toArray()
+
+  return results
+}
+
 const update = async (eventId, updateData) => {
   console.log('EventModel update - ID:', eventId, 'Data:', updateData)
   
@@ -103,6 +126,7 @@ export const eventModel = {
   createNew,
   findOneById,
   findByBoardInRange,
+  findByBoardsInRange,
   update,
   deleteOneById
 }

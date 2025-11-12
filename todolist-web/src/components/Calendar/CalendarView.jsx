@@ -1,12 +1,16 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { createEventAPI, getEventsAPI, updateEventAPI, deleteEventAPI } from '~/apis'
 import { useConfirm } from '~/Context/ConfirmProvider'
+import { useSelector } from 'react-redux'
+import { selectCurrentUser } from '~/redux/user/userSlice'
 import { MoveLeft, ChevronLeft , ChevronRight, Plus, X, LayoutGrid, Calendar as CalendarIcon, Clock, ArrowRight, ExternalLink, Trash2, Edit3, Save, CalendarDays, MapPin, Users, Tag, AlertCircle, CheckCircle2, MoreVertical, ChevronDown, ChevronUp, Check, Palette } from 'lucide-react'
 import ColorPickerPopup, { colorOptions } from '~/components/Project/ColorPickerPopup'
+import TimePicker from '~/components/UI/TimePicker'
 import useClickOutside from '~/hooks/useClickOutside'
 
 const CalendarView = ({ boards = [] }) => {
   const { confirm } = useConfirm()
+  const currentUser = useSelector(selectCurrentUser)
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [showMonthYearPicker, setShowMonthYearPicker] = useState(false)
@@ -30,6 +34,8 @@ const CalendarView = ({ boards = [] }) => {
   const [selectedEvent, setSelectedEvent] = useState(null)
   const [detailTitle, setDetailTitle] = useState('')
   const [detailTime, setDetailTime] = useState('')
+  const [detailStartTime, setDetailStartTime] = useState('09:00')
+  const [detailEndTime, setDetailEndTime] = useState('10:00')
   const [detailDescription, setDetailDescription] = useState('')
   const [detailColor, setDetailColor] = useState('')
   const [isEditing, setIsEditing] = useState(false)
@@ -165,6 +171,28 @@ const CalendarView = ({ boards = [] }) => {
     return days
   }, [currentMonth, currentYear, selectedDate])
 
+  // Helper function để kiểm tra user có phải owner của board không
+  const isOwnerOfBoard = (boardId) => {
+    const board = boards.find(b => String(b._id) === String(boardId))
+    if (!board) return false
+    const ownerIds = (board.ownerIds || []).map(id => String(id))
+    return ownerIds.includes(String(currentUser?._id))
+  }
+
+  // Kiểm tra user có phải owner của event's board không
+  const canEditEvent = (event) => {
+    if (!event || !event.boardId) return false
+    return isOwnerOfBoard(event.boardId)
+  }
+
+  // Lọc boards: chỉ hiển thị boards mà user là owner (cho việc thêm event)
+  const ownerBoards = useMemo(() => {
+    return boards.filter(board => {
+      const ownerIds = (board.ownerIds || []).map(id => String(id))
+      return ownerIds.includes(String(currentUser?._id))
+    })
+  }, [boards, currentUser])
+
   // Lấy sự kiện cho một ngày cụ thể
   const getEventsForDate = (date) => {
     return events.filter((evt) => {
@@ -221,6 +249,44 @@ const CalendarView = ({ boards = [] }) => {
     setSelectedEvent(event)
     setDetailTitle(event.title || '')
     setDetailTime(event.timeText || '')
+    // Parse timeText to extract start and end times
+    if (event.timeText) {
+      const timeParts = event.timeText.split(/\s*-\s*/)
+      if (timeParts.length >= 2) {
+        // Extract time from "09:00" or "9:00 AM" format
+        const startTimeStr = timeParts[0].trim()
+        const endTimeStr = timeParts[1].trim()
+        // Convert to HH:MM format if needed
+        const parseToHHMM = (timeStr) => {
+          // Handle AM/PM format
+          const ampmMatch = timeStr.match(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/i)
+          if (ampmMatch) {
+            let hours = parseInt(ampmMatch[1], 10)
+            const minutes = parseInt(ampmMatch[2] || '0', 10)
+            const isPM = /PM/i.test(ampmMatch[3])
+            if (hours === 12) hours = isPM ? 12 : 0
+            else if (isPM) hours += 12
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`
+          }
+          // Handle HH:MM format
+          const hhmmMatch = timeStr.match(/(\d{1,2}):(\d{2})/)
+          if (hhmmMatch) {
+            const hours = parseInt(hhmmMatch[1], 10)
+            const minutes = parseInt(hhmmMatch[2], 10)
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`
+          }
+          return '09:00'
+        }
+        setDetailStartTime(parseToHHMM(startTimeStr))
+        setDetailEndTime(parseToHHMM(endTimeStr))
+      } else {
+        setDetailStartTime('09:00')
+        setDetailEndTime('10:00')
+      }
+    } else {
+      setDetailStartTime('09:00')
+      setDetailEndTime('10:00')
+    }
     setDetailDescription(event.description || '')
     setDetailColor(event.color || '')
     setIsEditing(false)
@@ -235,6 +301,8 @@ const CalendarView = ({ boards = [] }) => {
     setSelectedEvent(null)
     setDetailTitle('')
     setDetailTime('')
+    setDetailStartTime('09:00')
+    setDetailEndTime('10:00')
     setDetailDescription('')
     setDetailColor('')
     setIsEditing(false)
@@ -256,10 +324,12 @@ const CalendarView = ({ boards = [] }) => {
         updates.title = detailTitle
       }
       
-      if (detailTime !== (selectedEvent.timeText || '')) {
-        updates.timeText = detailTime
+      // Build timeText from detailStartTime and detailEndTime
+      const newTimeText = `${detailStartTime} - ${detailEndTime}`
+      if (newTimeText !== (selectedEvent.timeText || '')) {
+        updates.timeText = newTimeText
         const baseDate = new Date(selectedEvent.startAt)
-        const { startAt, endAt, allDay } = parseTimeRangeOnDate(baseDate, detailTime)
+        const { startAt, endAt, allDay } = parseTimeRangeOnDate(baseDate, newTimeText)
         updates.startAt = startAt ? startAt.getTime() : null
         updates.endAt = endAt ? endAt.getTime() : null
         updates.allDay = allDay
@@ -578,7 +648,6 @@ const CalendarView = ({ boards = [] }) => {
             const selectedEventId = displayedEventId[dateKey]
             // Find displayed event: either selected one or first event
             const displayedEvent = dayEvents.find(e => getIdString(e._id) === selectedEventId) || dayEvents[0]
-
             return (
               <div
                 key={index}
@@ -588,13 +657,18 @@ const CalendarView = ({ boards = [] }) => {
                     : 'bg-gray-50/50 dark:bg-gray-900/50 opacity-60'
                 } ${
                   isToday 
-                    ? 'bg-blue-50 dark:bg-blue-900/20 ring-2 ring-blue-400 dark:ring-blue-600' 
+                    ? 'bg-blue-50 dark:bg-blue-900/20' 
                     : ''
                 } ${
-                  isSelected && !isToday
-                    ? 'ring-2 ring-sky-500 dark:ring-sky-400 bg-sky-50 dark:bg-sky-900/20' 
+                  isSelected
+                    ? 'bg-sky-50 dark:bg-sky-900/20' 
                     : ''
                 }`}
+                style={{
+                  ...(isSelected ? {
+                    boxShadow: 'inset 0 0 0 1.5px rgb(14 165 233)'
+                  } : {})
+                }}
                 onClick={() => setSelectedDate(day.date)}
               >
                 <div className={`text-sm font-semibold mb-2.5 flex items-center justify-center w-7 h-7 rounded-full transition-colors ${
@@ -613,10 +687,10 @@ const CalendarView = ({ boards = [] }) => {
                   {displayedEvent && (
                     <div
                       key={displayedEvent._id}
-                      className={`text-xs p-2 rounded-md truncate cursor-pointer transition-all duration-200 hover:shadow-sm border-l ${
+                      className={`text-xs p-2 rounded-md truncate cursor-pointer transition-all duration-200 hover:shadow-sm ${
                         displayedEvent.color
-                          ? `${displayedEvent.color} text-gray-800 dark:text-gray-200 border-gray-400 dark:border-gray-500`
-                          : 'bg-sky-100 dark:bg-sky-900/30 text-sky-800 dark:text-sky-200 border-sky-500 dark:border-sky-400'
+                          ? `${displayedEvent.color} dark:bg-sky-900/50 text-gray-800 dark:text-gray-200`
+                          : 'bg-sky-100 dark:bg-sky-900/50 text-gray-800 dark:text-gray-200'
                       }`}
                       title={`${displayedEvent.title} - ${displayedEvent.timeText || 'Cả ngày'}`}
                       onClick={(e) => {
@@ -654,7 +728,7 @@ const CalendarView = ({ boards = [] }) => {
       </div>
 
       {showAddEventModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+        <div className="fixed inset-0 h-full bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
           <div ref={addEventModalRef} className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col animate-fadeInDown">
             {/* Modal Header */}
             <div className="relative bg-sky-500 p-6 text-white">
@@ -687,17 +761,17 @@ const CalendarView = ({ boards = [] }) => {
                     <LayoutGrid className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                     Chọn Board
                   </label>
-                  {!boards || boards.length === 0 ? (
+                  {!ownerBoards || ownerBoards.length === 0 ? (
                     <div className="text-center py-12 px-4">
                       <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
                         <LayoutGrid className="w-10 h-10 text-gray-400 dark:text-gray-500" />
                       </div>
                       <p className="text-gray-600 dark:text-gray-400 font-semibold">Chưa có board nào</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">Tạo board mới để thêm sự kiện</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">Bạn cần là Owner của board để thêm sự kiện</p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 gap-3">
-                      {boards.map((board) => (
+                      {ownerBoards.map((board) => (
                       <button
                         key={board._id}
                         onClick={() => handleSelectBoard(board)}
@@ -779,11 +853,10 @@ const CalendarView = ({ boards = [] }) => {
                         <Clock className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                         Thời gian bắt đầu
                       </label>
-                      <input
-                        type="time"
+                      <TimePicker
                         value={startTime}
                         onChange={(e) => setStartTime(e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-1 focus:ring-sky-400/50 focus:border-sky-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200"
+                        placeholder="Chọn giờ bắt đầu"
                       />
                     </div>
                     <div>
@@ -791,11 +864,10 @@ const CalendarView = ({ boards = [] }) => {
                         <Clock className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                         Thời gian kết thúc
                       </label>
-                      <input
-                        type="time"
+                      <TimePicker
                         value={endTime}
                         onChange={(e) => setEndTime(e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-1 focus:ring-sky-400/50 focus:border-sky-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200"
+                        placeholder="Chọn giờ kết thúc"
                       />
                     </div>
                   </div>
@@ -805,7 +877,7 @@ const CalendarView = ({ boards = [] }) => {
                       <CalendarIcon className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                       Ngày
                     </label>
-                    <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 rounded-xl text-sm text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600">
+                    <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 rounded-xl text-sm text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 cursor-not-allowed">
                       <div className="flex items-center gap-2 font-medium">
                         <CalendarIcon className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                         <span>
@@ -1032,14 +1104,16 @@ const CalendarView = ({ boards = [] }) => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setIsEditing(!isEditing)}
-                    className="p-2 hover:bg-white/20 rounded-xl transition-colors"
-                    title={isEditing ? "Hủy chỉnh sửa" : "Chỉnh sửa"}
-                    aria-label={isEditing ? "Hủy chỉnh sửa" : "Chỉnh sửa"}
-                  >
-                    <Edit3 className="w-5 h-5" />
-                  </button>
+                  {canEditEvent(selectedEvent) && (
+                    <button
+                      onClick={() => setIsEditing(!isEditing)}
+                      className="p-2 hover:bg-white/20 rounded-xl transition-colors"
+                      title={isEditing ? "Hủy chỉnh sửa" : "Chỉnh sửa"}
+                      aria-label={isEditing ? "Hủy chỉnh sửa" : "Chỉnh sửa"}
+                    >
+                      <Edit3 className="w-5 h-5" />
+                    </button>
+                  )}
                   <button
                     onClick={handleCloseEventDetail}
                     className="p-2 hover:bg-white/20 rounded-xl transition-colors"
@@ -1060,7 +1134,7 @@ const CalendarView = ({ boards = [] }) => {
                   <Tag className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                   Tiêu đề sự kiện
                 </label>
-                {isEditing ? (
+                {isEditing && canEditEvent(selectedEvent) ? (
                   <input
                     type="text"
                     value={detailTitle}
@@ -1078,13 +1152,49 @@ const CalendarView = ({ boards = [] }) => {
               </div>
 
               {/* Date and Time */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-3">
+              <div className={`grid gap-4 ${isEditing && canEditEvent(selectedEvent) ? 'grid-cols-1 md:grid-cols-5' : 'grid-cols-1 md:grid-cols-2'}`}>
+              <div className={`${isEditing && canEditEvent(selectedEvent) ? 'md:col-span-3' : ''} flex flex-col gap-3 h-full`}>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    <Clock className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                    Thời gian
+                  </label>
+                  {isEditing && canEditEvent(selectedEvent) ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
+                      <div className="flex flex-col gap-2">
+                        <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">
+                          Bắt đầu
+                        </label>
+                        <TimePicker
+                          value={detailStartTime}
+                          onChange={(e) => setDetailStartTime(e.target.value)}
+                          placeholder="Chọn giờ bắt đầu"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">
+                          Kết thúc
+                        </label>
+                        <TimePicker
+                          value={detailEndTime}
+                          onChange={(e) => setDetailEndTime(e.target.value)}
+                          placeholder="Chọn giờ kết thúc"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600 flex-1 flex items-center">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {selectedEvent.timeText || 'Cả ngày'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <div className={`${isEditing && canEditEvent(selectedEvent) ? 'md:col-span-2' : ''} flex flex-col gap-3 h-full cursor-not-allowed`}>
                   <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
                     <CalendarIcon className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                     Ngày
                   </label>
-                  <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600">
+                  <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600 flex-1 flex items-center">
                     <p className="text-sm font-medium text-gray-900 dark:text-white">
                       {new Date(selectedEvent.startAt).toLocaleDateString('vi-VN', {
                         weekday: 'long',
@@ -1094,28 +1204,6 @@ const CalendarView = ({ boards = [] }) => {
                       })}
                     </p>
                   </div>
-                </div>
-
-                <div className="space-y-3">
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    <Clock className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-                    Thời gian
-                  </label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={detailTime}
-                      onChange={(e) => setDetailTime(e.target.value)}
-                      placeholder="VD: 9:00 AM - 10:30 AM"
-                      className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-1 focus:ring-sky-400/50 focus:border-sky-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-200"
-                    />
-                  ) : (
-                    <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {selectedEvent.timeText || 'Cả ngày'}
-                      </p>
-                    </div>
-                  )}
                 </div>
               </div>
 
@@ -1141,7 +1229,7 @@ const CalendarView = ({ boards = [] }) => {
                   <Palette className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                   Màu nền
                 </label>
-                {isEditing ? (
+                {isEditing && canEditEvent(selectedEvent) ? (
                   <button
                     type="button"
                     ref={colorButtonRef}
@@ -1188,7 +1276,7 @@ const CalendarView = ({ boards = [] }) => {
                   <Edit3 className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                   Mô tả
                 </label>
-                {isEditing ? (
+                {isEditing && canEditEvent(selectedEvent) ? (
                   <textarea
                     value={detailDescription}
                     onChange={(e) => setDetailDescription(e.target.value)}
@@ -1245,30 +1333,32 @@ const CalendarView = ({ boards = [] }) => {
 
             {/* Footer Actions */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-6 border-t-2 border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
-              <button
-                onClick={async () => {
-                  const result = await confirm({
-                    title: 'Xóa sự kiện',
-                    message: 'Bạn có chắc chắn muốn xóa sự kiện này? Hành động này không thể hoàn tác.',
-                    modal: true
-                  })
+              {canEditEvent(selectedEvent) && (
+                <button
+                  onClick={async () => {
+                    const result = await confirm({
+                      title: 'Xóa sự kiện',
+                      message: 'Bạn có chắc chắn muốn xóa sự kiện này? Hành động này không thể hoàn tác.',
+                      modal: true
+                    })
 
-                  if (result) {
-                    try {
-                      const id = getIdString(selectedEvent._id)
-                      await deleteEventAPI(id)
-                      setEvents(prev => prev.filter(e => getIdString(e._id) !== id))
-                      handleCloseEventDetail()
-                    } catch (e) { 
-                      console.error('Delete event failed', e) 
+                    if (result) {
+                      try {
+                        const id = getIdString(selectedEvent._id)
+                        await deleteEventAPI(id)
+                        setEvents(prev => prev.filter(e => getIdString(e._id) !== id))
+                        handleCloseEventDetail()
+                      } catch (e) { 
+                        console.error('Delete event failed', e) 
+                      }
                     }
-                  }
-                }}
-                className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all duration-200 hover:shadow-sm border border-red-200 dark:border-red-900"
-              >
-                <Trash2 className="w-4 h-4" />
-                Xóa sự kiện
-              </button>
+                  }}
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all duration-200 hover:shadow-sm border border-red-200 dark:border-red-900"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Xóa sự kiện
+                </button>
+              )}
               
               <div className="flex items-center gap-3">
                 <button
@@ -1277,7 +1367,7 @@ const CalendarView = ({ boards = [] }) => {
                 >
                   Đóng
                 </button>
-                {isEditing && (
+                {isEditing && canEditEvent(selectedEvent) && (
                   <button
                     onClick={handleSaveEvent}
                     disabled={isSaving}

@@ -13,7 +13,9 @@ const BoardGrid = ({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
       {boards.map((board) => (
-        <div 
+        <Link
+          to={`/boards/${board?._id}`}
+          onClick={() => onBoardAccess(board?._id)}
           key={board?._id} 
           className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer transform hover:-translate-y-0.5 border border-gray-100 dark:border-gray-700"
         >
@@ -33,16 +35,14 @@ const BoardGrid = ({
             <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-2 sm:mb-3 line-clamp-2">
               {board?.description}
             </p>
-            <Link 
-              to={`/boards/${board?._id}`} 
-              onClick={() => onBoardAccess(board?._id)}
+            <p 
               className="flex items-center text-xs sm:text-sm text-sky-500 dark:text-sky-300 hover:text-sky-600 dark:hover:text-sky-300 transition-colors"
             >
               <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
               Đi tới bảng
-            </Link>
+            </p>
           </div>
-        </div>
+        </Link>
       ))}
     </div>
   )

@@ -362,17 +362,15 @@
    - Quản lý thành viên card
    - Mô tả card với Markdown
    - Quản lý ngày tháng (ngày bắt đầu, hạn hoàn thành với thời gian)
+   - Hiển thị badge hạn công việc (start → due) trên card
    - Lưu trữ và khôi phục card
    - Tìm kiếm card trong board
    - Hoạt động (Activity log)
 
 5.5. **Calendar và Events**
    - Hiển thị lịch tháng
-   - Tạo sự kiện mới
-   - Xem chi tiết sự kiện
-   - Cập nhật sự kiện
-   - Xóa sự kiện
-   - Tùy chỉnh màu sắc sự kiện
+   - Chỉ Owner được tạo/sửa/xóa sự kiện; Member xem sự kiện
+   - Dropdown lựa chọn board chỉ hiển thị boards do Owner quản lý
    - Liên kết sự kiện với board
    - Lọc và tìm kiếm sự kiện
 

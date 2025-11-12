@@ -2,6 +2,49 @@ import { useRef, useState, useEffect } from 'react'
 import { Clock } from 'lucide-react'
 import useClickOutside from '~/hooks/useClickOutside'
 
+// CSS animation cho popup
+const popupStyle = `
+  @keyframes fadeInSlideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes fadeInSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .time-picker-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+  .time-picker-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .time-picker-scroll::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.5);
+    border-radius: 3px;
+  }
+  .time-picker-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.7);
+  }
+  .dark .time-picker-scroll::-webkit-scrollbar-thumb {
+    background: rgba(71, 85, 105, 0.5);
+  }
+  .dark .time-picker-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(71, 85, 105, 0.7);
+  }
+`
+
 const TimePicker = ({
   value,
   onChange,
@@ -10,9 +53,11 @@ const TimePicker = ({
   className = ''
 }) => {
   const pickerRef = useRef(null)
+  const popupRef = useRef(null)
   const hoursScrollRef = useRef(null)
   const minutesScrollRef = useRef(null)
   const [showPicker, setShowPicker] = useState(false)
+  const [showAbove, setShowAbove] = useState(false)
   const [hours, setHours] = useState('00')
   const [minutes, setMinutes] = useState('00')
 
@@ -29,6 +74,46 @@ const TimePicker = ({
       setMinutes('00')
     }
   }, [value])
+
+  // Kiểm tra xem có đủ không gian ở dưới không, nếu không thì hiển thị ở trên
+  useEffect(() => {
+    if (!showPicker || !pickerRef.current) return
+
+    const checkPosition = () => {
+      if (!popupRef.current || !pickerRef.current) return
+      
+      const buttonRect = pickerRef.current.getBoundingClientRect()
+      const popupRect = popupRef.current.getBoundingClientRect()
+      const viewportHeight = window.innerHeight
+      
+      // Kiểm tra xem popup có chạm bottom của viewport không
+      const spaceBelow = viewportHeight - buttonRect.bottom
+      const spaceAbove = buttonRect.top
+      const popupHeight = popupRect.height || 300 // Ước tính chiều cao popup nếu chưa render
+
+      // Nếu không đủ không gian ở dưới và có đủ không gian ở trên, hiển thị ở trên
+      if (spaceBelow < popupHeight + 10 && spaceAbove > popupHeight + 10) {
+        setShowAbove(true)
+      } else {
+        setShowAbove(false)
+      }
+    }
+
+    // Đợi popup render xong rồi mới check (sử dụng setTimeout để đảm bảo DOM đã update)
+    const timeoutId = setTimeout(() => {
+      checkPosition()
+    }, 0)
+
+    // Check khi scroll/resize
+    window.addEventListener('scroll', checkPosition, true)
+    window.addEventListener('resize', checkPosition)
+
+    return () => {
+      clearTimeout(timeoutId)
+      window.removeEventListener('scroll', checkPosition, true)
+      window.removeEventListener('resize', checkPosition)
+    }
+  }, [showPicker])
 
   // Scroll to selected time when picker opens
   useEffect(() => {
@@ -71,7 +156,9 @@ const TimePicker = ({
   }
 
   return (
-    <div className={`relative ${className}`} ref={pickerRef}>
+    <>
+      <style>{popupStyle}</style>
+      <div className={`relative ${className}`} ref={pickerRef}>
       <button
         type="button"
         onClick={() => setShowPicker(!showPicker)}
@@ -82,24 +169,39 @@ const TimePicker = ({
         <span>{formatTime(value)}</span>
       </button>
       {showPicker && (
-        <div className="absolute z-10 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg p-3 min-w-[200px]">
-          <div className="flex gap-2 items-center justify-center">
+        <div 
+          ref={popupRef}
+          className={`absolute z-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl shadow-xl p-4 transition-all duration-200 ease-in-out ${
+            showAbove ? 'bottom-full mb-1' : 'top-full mt-1'
+          }`}
+          style={{
+            animation: showAbove 
+              ? 'fadeInSlideUp 0.2s ease-in-out' 
+              : 'fadeInSlideDown 0.2s ease-in-out'
+          }}
+        >
+          <div className="flex gap-4 items-start justify-center">
             {/* Hours */}
-            <div className="flex flex-col">
-              <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 text-center">Giờ</div>
+            <div className="flex flex-col items-center">
+              <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">
+                Giờ
+              </div>
               <div 
                 ref={hoursScrollRef}
-                className="max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent"
+                className="time-picker-scroll max-h-64 overflow-y-auto px-2 py-1 flex flex-col gap-0.5"
+                style={{
+                  scrollBehavior: 'smooth'
+                }}
               >
                 {generateHours().map((hour) => (
                   <button
                     key={hour}
                     type="button"
                     onClick={() => handleTimeSelect(hour, parseInt(minutes))}
-                    className={`w-12 py-1.5 text-sm rounded-md transition-colors ${
+                    className={`w-14 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${
                       parseInt(hours) === hour
-                        ? 'bg-sky-500 dark:bg-sky-600 text-white'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                        ? 'bg-sky-500 dark:bg-sky-600 text-white shadow-md scale-105'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-105'
                     }`}
                   >
                     {String(hour).padStart(2, '0')}
@@ -108,24 +210,29 @@ const TimePicker = ({
               </div>
             </div>
 
-            <div className="text-xl font-semibold text-gray-500 dark:text-gray-400 py-4">:</div>
+            <div className="text-2xl font-bold text-gray-400 dark:text-gray-500 pt-8 pb-2">:</div>
 
             {/* Minutes */}
-            <div className="flex flex-col">
-              <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 text-center">Phút</div>
+            <div className="flex flex-col items-center">
+              <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">
+                Phút
+              </div>
               <div 
                 ref={minutesScrollRef}
-                className="max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent"
+                className="time-picker-scroll max-h-64 overflow-y-auto px-2 py-1 flex flex-col gap-0.5"
+                style={{
+                  scrollBehavior: 'smooth'
+                }}
               >
                 {generateMinutes().map((minute) => (
                   <button
                     key={minute}
                     type="button"
                     onClick={() => handleTimeSelect(parseInt(hours), minute)}
-                    className={`w-12 py-1.5 text-sm rounded-md transition-colors ${
+                    className={`w-14 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${
                       parseInt(minutes) === minute
-                        ? 'bg-sky-500 dark:bg-sky-600 text-white'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                        ? 'bg-sky-500 dark:bg-sky-600 text-white shadow-md scale-105'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-105'
                     }`}
                   >
                     {String(minute).padStart(2, '0')}
@@ -136,7 +243,8 @@ const TimePicker = ({
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   )
 }
 
