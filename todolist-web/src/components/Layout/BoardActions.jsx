@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { Plus, Archive, Columns2, Settings } from 'lucide-react'
 import { useSelector, useDispatch } from 'react-redux'
 import { selectCurrentActiveBoard, updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { selectCurrentUser } from '~/redux/user/userSlice'
 import FormCreateCard from '~/components/Card/FormCreateCard'
 import FormCreateColumn from '~/components/Cloumn/FormCreateColumn'
 import WIPSettingsModal from '~/components/UI/WIPSettingsModal'
@@ -16,14 +17,22 @@ import gsap from 'gsap'
 import { Draggable } from 'gsap/Draggable'
 import { InertiaPlugin } from 'gsap/InertiaPlugin'
 import useIsMobile from '~/hooks/useIsMobile'
+import { useBoardOnlineUsers } from '~/hooks/useBoardOnlineUsers'
 
 gsap.registerPlugin(Draggable, InertiaPlugin)
 
 const BoardActions = () => {
   const dispatch = useDispatch()
   const board = useSelector(selectCurrentActiveBoard)
+  const currentUser = useSelector(selectCurrentUser)
   const { stateConfirm } = useConfirm()
   const isMobile = useIsMobile()
+
+  // Kiểm tra user có phải là Owner không
+  const isOwner = board?.ownerIds?.some(id => String(id) === String(currentUser?._id))
+
+  // Lấy danh sách users đang online trong board
+  const onlineUsers = useBoardOnlineUsers(board?._id)
 
   const [isShowFormCreateCard, setIsShowFormCreateCard] = useState(false)
   const [isShowFormCreateColumn, setIsShowFormCreateColumn] = useState(false)
@@ -61,8 +70,12 @@ const BoardActions = () => {
     setIsShowFormCreateCard(true)
   }
 
-  // Mở modal cài đặt WIP
+  // Mở modal cài đặt WIP - CHỈ OWNER MỚI ĐƯỢC MỞ
   const handleOpenWIPModal = () => {
+    if (!isOwner) {
+      toast.error('Chỉ Owner mới được cài đặt WIP')
+      return
+    }
     setShowWIPModal(true)
   }
 
@@ -165,16 +178,18 @@ const BoardActions = () => {
             <span className="hidden xl:inline text-sm">Thêm nhiệm vụ</span>
           </button>
 
-          {/* Nút Thêm cột */}
-          <button
-            onClick={handleClickCreateColumn}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-200 font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95"
-            title="Thêm cột"
-            aria-label="Thêm cột"
-          >
-            <Columns2 className="w-5 h-5" />
-            <span className="hidden xl:inline text-sm">Thêm cột</span>
-          </button>
+          {/* Nút Thêm cột - CHỈ OWNER MỚI ĐƯỢC THÊM */}
+          {isOwner && (
+            <button
+              onClick={handleClickCreateColumn}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-200 font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95"
+              title="Thêm cột"
+              aria-label="Thêm cột"
+            >
+              <Columns2 className="w-5 h-5" />
+              <span className="hidden xl:inline text-sm">Thêm cột</span>
+            </button>
+          )}
 
           {/* Nút nhiệm vụ lưu trữ*/}
           <button
@@ -187,21 +202,23 @@ const BoardActions = () => {
             <span className="hidden xl:inline text-sm">Lưu nhiệm vụ</span>
           </button>
 
-          {/* Nút chế độ WIP - HIỂN THỊ TRẠNG THÁI THỰC TẾ */}
-          <button
-            onClick={handleOpenWIPModal}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95 ${wipSettings.enabled
-              ? 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600'
-              : 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600'
-            }`}
-            title={wipSettings.enabled ? `WIP: ${wipSettings.limit} task/cột` : 'Bật chế độ giới hạn WIP'}
-            aria-label="Chế độ WIP"
-          >
-            <Settings className={`w-5 h-5 ${wipSettings.enabled ? 'text-gray-600 dark:text-gray-300' : 'text-gray-600 dark:text-gray-300'}`} />
-            <span className="hidden xl:inline text-sm font-medium">
-              {wipSettings.enabled ? `WIP : ${wipSettings.limit}` : 'WIP'}
-            </span>
-          </button>
+          {/* Nút chế độ WIP - HIỂN THỊ TRẠNG THÁI THỰC TẾ - CHỈ HIỂN THỊ CHO OWNER */}
+          {isOwner && (
+            <button
+              onClick={handleOpenWIPModal}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95 ${wipSettings.enabled
+                ? 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600'
+                : 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600'
+              }`}
+              title={wipSettings.enabled ? `WIP: ${wipSettings.limit} task/cột` : 'Bật chế độ giới hạn WIP'}
+              aria-label="Chế độ WIP"
+            >
+              <Settings className={`w-5 h-5 ${wipSettings.enabled ? 'text-gray-600 dark:text-gray-300' : 'text-gray-600 dark:text-gray-300'}`} />
+              <span className="hidden xl:inline text-sm font-medium">
+                {wipSettings.enabled ? `WIP : ${wipSettings.limit}` : 'WIP'}
+              </span>
+            </button>
+          )}
         </div>
 
         {/* Right Actions: Thanh tìm kiếm và thêm users vào board */}
@@ -209,11 +226,11 @@ const BoardActions = () => {
           {/* Thanh tìm kiếm */}
           <SearchActionCard />
 
-          {/* Nút mời users vào board */}
-          <InviteBoardUser boardId={board?._id} />
+          {/* Nút mời users vào board - CHỈ HIỂN THỊ CHO OWNER */}
+          {isOwner && <InviteBoardUser boardId={board?._id} />}
 
-          {/* Thêm users vào board */}
-          <BoardUserGroup boardUsers={board?.FE_allUsers} />
+          {/* Thêm users vào board - CHỈ HIỂN THỊ USERS ĐANG ONLINE */}
+          <BoardUserGroup boardUsers={onlineUsers} />
         </div>
       </div>
 

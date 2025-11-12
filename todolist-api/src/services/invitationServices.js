@@ -22,6 +22,13 @@ const createNewBoardInvitation = async (inviterId, reqBody) => {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy người mời hoặc người được mời hoặc bảng!')
     }
 
+    // Kiểm tra quyền: chỉ Owner mới được mời user vào board
+    const ownerIds = (board.ownerIds || []).map(id => String(id))
+    const inviterIdStr = String(inviterId)
+    if (!ownerIds.includes(inviterIdStr)) {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'Chỉ Owner mới được mời user vào Board này.')
+    }
+
     // Tạo data cần thiết để lưu vào trong DB
     // Có thể thử bỏ hoặc làm sai lệch type, boardInvitation, status để xem Model validate ok chưa
     const newInvitationData = {

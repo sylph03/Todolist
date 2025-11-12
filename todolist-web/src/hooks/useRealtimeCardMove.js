@@ -8,6 +8,7 @@ import {
   fetchBoardDetailsAPI
 } from '~/redux/activeBoard/activeBoardSlice'
 import { updateCurrentActiveCard, selectCurrentActiveCard, hideActiveCard, clearCurrentActiveCard } from '~/redux/activeCard/activeCardSlice'
+import { selectCurrentUser } from '~/redux/user/userSlice'
 import { cloneDeep } from 'lodash'
 import { mapOrder } from '~/utils/sort'
 import { generatePlaceholderCard } from '~/utils/formatters'
@@ -18,12 +19,24 @@ export const useRealtimeCardMove = (boardId) => {
   const dispatch = useDispatch()
   const board = useSelector(selectCurrentActiveBoard)
   const activeCard = useSelector(selectCurrentActiveCard)
+  const currentUser = useSelector(selectCurrentUser)
 
   useEffect(() => {
     if (!boardId || !socketIoInstance) return
 
-    // Join board room khi vào trang board
-    socketIoInstance.emit('FE_JOIN_BOARD', boardId)
+    // Join board room khi vào trang board, gửi kèm thông tin user
+    const userInfo = currentUser ? {
+      _id: currentUser._id,
+      username: currentUser.username,
+      displayName: currentUser.displayName,
+      avatar: currentUser.avatar,
+      email: currentUser.email
+    } : null
+
+    socketIoInstance.emit('FE_JOIN_BOARD', {
+      boardId,
+      user: userInfo
+    })
 
     // Listen cho di chuyển card giữa các column
     const handleCardMovedBetweenColumns = (data) => {
@@ -239,6 +252,6 @@ export const useRealtimeCardMove = (boardId) => {
       socketIoInstance.off('BE_COLUMN_UPDATED', handleColumnUpdated)
       socketIoInstance.off('BE_COLUMN_DELETED', handleColumnDeleted)
     }
-  }, [boardId, board, activeCard, dispatch])
+  }, [boardId, board, activeCard, dispatch, currentUser])
 }
 

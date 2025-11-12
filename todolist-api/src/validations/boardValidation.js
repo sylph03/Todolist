@@ -13,7 +13,6 @@ const createNew = async (req, res, next) => {
     }),
     description: Joi.string().max(255).trim().strict().allow('').optional(),
     columnOrderIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
-    favorite: Joi.boolean().default(false),
     backgroundColor: Joi.string().default('bg-sky-200'),
 
     // WIP Settings
@@ -39,7 +38,6 @@ const update = async (req, res, next) => {
     title: Joi.string().max(30).trim().strict(),
     description: Joi.string().max(255).trim().strict().allow('').optional(),
     columnOrderIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)),
-    favorite: Joi.boolean(),
     backgroundColor: Joi.string()
   })
 

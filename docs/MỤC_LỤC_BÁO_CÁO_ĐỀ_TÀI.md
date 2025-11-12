@@ -120,10 +120,18 @@
    - Yêu cầu chức năng
      - Quản lý người dùng (Đăng ký, đăng nhập, xác thực tài khoản)
      - Quản lý bảng dự án (Board)
+       - Tạo, sửa, xóa board (chỉ Owner)
+       - Đánh dấu yêu thích board (per-user)
+       - Rời khỏi board (Member)
      - Quản lý cột công việc (Column)
+       - Tạo, sửa, xóa column (chỉ Owner)
+       - Di chuyển card trong/between columns (Owner và Member)
      - Quản lý thẻ công việc (Card/Task)
      - Quản lý lịch sự kiện (Calendar/Events)
      - Quản lý thành viên và phân quyền
+       - Phân quyền Owner và Member
+       - Mời thành viên (chỉ Owner)
+       - Hiển thị thành viên online real-time
      - Gợi ý nhiệm vụ bằng AI
      - Tìm kiếm và lọc dữ liệu
      - Lưu trữ và khôi phục công việc
@@ -188,18 +196,21 @@
    - **Module Quản lý Board**
      - Activity Diagram: Quy trình quản lý board
      - Sequence Diagram: Tạo/Cập nhật/Xóa board
-     - Tạo/xóa/sửa board
+     - Tạo/xóa/sửa board (chỉ Owner)
      - Tìm kiếm và lọc board
-     - Đánh dấu yêu thích
-     - Quản lý thành viên
-     - Cài đặt WIP (Work In Progress)
+     - Đánh dấu yêu thích (per-user, lưu trong User model)
+     - Quản lý thành viên (mời user - chỉ Owner)
+     - Rời khỏi board (Member)
+     - Cài đặt WIP (Work In Progress - chỉ Owner)
+     - Hiển thị thành viên online real-time
    
    - **Module Quản lý Column**
      - Activity Diagram: Quy trình quản lý column
      - Flowchart: Drag & Drop column
-     - Tạo/xóa/sửa column
-     - Sắp xếp lại thứ tự column (Drag & Drop)
-     - Tùy chỉnh màu sắc
+     - Tạo/xóa/sửa column (chỉ Owner)
+     - Sắp xếp lại thứ tự column (Drag & Drop - chỉ Owner)
+     - Tùy chỉnh màu sắc (chỉ Owner)
+     - Di chuyển card trong/between columns (Owner và Member)
    
    - **Module Quản lý Card**
      - Activity Diagram: Quy trình quản lý card
@@ -303,25 +314,44 @@
    - Quản lý session và token refresh
    - Middleware xác thực
    - Phân quyền người dùng (Owner, Member)
+     - **Owner permissions:**
+       - Tạo, sửa, xóa board
+       - Tạo, sửa, xóa column
+       - Mời thành viên vào board
+       - Cấu hình WIP settings
+       - Tất cả quyền của Member
+     - **Member permissions:**
+       - Xem board và cards
+       - Tạo, sửa, xóa cards
+       - Di chuyển cards (trong/between columns)
+       - Đánh dấu yêu thích board
+       - Rời khỏi board
+       - Không thể: sửa/xóa board, sửa/xóa column, mời thành viên
 
 5.2. **Quản lý Board**
-   - Tạo board mới
+   - Tạo board mới (chỉ Owner)
    - Hiển thị danh sách boards
    - Tìm kiếm và lọc boards
-   - Cập nhật thông tin board
-   - Xóa board
-   - Đánh dấu yêu thích
+   - Cập nhật thông tin board (chỉ Owner)
+   - Xóa board (chỉ Owner)
+   - Đánh dấu yêu thích (per-user, lưu trong User.favoriteBoardIds)
    - Quản lý thành viên board
-   - Cài đặt WIP (Work In Progress)
+     - Mời thành viên (chỉ Owner)
+     - Hiển thị thành viên online real-time
+     - Rời khỏi board (Member)
+   - Cài đặt WIP (Work In Progress - chỉ Owner)
    - Pagination
 
 5.3. **Quản lý Column**
-   - Tạo column mới
-   - Sắp xếp lại columns (Drag & Drop)
-   - Cập nhật thông tin column
-   - Xóa column
-   - Tùy chỉnh màu sắc column
+   - Tạo column mới (chỉ Owner)
+   - Sắp xếp lại columns (Drag & Drop - chỉ Owner)
+   - Cập nhật thông tin column (chỉ Owner)
+   - Xóa column (chỉ Owner)
+   - Tùy chỉnh màu sắc column (chỉ Owner)
    - Quản lý cards trong column
+   - Di chuyển cards (trong/between columns - Owner và Member)
+     - Member có thể cập nhật cardOrderIds khi di chuyển card
+     - Member không thể sửa/xóa column nhưng có thể di chuyển card
 
 5.4. **Quản lý Card**
    - Tạo card mới
@@ -363,6 +393,12 @@
    - **Sequence Diagram: Real-time update flow**
    - Real-time đã triển khai
      - Kiến trúc room: `board:{boardId}` (client join/leave theo board)
+     - **Users Online Tracking:**
+       - `FE_JOIN_BOARD`: client join board room với thông tin user
+       - `FE_LEAVE_BOARD`: client leave board room
+       - `BE_BOARD_USERS_ONLINE`: emit danh sách users đang online trong board
+       - Hook `useBoardOnlineUsers` để quản lý danh sách users online
+       - Hiển thị chỉ users đang online trong BoardActions
      - Sự kiện Board/Column
        - `BE_COLUMNS_REORDERED`: cập nhật thứ tự columns (columnOrderIds)
        - `BE_COLUMN_CREATED`: thêm column mới (kèm placeholder card)
@@ -370,6 +406,7 @@
        - `BE_COLUMN_DELETED`: xóa column và đồng bộ columnOrderIds
        - `BE_CARD_MOVED_IN_COLUMN`: sắp xếp thẻ trong cùng column (cardOrderIds)
        - `BE_CARD_MOVED_BETWEEN_COLUMNS`: di chuyển thẻ giữa các column (refetch board)
+       - `BE_MEMBER_LEFT_BOARD`: thông báo khi member rời khỏi board (chỉ Owner nhận)
      - Sự kiện Card
        - `BE_CARD_CREATED`: thêm thẻ mới (xóa placeholder nếu có)
        - `BE_CARD_UPDATED`: sửa thẻ (tiêu đề, mô tả, cover, thành viên, bình luận,...)
@@ -378,6 +415,7 @@
        - Hook `useRealtimeCardMove` lắng nghe events, cập nhật `activeBoard`
        - Tránh trùng lặp (kiểm tra tồn tại), giữ nguyên `cards/cardOrderIds` khi chỉ sửa thuộc tính column
        - Tự động đóng ActiveCard modal nếu thẻ/column đang mở bị xóa
+       - Hook `useBoardOnlineUsers` để track và hiển thị users online
 
 5.8. **UI/UX Features**
    - Dark mode/Light mode

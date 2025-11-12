@@ -38,6 +38,16 @@ export const deleteBoardAPI = async (boardId) => {
   return response.data
 }
 
+export const toggleFavoriteBoardAPI = async (boardId) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/boards/${boardId}/favorite`)
+  return response.data
+}
+
+export const leaveBoardAPI = async (boardId) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/boards/${boardId}/leave`)
+  return response.data
+}
+
 export const moveCardToDifferentColumnAPI = async (updateData) => {
   const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/boards/supports/moving_card`, updateData)
   // axios trả kết quả về property của nó là data

@@ -1,5 +1,5 @@
 import Joi from 'joi'
-import { EMAIL_RULE, EMAIL_RULE_MESSAGE } from '~/utils/validators'
+import { EMAIL_RULE, EMAIL_RULE_MESSAGE, OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 import { GET_DB } from '~/config/mongodb'
 import { ObjectId } from 'mongodb'
 
@@ -22,6 +22,8 @@ const USER_COLLECTION_SCHEMA = Joi.object({
 
   isActive: Joi.boolean().default(false),
   verifyToken: Joi.string(),
+
+  favoriteBoardIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
 
   createAt: Joi.date().timestamp('javascript').default(Date.now),
   updateAt: Joi.date().timestamp('javascript').default(null),
@@ -76,6 +78,36 @@ const update = async (userId, updateData) => {
   } catch (error) { throw new Error(error) }
 }
 
+const toggleFavoriteBoard = async (userId, boardId) => {
+  try {
+    const user = await findOneById(userId)
+    if (!user) {
+      throw new Error('User not found')
+    }
+
+    const favoriteBoardIds = (user.favoriteBoardIds || []).map(id => String(id))
+    const boardIdStr = String(boardId)
+    const isFavorite = favoriteBoardIds.includes(boardIdStr)
+
+    let updateOperation
+    if (isFavorite) {
+      // Xóa khỏi favorite
+      updateOperation = { $pull: { favoriteBoardIds: new ObjectId(boardId) } }
+    } else {
+      // Thêm vào favorite
+      updateOperation = { $addToSet: { favoriteBoardIds: new ObjectId(boardId) } }
+    }
+
+    const result = await GET_DB().collection(USER_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(String(userId)) },
+      updateOperation,
+      { returnDocument: 'after' }
+    )
+
+    return { isFavorite: !isFavorite, user: result }
+  } catch (error) { throw new Error(error) }
+}
+
 export const userModel = {
   USER_COLLECTION_NAME,
   USER_COLLECTION_SCHEMA,
@@ -83,5 +115,6 @@ export const userModel = {
   createNew,
   findOneById,
   findOneByEmail,
-  update
+  update,
+  toggleFavoriteBoard
 }

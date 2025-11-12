@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { ChevronLeft, ChevronRight, Search, Sparkles, ChevronUp, FolderOpen, Plus, Ellipsis, Pencil, Star, Trash2, Square, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Search, Sparkles, ChevronUp, FolderOpen, Plus, Ellipsis, Pencil, Star, Trash2, Square, X, LogOut } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import ProjectItem from '../Project/ProjectItem'
 import CreateProjectForm from '../Project/CreateProjectForm'
@@ -8,7 +8,7 @@ import { selectCurrentUser } from '~/redux/user/userSlice'
 import { updateCurrentActiveBoard, selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { Link, useNavigate } from 'react-router-dom'
 import { FORM_CREATE_PROJECT_WIDTH, FORM_CREATE_PROJECT_HEIGHT, OPTIONS_PROJECT_HEIGHT } from '~/utils/constants'
-import { fetchBoardsForSidebarAPI, updateBoardDetailsAPI, deleteBoardAPI } from '~/apis'
+import { fetchBoardsForSidebarAPI, updateBoardDetailsAPI, deleteBoardAPI, toggleFavoriteBoardAPI, leaveBoardAPI } from '~/apis'
 import ColorPickerPopup from '../Project/ColorPickerPopup'
 import FieldErrorAlert from '../UI/FieldErrorAlert'
 import { FIELD_REQUIRED_MESSAGE } from '~/utils/validators'
@@ -303,14 +303,25 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
     const currentBoard = boards.find(board => board._id === projectKey.id)
     if (!currentBoard) return
 
-    const updatedBoard = await updateBoardDetailsAPI(projectKey.id, { favorite: !currentBoard.favorite })
-    if (updatedBoard) {
-      setBoards(prevBoards =>
-        prevBoards.map(board =>
-          board._id === projectKey.id ? { ...board, favorite: !board.favorite } : board
+    try {
+      const result = await toggleFavoriteBoardAPI(projectKey.id)
+      if (result?.success) {
+        setBoards(prevBoards =>
+          prevBoards.map(board =>
+            board._id === projectKey.id ? { ...board, isFavorite: result.isFavorite } : board
+          )
         )
-      )
-      setShowOptionsProject(null)
+        
+        // Cập nhật activeBoard nếu board đang active
+        if (activeBoard?._id === projectKey.id) {
+          dispatch(updateCurrentActiveBoard({ ...activeBoard, isFavorite: result.isFavorite }))
+        }
+        
+        setShowOptionsProject(null)
+        toast.success(result.isFavorite ? 'Đã thêm vào yêu thích' : 'Đã xóa khỏi yêu thích')
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.error || 'Không thể cập nhật yêu thích')
     }
   }
 
@@ -465,6 +476,46 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
     }
   }
 
+  const handleLeaveBoard = async (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    const currentBoard = boards.find(board => board._id === showOptionsProject.id)
+    if (!currentBoard) return
+
+    const boardIdToLeave = showOptionsProject.id
+    const boardToLeave = currentBoard
+
+    // Đóng menu options trước
+    setShowOptionsProject(null)
+
+    const result = await confirm({
+      title: 'Rời khỏi Bảng',
+      message: `Bạn có chắc chắn muốn rời khỏi bảng "${boardToLeave.title}"?`,
+      modal: true
+    })
+
+    if (result) {
+      try {
+        const response = await leaveBoardAPI(boardIdToLeave)
+        if (response?.success) {
+          // Cập nhật state boards sau khi rời khỏi
+          setBoards(prevBoards => prevBoards.filter(board => board._id !== boardIdToLeave))
+
+          // Nếu board đang active thì clear active board và điều hướng về trang chủ
+          if (activeBoard._id === boardIdToLeave) {
+            dispatch(updateCurrentActiveBoard(null))
+            navigate('/')
+          }
+
+          toast.success(response?.message || 'Đã rời khỏi bảng thành công!')
+        }
+      } catch (error) {
+        toast.error(error?.response?.data?.error || 'Không thể rời khỏi bảng')
+      }
+    }
+  }
+
   return (
     <>
       {showInput &&
@@ -509,31 +560,55 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
           className="z-50 fixed bg-white dark:bg-gray-900 p-2 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 w-48 animate-fadeIn"
           style={{ top: optionProjectPosition?.top, left: optionProjectPosition?.left }} >
           <div className="flex flex-col gap-1.5">
-            <button
-              onClick={handleRenameClick}
-              className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 ease-in-out"
-            >
-              <Pencil className="w-4 h-4" />
-              <span>Đổi tên</span>
-            </button>
-            <button
-              onClick={(e) => handleFavoriteProject(e, showOptionsProject)}
-              className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 ease-in-out group" >
-              <Star className={`w-4 h-4 ${currentBoard?.favorite ? 'text-yellow-500 group-hover:text-gray-400' : 'text-gray-400 group-hover:text-yellow-500'}`} />
-              <span>{currentBoard?.favorite ? 'Bỏ đánh dấu' : 'Đánh dấu'}</span>
-            </button>
-            <button
-              onClick={handleColorPickerClick}
-              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 ease-in-out color-change-button ${showColorPicker ? 'bg-gray-100 dark:bg-gray-700' : ''}`} >
-              <span className={`w-4 h-4 rounded-sm ${currentBoard?.backgroundColor || 'bg-sky-200'}`}></span>
-              <span>Thay đổi màu nền</span>
-            </button>
-            <button
-              onClick={handleDeleteBoard}
-              className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 ease-in-out" >
-              <Trash2 className="w-4 h-4" />
-              <span>Xoá</span>
-            </button>
+            {/* Kiểm tra user có phải Owner không */}
+            {(() => {
+              const currentBoard = boards.find(board => board._id === showOptionsProject.id)
+              const isOwner = currentBoard?.ownerIds?.some(id => String(id) === String(currentUser?._id))
+              const isMember = currentBoard?.memberIds?.some(id => String(id) === String(currentUser?._id)) && !isOwner
+              return (
+                <>
+                  {isOwner && (
+                    <button
+                      onClick={handleRenameClick}
+                      className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 ease-in-out"
+                    >
+                      <Pencil className="w-4 h-4" />
+                      <span>Đổi tên</span>
+                    </button>
+                  )}
+                  <button
+                    onClick={(e) => handleFavoriteProject(e, showOptionsProject)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 ease-in-out group" >
+                    <Star className={`w-4 h-4 ${currentBoard?.isFavorite ? 'text-yellow-500 group-hover:text-gray-400' : 'text-gray-400 group-hover:text-yellow-500'}`} />
+                    <span>{currentBoard?.isFavorite ? 'Bỏ đánh dấu' : 'Đánh dấu'}</span>
+                  </button>
+                  {isOwner && (
+                    <>
+                      <button
+                        onClick={handleColorPickerClick}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 ease-in-out color-change-button ${showColorPicker ? 'bg-gray-100 dark:bg-gray-700' : ''}`} >
+                        <span className={`w-4 h-4 rounded-sm ${currentBoard?.backgroundColor || 'bg-sky-200'}`}></span>
+                        <span>Thay đổi màu nền</span>
+                      </button>
+                      <button
+                        onClick={handleDeleteBoard}
+                        className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 ease-in-out" >
+                        <Trash2 className="w-4 h-4" />
+                        <span>Xoá</span>
+                      </button>
+                    </>
+                  )}
+                  {isMember && (
+                    <button
+                      onClick={handleLeaveBoard}
+                      className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 ease-in-out" >
+                      <LogOut className="w-4 h-4" />
+                      <span>Rời khỏi</span>
+                    </button>
+                  )}
+                </>
+              )
+            })()}
           </div>
         </div>
       )}
@@ -609,7 +684,7 @@ const SideBar = ({ isOpen, toggleSidebar }) => {
               {toggleFavoriteProject &&
                 <div className="flex flex-col gap-2 w-full max-w-full animate-fadeIn">
                   {filteredBoards?.map((board) => (
-                    board.favorite && (
+                    board.isFavorite && (
                       <ProjectItem
                         key={`favorite-${board._id}`}
                         project={board}

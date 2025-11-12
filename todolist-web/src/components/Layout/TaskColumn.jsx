@@ -9,6 +9,7 @@ import { toast } from 'react-toastify'
 import { useDispatch, useSelector } from 'react-redux'
 import { updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { selectCurrentUser } from '~/redux/user/userSlice'
 import FieldErrorAlert from '../UI/FieldErrorAlert'
 import { FIELD_REQUIRED_MESSAGE } from '~/utils/validators'
 import FormCreateCard from '../Card/FormCreateCard'
@@ -19,7 +20,11 @@ const TaskColumn = ({ column, cursor }) => {
   const dispatch = useDispatch()
   const { confirm } = useConfirm()
   const activeBoard = useSelector(selectCurrentActiveBoard)
+  const currentUser = useSelector(selectCurrentUser)
   const [showMenu, setShowMenu] = useState(false)
+  
+  // Tính toán isOwner
+  const isOwner = activeBoard?.ownerIds?.map(id => String(id)).includes(String(currentUser?._id)) || false
   const [showColorPicker, setShowColorPicker] = useState(false)
   const [colorPickerPosition, setColorPickerPosition] = useState(null)
   const [showRenameModal, setShowRenameModal] = useState(false)
@@ -38,7 +43,8 @@ const TaskColumn = ({ column, cursor }) => {
     isDragging
   } = useSortable({
     id: column._id,
-    data: { ...column }
+    data: { ...column },
+    disabled: !isOwner // Vô hiệu hóa drag and drop cho member
   })
 
   const dndKitColumnStyles = {
@@ -301,18 +307,20 @@ const TaskColumn = ({ column, cursor }) => {
         <div className={`relative w-full h-full rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 overflow-hidden transition-all duration-300 hover:shadow-xl ${column?.bgColumn ? column.bgColumn : 'bg-sky-100 dark:bg-sky-900/20'}`}>
           {/* Column Title */}
           <div
-            {...listeners}
-            className={`flex items-center justify-between text-white text-sm md:text-base px-6 h-HEIGHT_COLUMN_TITLE font-semibold tracking-wide rounded-t-xl ${column?.bgTitleColumn ? column.bgTitleColumn : 'bg-sky-500 dark:bg-sky-600'} ${cursor || 'cursor-grab'} hover:opacity-95 transition duration-200`}
+            {...(isOwner ? listeners : {})}
+            className={`flex items-center justify-between text-white text-sm md:text-base px-6 h-HEIGHT_COLUMN_TITLE font-semibold tracking-wide rounded-t-xl ${column?.bgTitleColumn ? column.bgTitleColumn : 'bg-sky-500 dark:bg-sky-600'} ${isOwner ? (cursor || 'cursor-grab') : 'cursor-default'} hover:opacity-95 transition duration-200`}
           >
             <span className="truncate">{column?.title}</span>
             <div className="flex items-center gap-2">
-              <button
-                ref={ellipsisButtonRef}
-                data-no-dnd="true"
-                onClick={handleEllipsisClick}
-                className={`p-1 hover:bg-white/20 rounded-lg transition-colors cursor-pointer ${showMenu ? 'bg-white/20' : ''}`}>
-                <Ellipsis className="w-5 h-5" />
-              </button>
+              {isOwner && (
+                <button
+                  ref={ellipsisButtonRef}
+                  data-no-dnd="true"
+                  onClick={handleEllipsisClick}
+                  className={`p-1 hover:bg-white/20 rounded-lg transition-colors cursor-pointer ${showMenu ? 'bg-white/20' : ''}`}>
+                  <Ellipsis className="w-5 h-5" />
+                </button>
+              )}
 
               <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
                 {activeBoard?.wipEnabled ?
@@ -384,27 +392,31 @@ const TaskColumn = ({ column, cursor }) => {
                 <Plus className="w-4 h-4" />
                 <span>Thêm thẻ</span>
               </button>
-              <button
-                onClick={handleRenameClick}
-                className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 ease-in-out"
-              >
-                <Pencil className="w-4 h-4" />
-                <span>Đổi tên</span>
-              </button>
-              <button
-                onClick={handleColorPickerClick}
-                className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 ease-in-out color-change-button ${showColorPicker ? 'bg-gray-100 dark:bg-gray-800' : ''}`}
-              >
-                <span className={`w-4 h-4 rounded-sm ${column?.bgTitleColumn || 'bg-sky-500 dark:bg-sky-600'}`}></span>
-                <span>Thay đổi màu nền</span>
-              </button>
-              <button
-                onClick={handleDeleteColumn}
-                className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 ease-in-out"
-              >
-                <Trash2 className="w-4 h-4" />
-                <span>Xoá</span>
-              </button>
+              {isOwner && (
+                <>
+                  <button
+                    onClick={handleRenameClick}
+                    className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 ease-in-out"
+                  >
+                    <Pencil className="w-4 h-4" />
+                    <span>Đổi tên</span>
+                  </button>
+                  <button
+                    onClick={handleColorPickerClick}
+                    className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 ease-in-out color-change-button ${showColorPicker ? 'bg-gray-100 dark:bg-gray-800' : ''}`}
+                  >
+                    <span className={`w-4 h-4 rounded-sm ${column?.bgTitleColumn || 'bg-sky-500 dark:bg-sky-600'}`}></span>
+                    <span>Thay đổi màu nền</span>
+                  </button>
+                  <button
+                    onClick={handleDeleteColumn}
+                    className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 ease-in-out"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span>Xoá</span>
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

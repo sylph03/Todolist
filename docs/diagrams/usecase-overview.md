@@ -5,10 +5,10 @@ Sơ đồ khái quát tác nhân và các ca sử dụng chính của hệ thố
 ```mermaid
 flowchart TB
   %% Actors
-  actorGuest([Khách (Chưa đăng nhập)])
-  actorUser([Người dùng đã đăng nhập])
-  actorOwner([Chủ board (Owner)])
-  actorMember([Thành viên (Member)])
+  actorGuest("Khách (Chưa đăng nhập)")
+  actorUser("Người dùng đã đăng nhập")
+  actorOwner("Chủ board (Owner)")
+  actorMember("Thành viên (Member)")
 
   %% System boundary
   subgraph System[Hệ thống Quản lý Công việc Kanban]
@@ -27,12 +27,14 @@ flowchart TB
 
     %% Board management
     UC_CreateBoard(("Tạo / Sửa / Xóa Board"))
-    UC_Invite(("Mời/Quản lý thành viên Board"))
+    UC_Invite(("Mời thành viên Board"))
     UC_BoardWIP(("Cấu hình WIP & Tùy chọn Board"))
+    UC_LeaveBoard(("Rời khỏi Board"))
 
     %% Columns & Cards
     UC_ManageColumns(("Tạo / Sắp xếp / Sửa / Xóa Cột"))
-    UC_ManageCards(("Tạo / Sửa / Xóa / Di chuyển Thẻ"))
+    UC_MoveCards(("Di chuyển Thẻ (trong/between columns)"))
+    UC_ManageCards(("Tạo / Sửa / Xóa Thẻ"))
     UC_CardDetails(("Chi tiết Thẻ (Markdown, cover, thành viên, hạn)"))
 
     %% Calendar & Events
@@ -43,6 +45,7 @@ flowchart TB
     UC_AISuggest(("AI gợi ý nhiệm vụ"))
     UC_Notifications(("Thông báo real-time"))
     UC_Realtime(("Cập nhật real-time (Socket.IO)"))
+    UC_OnlineUsers(("Hiển thị thành viên online"))
   end
 
   %% Associations - Guest
@@ -67,13 +70,17 @@ flowchart TB
   actorOwner --> UC_BoardWIP
   actorOwner --> UC_ManageColumns
   actorOwner --> UC_ManageCards
+  actorOwner --> UC_MoveCards
   actorOwner --> UC_CardDetails
   actorOwner --> UC_ManageEvents
 
-  %% Member permissions
+  %% Member permissions (hạn chế hơn Owner)
   actorMember --> UC_ViewBoards
+  actorMember --> UC_Starred
+  actorMember --> UC_MoveCards
   actorMember --> UC_ManageCards
   actorMember --> UC_CardDetails
+  actorMember --> UC_LeaveBoard
   actorMember --> UC_Calendar
   actorMember --> UC_Notifications
   actorMember --> UC_AISuggest
@@ -83,7 +90,10 @@ flowchart TB
   UC_Invite --> UC_Realtime
   UC_ManageColumns --> UC_Realtime
   UC_ManageCards --> UC_Realtime
+  UC_MoveCards --> UC_Realtime
   UC_ManageEvents --> UC_Realtime
+  UC_LeaveBoard --> UC_Realtime
+  UC_Realtime --> UC_OnlineUsers
   UC_AISuggest -.-> UC_ManageCards
   UC_Calendar -.-> UC_ManageEvents
 ```

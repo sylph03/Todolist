@@ -61,15 +61,52 @@ const Notification = () => {
       }
     }
 
+    // Tạo function xử lý khi member rời khỏi board
+    const onMemberLeftBoard = (data) => {
+      // Chỉ owner mới nhận notification
+      const ownerIds = (data.ownerIds || []).map(id => String(id))
+      const currentUserIdStr = String(currentUser?._id)
+      
+      if (!ownerIds.includes(currentUserIdStr)) {
+        return // Không phải owner, bỏ qua
+      }
+      
+      // Tạo notification object tương tự invitation format
+      const notification = {
+        _id: `member_left_${data.leavingUserId}_${Date.now()}`,
+        type: 'MEMBER_LEFT_BOARD',
+        inviter: data.leavingUser, // User đã rời khỏi
+        invitee: currentUser, // Owner nhận thông báo
+        board: {
+          _id: data.boardId,
+          title: data.boardTitle
+        },
+        boardInvitation: {
+          boardId: data.boardId,
+          status: 'MEMBER_LEFT' // Status đặc biệt cho member left
+        },
+        createdAt: new Date().toISOString(),
+        message: data.message
+      }
+      
+      // Thêm notification vào redux
+      dispatch(addNotification(notification))
+      // Cập nhật trạng thái đang có thông báo đến
+      setNewNotification(true)
+    }
+
     // Lắng nghe sự kiện real-time có tên là: BE_USER_INVITED_TO_BOARD từ server gửi về
     socketIoInstance.on('BE_USER_INVITED_TO_BOARD', onReceiveNewInvitation)
+    // Lắng nghe sự kiện khi member rời khỏi board
+    socketIoInstance.on('BE_MEMBER_LEFT_BOARD', onMemberLeftBoard)
 
     // Clean Up sự kiện để ngăn chặn việc bị đăng ký lặp lại sự kiện
     return () => {
       socketIoInstance.off('BE_USER_INVITED_TO_BOARD', onReceiveNewInvitation)
+      socketIoInstance.off('BE_MEMBER_LEFT_BOARD', onMemberLeftBoard)
     }
 
-  }, [dispatch, currentUser._id])
+  }, [dispatch, currentUser])
 
   const updateBoardInvitation = (status, invitationId) => {
     dispatch(updateBoardInvitationAPI({ status, invitationId }))
@@ -124,64 +161,85 @@ const Notification = () => {
               </div>
             ) : (
               <div className="p-4 space-y-3">
-                {notifications?.map((notification, index) => (
-                  <div
-                    key={index}
-                    className="p-4 bg-white dark:bg-gray-700/50 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-gray-600/50"
-                  >
-                    <div className="flex flex-col space-y-3">
-                      <div className="flex items-start gap-4">
-                        <div className="mt-1 p-2.5 bg-sky-50 dark:bg-sky-900/20 rounded-lg ring-1 ring-sky-100 dark:ring-sky-800/30">
-                          <UserPlus className="size-5 text-sky-500 dark:text-sky-400" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="leading-relaxed text-[15px] text-gray-700 dark:text-gray-200 break-words">
-                            <strong className="text-sky-600 dark:text-sky-400">{notification.inviter.displayName}</strong> đã mời bạn tham gia bảng <strong className="text-sky-600 dark:text-sky-400">{notification.board.title}</strong>
-                          </p>
-                          <div className="mt-1.5 text-xs text-gray-400 dark:text-gray-500">
-                            {moment(notification.createdAt).format('llll')}
+                {notifications?.map((notification, index) => {
+                  // Kiểm tra xem có phải notification member left không
+                  const isMemberLeft = notification.type === 'MEMBER_LEFT_BOARD' || notification.boardInvitation?.status === 'MEMBER_LEFT'
+                  
+                  return (
+                    <div
+                      key={notification._id || index}
+                      className="p-4 bg-white dark:bg-gray-700/50 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-gray-600/50"
+                    >
+                      <div className="flex flex-col space-y-3">
+                        <div className="flex items-start gap-4">
+                          <div className={`mt-1 p-2.5 rounded-lg ring-1 ${
+                            isMemberLeft 
+                              ? 'bg-orange-50 dark:bg-orange-900/20 ring-orange-100 dark:ring-orange-800/30' 
+                              : 'bg-sky-50 dark:bg-sky-900/20 ring-sky-100 dark:ring-sky-800/30'
+                          }`}>
+                            {isMemberLeft ? (
+                              <XCircle className="size-5 text-orange-500 dark:text-orange-400" />
+                            ) : (
+                              <UserPlus className="size-5 text-sky-500 dark:text-sky-400" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="leading-relaxed text-[15px] text-gray-700 dark:text-gray-200 break-words">
+                              {isMemberLeft ? (
+                                <>
+                                  <strong className="text-orange-600 dark:text-orange-400">{notification.inviter?.displayName || notification.inviter?.username}</strong> đã rời khỏi bảng <strong className="text-orange-600 dark:text-orange-400">{notification.board?.title}</strong>
+                                </>
+                              ) : (
+                                <>
+                                  <strong className="text-sky-600 dark:text-sky-400">{notification.inviter?.displayName}</strong> đã mời bạn tham gia bảng <strong className="text-sky-600 dark:text-sky-400">{notification.board?.title}</strong>
+                                </>
+                              )}
+                            </p>
+                            <div className="mt-1.5 text-xs text-gray-400 dark:text-gray-500">
+                              {moment(notification.createdAt).format('llll')}
+                            </div>
                           </div>
                         </div>
+
+                        {!isMemberLeft && notification.boardInvitation?.status === BOARD_INVITATION_STATUS.PENDING && (
+                          <div className="flex justify-center gap-3 mt-2">
+                            <button
+                              onClick={() => updateBoardInvitation(BOARD_INVITATION_STATUS.ACCEPTED, notification._id)}
+                              className="interceptor-loading flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-sky-500 hover:bg-sky-600 dark:bg-sky-600 dark:hover:bg-sky-700 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+                            >
+                              <Check className="size-4" />
+                              Chấp nhận
+                            </button>
+                            <button
+                              onClick={() => updateBoardInvitation(BOARD_INVITATION_STATUS.REJECTED, notification._id)}
+                              className="interceptor-loading flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-slate-500 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-700 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-slate-500 dark:focus:ring-slate-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+                            >
+                              <X className="size-4" />
+                              Từ chối
+                            </button>
+                          </div>
+                        )}
+
+                        {!isMemberLeft && notification.boardInvitation?.status === BOARD_INVITATION_STATUS.ACCEPTED && (
+                          <div className="mt-2 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg ring-1 ring-emerald-100 dark:ring-emerald-800/30">
+                            <p className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
+                              <CheckCircle2 className="size-4" />
+                              Bạn đã chấp nhận lời mời tham gia bảng <strong>{notification.board?.title}</strong>
+                            </p>
+                          </div>
+                        )}
+                        {!isMemberLeft && notification.boardInvitation?.status === BOARD_INVITATION_STATUS.REJECTED && (
+                          <div className="mt-2 p-3 bg-rose-50 dark:bg-rose-900/20 rounded-lg ring-1 ring-rose-100 dark:ring-rose-800/30">
+                            <p className="flex items-center gap-2 text-sm text-rose-600 dark:text-rose-400">
+                              <XCircle className="size-4" />
+                              Bạn đã từ chối lời mời tham gia bảng <strong>{notification.board?.title}</strong>
+                            </p>
+                          </div>
+                        )}
                       </div>
-
-                      {notification.boardInvitation.status === BOARD_INVITATION_STATUS.PENDING && (
-                        <div className="flex justify-center gap-3 mt-2">
-                          <button
-                            onClick={() => updateBoardInvitation(BOARD_INVITATION_STATUS.ACCEPTED, notification._id)}
-                            className="interceptor-loading flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-sky-500 hover:bg-sky-600 dark:bg-sky-600 dark:hover:bg-sky-700 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-sky-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
-                          >
-                            <Check className="size-4" />
-                            Chấp nhận
-                          </button>
-                          <button
-                            onClick={() => updateBoardInvitation(BOARD_INVITATION_STATUS.REJECTED, notification._id)}
-                            className="interceptor-loading flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-slate-500 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-700 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-slate-500 dark:focus:ring-slate-400 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
-                          >
-                            <X className="size-4" />
-                            Từ chối
-                          </button>
-                        </div>
-                      )}
-
-                      {notification.boardInvitation.status === BOARD_INVITATION_STATUS.ACCEPTED && (
-                        <div className="mt-2 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg ring-1 ring-emerald-100 dark:ring-emerald-800/30">
-                          <p className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
-                            <CheckCircle2 className="size-4" />
-                            Bạn đã chấp nhận lời mời tham gia bảng <strong>{notification.board.title}</strong>
-                          </p>
-                        </div>
-                      )}
-                      {notification.boardInvitation.status === BOARD_INVITATION_STATUS.REJECTED && (
-                        <div className="mt-2 p-3 bg-rose-50 dark:bg-rose-900/20 rounded-lg ring-1 ring-rose-100 dark:ring-rose-800/30">
-                          <p className="flex items-center gap-2 text-sm text-rose-600 dark:text-rose-400">
-                            <XCircle className="size-4" />
-                            Bạn đã từ chối lời mời tham gia bảng <strong>{notification.board.title}</strong>
-                          </p>
-                        </div>
-                      )}
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>

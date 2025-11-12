@@ -47,6 +47,9 @@ const createNew = async (userId, reqBody) => {
     }
 
     const getNewBoard = await boardModel.findOneById(boardId)
+    
+    // Thêm isFavorite = false cho board mới tạo
+    getNewBoard.isFavorite = false
 
     // Trả kết quả về, trong Service luôn phải có return
     return getNewBoard
@@ -62,11 +65,19 @@ const getDetails = async (userId, boardId) => {
       throw new ApiError(StatusCodes.NOT_FOUND, 'Không tìm thấy bảng!')
     }
 
+    // Lấy favoriteBoardIds từ user
+    const { userModel } = await import('~/models/userModel')
+    const user = await userModel.findOneById(userId)
+    const favoriteBoardIds = (user?.favoriteBoardIds || []).map(id => String(id))
+
     const resBoard = cloneDeep(board)
     resBoard.columns.forEach(column => {
       column.cards = resBoard.cards.filter(card => card.columnId.equals(column._id))
     })
     delete resBoard.cards
+
+    // Thêm isFavorite
+    resBoard.isFavorite = favoriteBoardIds.includes(String(boardId))
 
     return resBoard
   } catch (error) { throw error }

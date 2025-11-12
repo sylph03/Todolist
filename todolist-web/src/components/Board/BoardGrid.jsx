@@ -18,7 +18,7 @@ const BoardGrid = ({
           className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer transform hover:-translate-y-0.5 border border-gray-100 dark:border-gray-700"
         >
           <div className={`h-16 sm:h-22 ${board?.backgroundColor || 'bg-sky-200'} relative`}>
-            {board?.favorite && (
+            {board?.isFavorite && (
               <button className="absolute top-2 sm:top-3 right-2 sm:right-3 p-1.5 sm:p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-all duration-200">
                 <Star className="w-4 h-4 sm:w-5 sm:h-5 text-white fill-current" />
               </button>

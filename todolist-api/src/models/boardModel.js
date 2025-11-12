@@ -15,7 +15,6 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
   columnOrderIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
   ownerIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
   memberIds: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).default([]),
-  favorite: Joi.boolean().default(false),
   backgroundColor: Joi.string().default('bg-sky-200'),
 
   // WIP Settings
@@ -178,6 +177,10 @@ const getBoards = async (userId, page, itemsPerPage, queryFilters) => {
       })
     }
 
+    // Lấy favoriteBoardIds từ user
+    const user = await userModel.findOneById(userId)
+    const favoriteBoardIds = (user?.favoriteBoardIds || []).map(id => String(id))
+
     const query = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate(
       [
         { $match: { $and: queryConditions } },
@@ -200,9 +203,16 @@ const getBoards = async (userId, page, itemsPerPage, queryFilters) => {
     ).toArray()
 
     const res = query[0]
+    const boards = res.queryBoards || []
+
+    // Thêm isFavorite cho mỗi board
+    const boardsWithFavorite = boards.map(board => ({
+      ...board,
+      isFavorite: favoriteBoardIds.includes(String(board._id))
+    }))
 
     return {
-      boards: res.queryBoards || [],
+      boards: boardsWithFavorite,
       totalBoards: res.queryTotalBoards[0]?.countedAllBoards || 0
     }
 
@@ -221,6 +231,10 @@ const getBoardsForSidebar = async (userId) => {
       ] }
     ]
 
+    // Lấy favoriteBoardIds từ user
+    const user = await userModel.findOneById(userId)
+    const favoriteBoardIds = (user?.favoriteBoardIds || []).map(id => String(id))
+
     // Query để lấy tất cả boards với các trường cần thiết cho sidebar
     const boards = await GET_DB().collection(BOARD_COLLECTION_NAME)
       .find({ $and: queryConditions })
@@ -229,15 +243,22 @@ const getBoardsForSidebar = async (userId) => {
         title: 1,
         description: 1,
         backgroundColor: 1,
-        favorite: 1,
+        ownerIds: 1,
+        memberIds: 1,
         slug: 1
       })
       .sort({ createdAt: 1 }) //  mới nhất xuống dưới
       .toArray()
 
+    // Thêm isFavorite cho mỗi board
+    const boardsWithFavorite = boards.map(board => ({
+      ...board,
+      isFavorite: favoriteBoardIds.includes(String(board._id))
+    }))
+
     return {
-      boards,
-      totalBoards: boards.length
+      boards: boardsWithFavorite,
+      totalBoards: boardsWithFavorite.length
     }
   } catch (error) { throw new Error(error) }
 }
@@ -248,6 +269,19 @@ const pushMemberIds = async (boardId, userId) => {
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(String(boardId)) },
       { $push: { memberIds: new ObjectId(String(userId)) } },
+      { returnDocument: 'after' } // Lấy bản ghi sau khi cập nhật
+    )
+
+    return result
+  } catch (error) { throw new Error(error) }
+}
+
+// Xóa userId khỏi mảng memberIds (member rời khỏi board)
+const pullMemberIds = async (boardId, userId) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(String(boardId)) },
+      { $pull: { memberIds: new ObjectId(String(userId)) } },
       { returnDocument: 'after' } // Lấy bản ghi sau khi cập nhật
     )
 
@@ -290,6 +324,7 @@ export const boardModel = {
   getBoards,
   getBoardsForSidebar,
   pushMemberIds,
+  pullMemberIds,
   deleteOneById,
   updateLastAccessed
 }

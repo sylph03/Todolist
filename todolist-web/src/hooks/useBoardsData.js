@@ -61,7 +61,7 @@ export const useBoardsData = () => {
     setFilteredBoards(boardsData)
     
     // Lọc các board đã được đánh dấu
-    const starred = boardsData.filter(board => board.favorite)
+    const starred = boardsData.filter(board => board.isFavorite)
     setStarredBoards(starred)
   }, [])
 
