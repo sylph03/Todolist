@@ -14,6 +14,7 @@ import BoardGrid from '~/components/Board/BoardGrid'
 import CalendarView from '~/components/Calendar/CalendarView'
 import { useBoardsData } from '~/hooks/useBoardsData'
 import { useBoardAccess } from '~/hooks/useBoardAccess'
+import { socketIoInstance } from '~/socketClient'
 
 const Boards = () => {
   const [showInput, setShowInput] = useState(false)
@@ -48,6 +49,37 @@ const Boards = () => {
   const affterCreatedNewBoard = () => {
     fetchBoardsAPI(location.search).then(updateStateData)
   }
+
+  // Lắng nghe realtime events để cập nhật danh sách boards
+  useEffect(() => {
+    if (!socketIoInstance) return
+
+    // Handler khi board được cập nhật
+    const handleBoardUpdated = (data) => {
+      if (boards) {
+        // Refetch boards để cập nhật danh sách
+        fetchBoardsAPI(location.search).then(updateStateData)
+      }
+    }
+
+    // Handler khi board bị xóa
+    const handleBoardDeleted = (data) => {
+      if (boards) {
+        // Refetch boards để cập nhật danh sách
+        fetchBoardsAPI(location.search).then(updateStateData)
+      }
+    }
+
+    // Đăng ký listeners
+    socketIoInstance.on('BE_BOARD_UPDATED', handleBoardUpdated)
+    socketIoInstance.on('BE_BOARD_DELETED', handleBoardDeleted)
+
+    // Cleanup
+    return () => {
+      socketIoInstance.off('BE_BOARD_UPDATED', handleBoardUpdated)
+      socketIoInstance.off('BE_BOARD_DELETED', handleBoardDeleted)
+    }
+  }, [boards, location.search, updateStateData])
 
   // Tách riêng logic tính toán vị trí form
   const calculateFormPosition = () => {

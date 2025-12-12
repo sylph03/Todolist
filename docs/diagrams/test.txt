@@ -1,0 +1,607 @@
+#### 3.1.2. Mô tả Use Case chi tiết
+
+**3.1.2.1. Nhóm Authentication**
+
+**UC_Auth: Đăng ký / Đăng nhập**
+
+**Mô tả:** Người dùng chưa đăng nhập có thể đăng ký tài khoản mới hoặc đăng nhập vào hệ thống bằng email và mật khẩu.
+
+**Actor:** Khách (Guest)
+
+**Luồng chính:**
+1. Người dùng truy cập trang đăng ký/đăng nhập
+2. Nhập thông tin (email, mật khẩu, username, displayName cho đăng ký)
+3. Hệ thống xác thực thông tin và kiểm tra email đã tồn tại chưa
+4. Tạo tài khoản mới (nếu đăng ký) hoặc xác thực đăng nhập
+5. Gửi email xác thực (nếu đăng ký mới)
+6. Cấp JWT access token và refresh token cho người dùng
+7. Lưu token vào cookie
+8. Chuyển hướng đến trang chủ
+
+**Luồng mở rộng:**
+- UC_Verify: Sau khi đăng ký, người dùng nhận email xác thực và có thể xác thực tài khoản
+- UC_Refresh: Khi token hết hạn, người dùng có thể làm mới token
+- UC_SignOut: Người dùng có thể đăng xuất khỏi hệ thống
+
+**Điều kiện tiên quyết:** Người dùng chưa đăng nhập
+
+**Kết quả:** Người dùng đã đăng nhập thành công, có quyền truy cập các chức năng của Authenticated User
+
+---
+
+**UC_Verify: Xác thực Email**
+
+**Mô tả:** Người dùng xác thực tài khoản bằng token được gửi qua email sau khi đăng ký.
+
+**Actor:** Khách (Guest)
+
+**Luồng chính:**
+1. Người dùng nhận email xác thực sau khi đăng ký
+2. Click vào link xác thực trong email (chứa verifyToken)
+3. Hệ thống kiểm tra token hợp lệ
+4. Cập nhật trạng thái `isActive: true` cho tài khoản
+5. Thông báo xác thực thành công
+
+**Luồng mở rộng:** Extend UC_Auth (tùy chọn)
+
+**Điều kiện tiên quyết:** Người dùng đã đăng ký nhưng chưa xác thực email
+
+**Kết quả:** Tài khoản được kích hoạt, người dùng có thể sử dụng đầy đủ chức năng
+
+---
+
+**UC_Refresh: Làm mới Token**
+
+**Mô tả:** Người dùng làm mới JWT access token khi token hết hạn mà không cần đăng nhập lại.
+
+**Actor:** Người dùng đã đăng nhập (Authenticated User)
+
+**Luồng chính:**
+1. Hệ thống phát hiện access token hết hạn
+2. Tự động gửi refresh token lên server
+3. Server kiểm tra refresh token hợp lệ
+4. Cấp access token mới
+5. Lưu token mới vào cookie
+6. Tiếp tục thực hiện request ban đầu
+
+**Luồng mở rộng:** Extend UC_Auth (tùy chọn)
+
+**Điều kiện tiên quyết:** Người dùng đã đăng nhập và có refresh token hợp lệ
+
+**Kết quả:** Access token được làm mới, người dùng tiếp tục sử dụng hệ thống
+
+---
+
+**UC_SignOut: Đăng xuất**
+
+**Mô tả:** Người dùng đăng xuất khỏi hệ thống, vô hiệu hóa token hiện tại.
+
+**Actor:** Người dùng đã đăng nhập (Authenticated User)
+
+**Luồng chính:**
+1. Người dùng click nút đăng xuất
+2. Hệ thống xóa access token và refresh token khỏi cookie
+3. Xóa thông tin user khỏi Redux state
+4. Chuyển hướng đến trang đăng nhập
+
+**Luồng mở rộng:** Extend UC_Auth (tùy chọn)
+
+**Điều kiện tiên quyết:** Người dùng đã đăng nhập
+
+**Kết quả:** Người dùng đã đăng xuất, không thể truy cập các chức năng yêu cầu đăng nhập
+
+---
+
+**3.1.2.2. Nhóm Boards & Global**
+
+**UC_ViewBoards: Xem danh sách Boards**
+
+**Mô tả:** Người dùng xem danh sách tất cả boards mà mình là Owner hoặc Member.
+
+**Actor:** Người dùng đã đăng nhập (Authenticated User), Owner, Member
+
+**Luồng chính:**
+1. Người dùng truy cập trang `/boards`
+2. Hệ thống lấy danh sách boards từ API (chỉ boards mà user là owner hoặc member)
+3. Hiển thị danh sách boards dạng grid với pagination
+4. Mỗi board hiển thị: title, description, màu sắc, trạng thái yêu thích
+5. Người dùng click vào board để truy cập chi tiết
+
+**Điều kiện tiên quyết:** Người dùng đã đăng nhập
+
+**Kết quả:** Danh sách boards được hiển thị, người dùng có thể truy cập board
+
+---
+
+**UC_Recent: Xem gần đây**
+
+**Mô tả:** Người dùng xem danh sách boards được truy cập gần đây nhất.
+
+**Actor:** Người dùng đã đăng nhập (Authenticated User), Owner, Member
+
+**Luồng chính:**
+1. Người dùng truy cập tab "Gần đây" (`/boards/recent`)
+2. Hệ thống lọc boards có `lastAccessedAt` từ danh sách boards
+3. Sắp xếp theo `lastAccessedAt` giảm dần (mới nhất trước)
+4. Hiển thị tối đa 10 boards gần đây nhất
+5. Người dùng click vào board để truy cập
+
+**Điều kiện tiên quyết:** Người dùng đã đăng nhập và đã truy cập ít nhất một board
+
+**Kết quả:** Danh sách boards gần đây được hiển thị
+
+---
+
+**UC_Starred: Đánh dấu Yêu thích**
+
+**Mô tả:** Người dùng đánh dấu yêu thích board để dễ dàng truy cập sau này.
+
+**Actor:** Người dùng đã đăng nhập (Authenticated User), Owner, Member
+
+**Luồng chính:**
+1. Người dùng click icon yêu thích trên board card
+2. Hệ thống gọi API để toggle trạng thái yêu thích
+3. Cập nhật `favoriteBoardIds` trong User model
+4. Cập nhật UI để hiển thị trạng thái yêu thích
+5. Người dùng có thể xem danh sách boards yêu thích ở tab "Yêu thích" (`/boards/starred`)
+
+**Điều kiện tiên quyết:** Người dùng đã đăng nhập và có quyền truy cập board
+
+**Kết quả:** Board được đánh dấu/bỏ đánh dấu yêu thích, danh sách yêu thích được cập nhật
+
+---
+
+**UC_Search: Tìm kiếm & Lọc**
+
+**Mô tả:** Người dùng tìm kiếm boards và cards trong hệ thống.
+
+**Actor:** Người dùng đã đăng nhập (Authenticated User), Owner, Member
+
+**Luồng chính (Tìm kiếm Boards):**
+1. Người dùng nhập từ khóa vào ô tìm kiếm ở trang `/boards`
+2. Hệ thống debounce 500ms trước khi gọi API
+3. Gọi API với query `q[title]=keyword`
+4. Server tìm kiếm boards theo title (regex, không phân biệt hoa thường)
+5. Hiển thị kết quả tìm kiếm
+
+**Luồng chính (Tìm kiếm Cards):**
+1. Người dùng nhập từ khóa vào ô tìm kiếm global (AppBar)
+2. Hệ thống debounce 500ms trước khi gọi API
+3. Gọi API với query `q[title]=keyword`
+4. Server tìm kiếm cards trong các boards mà user có quyền truy cập
+5. Hiển thị dropdown kết quả tìm kiếm
+6. Người dùng click vào card để mở chi tiết và navigate đến board
+
+**Điều kiện tiên quyết:** Người dùng đã đăng nhập
+
+**Kết quả:** Kết quả tìm kiếm được hiển thị, người dùng có thể truy cập board/card tìm được
+
+---
+
+**UC_Settings: Cài đặt tài khoản & bảo mật**
+
+**Mô tả:** Người dùng cập nhật thông tin tài khoản và cài đặt bảo mật.
+
+**Actor:** Người dùng đã đăng nhập (Authenticated User), Owner, Member
+
+**Luồng chính (Cài đặt tài khoản):**
+1. Người dùng truy cập trang Settings (`/settings/account`)
+2. Xem thông tin hiện tại: email, username, displayName, avatar
+3. Chỉnh sửa displayName
+4. Upload avatar mới (tùy chọn)
+5. Lưu thay đổi
+6. Hệ thống cập nhật thông tin trong database và Redux state
+
+**Luồng chính (Bảo mật):**
+1. Người dùng truy cập tab "Bảo mật" (`/settings/security`)
+2. Nhập mật khẩu hiện tại
+3. Nhập mật khẩu mới và xác nhận
+4. Hệ thống kiểm tra mật khẩu hiện tại đúng
+5. Hash mật khẩu mới bằng bcrypt
+6. Cập nhật mật khẩu trong database
+
+**Điều kiện tiên quyết:** Người dùng đã đăng nhập
+
+**Kết quả:** Thông tin tài khoản hoặc mật khẩu được cập nhật thành công
+
+---
+
+**UC_Notifications: Thông báo real-time**
+
+**Mô tả:** Người dùng nhận và quản lý thông báo real-time về lời mời board và các sự kiện khác.
+
+**Actor:** Người dùng đã đăng nhập (Authenticated User), Owner, Member
+
+**Luồng chính:**
+1. Người dùng click icon thông báo (bell) trên AppBar
+2. Hệ thống fetch danh sách invitations từ API
+3. Hiển thị dropdown danh sách thông báo
+4. Lắng nghe real-time events:
+   - `BE_USER_INVITED_TO_BOARD`: Nhận thông báo khi được mời vào board
+   - `BE_MEMBER_LEFT_BOARD`: Owner nhận thông báo khi member rời board
+5. Hiển thị badge đỏ khi có thông báo mới
+6. Người dùng có thể chấp nhận/từ chối lời mời board
+7. Nếu chấp nhận, tự động navigate đến board đó
+
+**Điều kiện tiên quyết:** Người dùng đã đăng nhập
+
+**Kết quả:** Người dùng nhận và quản lý thông báo real-time
+
+---
+
+**3.1.2.3. Nhóm Board Management**
+
+**UC_CreateBoard: Tạo / Sửa / Xóa Board**
+
+**Mô tả:** Owner tạo board mới, cập nhật thông tin board, hoặc xóa board.
+
+**Actor:** Owner
+
+**Luồng chính (Tạo Board):**
+1. Owner click nút "Tạo board mới"
+2. Nhập thông tin: title, description, màu sắc (backgroundColor)
+3. Hệ thống tạo board mới với `ownerIds` chứa userId của Owner
+4. Emit real-time event `BE_BOARD_CREATED` (include UC_Realtime)
+5. Chuyển hướng đến board vừa tạo
+
+**Luồng chính (Sửa Board):**
+1. Owner mở modal cài đặt board
+2. Cập nhật thông tin: title, description, màu sắc
+3. Hệ thống cập nhật board trong database
+4. Emit real-time event `BE_BOARD_UPDATED` (include UC_Realtime)
+5. Tất cả thành viên nhận cập nhật real-time
+
+**Luồng chính (Xóa Board):**
+1. Owner click nút xóa board
+2. Xác nhận hành động xóa
+3. Hệ thống đánh dấu `_destroy: true` (soft delete)
+4. Xóa tất cả columns và cards liên quan
+5. Emit real-time event `BE_BOARD_DELETED` (include UC_Realtime)
+6. Tất cả thành viên bị redirect về `/boards`
+
+**Use Cases liên quan:** Include UC_Realtime
+
+**Điều kiện tiên quyết:** Người dùng là Owner của board
+
+**Kết quả:** Board được tạo/sửa/xóa thành công, tất cả thay đổi được đồng bộ real-time
+
+---
+
+**UC_Invite: Mời thành viên Board**
+
+**Mô tả:** Owner mời người dùng khác vào board bằng email.
+
+**Actor:** Owner
+
+**Luồng chính:**
+1. Owner mở modal mời thành viên
+2. Nhập email của người được mời
+3. Hệ thống kiểm tra email tồn tại trong hệ thống
+4. Tạo invitation record với status `PENDING`
+5. Emit real-time event `BE_USER_INVITED_TO_BOARD` (include UC_Realtime)
+6. Người được mời nhận thông báo real-time
+7. Người được mời có thể chấp nhận/từ chối lời mời
+8. Nếu chấp nhận, userId được thêm vào `memberIds` của board
+
+**Use Cases liên quan:** Include UC_Realtime, UC_Notifications
+
+**Điều kiện tiên quyết:** Người dùng là Owner của board
+
+**Kết quả:** Lời mời được gửi, người được mời nhận thông báo và có thể tham gia board
+
+---
+
+**UC_BoardWIP: Cấu hình WIP & Tùy chọn Board**
+
+**Mô tả:** Owner cấu hình WIP (Work In Progress) limit và các tùy chọn board.
+
+**Actor:** Owner
+
+**Luồng chính:**
+1. Owner mở modal cấu hình WIP
+2. Bật/tắt WIP limit cho board
+3. Nhập số lượng card tối đa cho mỗi column (nếu bật WIP)
+4. Hệ thống validate: WIP limit phải > 0
+5. Cập nhật `wipEnabled` và `wipLimit` trong board
+6. Emit real-time event `BE_BOARD_UPDATED` (include UC_Realtime)
+7. Khi di chuyển card, hệ thống kiểm tra WIP limit trước khi cho phép
+
+**Use Cases liên quan:** Include UC_Realtime
+
+**Điều kiện tiên quyết:** Người dùng là Owner của board
+
+**Kết quả:** WIP limit được cấu hình, hệ thống kiểm tra khi di chuyển card
+
+---
+
+**UC_LeaveBoard: Rời khỏi Board**
+
+**Mô tả:** Member rời khỏi board nếu không muốn tham gia nữa.
+
+**Actor:** Member
+
+**Luồng chính:**
+1. Member click nút "Rời khỏi board"
+2. Xác nhận hành động
+3. Hệ thống xóa userId khỏi `memberIds` của board
+4. Emit real-time event `BE_MEMBER_LEFT_BOARD` (include UC_Realtime)
+5. Owner nhận thông báo real-time về việc member rời board
+6. Member bị redirect về `/boards`
+
+**Use Cases liên quan:** Include UC_Realtime, UC_Notifications
+
+**Điều kiện tiên quyết:** Người dùng là Member của board (không phải Owner)
+
+**Kết quả:** Member đã rời board, Owner nhận thông báo
+
+---
+
+**3.1.2.4. Nhóm Columns & Cards**
+
+**UC_ManageColumns: Tạo / Sắp xếp / Sửa / Xóa Cột**
+
+**Mô tả:** Owner tạo cột mới, sắp xếp lại thứ tự cột, cập nhật thông tin cột, hoặc xóa cột.
+
+**Actor:** Owner
+
+**Luồng chính (Tạo Cột):**
+1. Owner click nút "Thêm cột"
+2. Nhập thông tin: title, màu sắc (bgColumn, bgTitleColumn)
+3. Hệ thống tạo column mới với `boardId` và `cardOrderIds: []`
+4. Thêm columnId vào `columnOrderIds` của board
+5. Emit real-time event `BE_COLUMN_CREATED` (include UC_Realtime)
+
+**Luồng chính (Sắp xếp Cột):**
+1. Owner kéo thả column để sắp xếp lại
+2. Hệ thống cập nhật `columnOrderIds` trong board
+3. Emit real-time event `BE_COLUMNS_REORDERED` (include UC_Realtime)
+4. Tất cả thành viên nhận cập nhật thứ tự cột
+
+**Luồng chính (Sửa Cột):**
+1. Owner click vào column header để chỉnh sửa
+2. Cập nhật title hoặc màu sắc
+3. Hệ thống cập nhật column trong database
+4. Emit real-time event `BE_COLUMN_UPDATED` (include UC_Realtime)
+
+**Luồng chính (Xóa Cột):**
+1. Owner click nút xóa cột
+2. Xác nhận hành động
+3. Hệ thống xóa tất cả cards trong cột
+4. Xóa column khỏi database
+5. Xóa columnId khỏi `columnOrderIds` của board
+6. Emit real-time event `BE_COLUMN_DELETED` (include UC_Realtime)
+
+**Use Cases liên quan:** Include UC_Realtime
+
+**Điều kiện tiên quyết:** Người dùng là Owner của board
+
+**Kết quả:** Cột được tạo/sắp xếp/sửa/xóa thành công, tất cả thay đổi được đồng bộ real-time
+
+---
+
+**UC_MoveCards: Di chuyển Thẻ (trong/between columns)**
+
+**Mô tả:** Owner và Member di chuyển card trong cùng cột hoặc giữa các cột khác nhau.
+
+**Actor:** Owner, Member
+
+**Luồng chính (Di chuyển trong cùng cột):**
+1. Người dùng kéo thả card trong cùng cột
+2. Hệ thống cập nhật `cardOrderIds` của column
+3. Gọi API `updateColumnDetailsAPI` với `cardOrderIds` mới
+4. Emit real-time event `BE_CARD_MOVED_IN_COLUMN` (include UC_Realtime)
+5. Tất cả thành viên nhận cập nhật thứ tự card
+
+**Luồng chính (Di chuyển giữa các cột):**
+1. Người dùng kéo thả card sang cột khác
+2. Hệ thống kiểm tra WIP limit của cột đích (nếu bật)
+3. Nếu vượt WIP limit, hiển thị lỗi và không cho phép di chuyển
+4. Nếu hợp lệ:
+   - Xóa cardId khỏi `cardOrderIds` của cột nguồn
+   - Thêm cardId vào `cardOrderIds` của cột đích
+   - Cập nhật `columnId` của card
+5. Gọi API `moveCardToDifferentColumnAPI`
+6. Emit real-time event `BE_CARD_MOVED_BETWEEN_COLUMNS` (include UC_Realtime)
+7. Tất cả thành viên nhận cập nhật
+
+**Use Cases liên quan:** Include UC_Realtime
+
+**Điều kiện tiên quyết:** Người dùng đã đăng nhập và có quyền truy cập board
+
+**Kết quả:** Card được di chuyển thành công, tất cả thay đổi được đồng bộ real-time
+
+---
+
+**UC_ManageCards: Tạo / Sửa / Xóa Thẻ**
+
+**Mô tả:** Owner và Member tạo card mới, cập nhật thông tin card, hoặc xóa card.
+
+**Actor:** Owner, Member
+
+**Luồng chính (Tạo Card):**
+1. Người dùng click nút "Thêm card" trong cột
+2. Nhập thông tin: title, description (Markdown), ngày bắt đầu, hạn hoàn thành, thành viên
+3. Upload ảnh bìa (tùy chọn)
+4. Sử dụng AI gợi ý nhiệm vụ (tùy chọn, extend UC_AISuggest)
+5. Hệ thống tạo card mới với `columnId` và `boardId`
+6. Thêm cardId vào đầu `cardOrderIds` của column
+7. Emit real-time event `BE_CARD_CREATED` (include UC_Realtime)
+
+**Luồng chính (Sửa Card):**
+1. Người dùng mở modal chi tiết card
+2. Cập nhật thông tin: title, description, ảnh bìa, thành viên, ngày tháng
+3. Hệ thống cập nhật card trong database
+4. Emit real-time event `BE_CARD_UPDATED` (include UC_Realtime)
+5. Tất cả thành viên nhận cập nhật
+
+**Luồng chính (Xóa Card):**
+1. Người dùng click nút xóa card
+2. Xác nhận hành động
+3. Hệ thống đánh dấu `_destroy: true` (soft delete)
+4. Xóa cardId khỏi `cardOrderIds` của column
+5. Emit real-time event `BE_CARD_DELETED` (include UC_Realtime)
+6. Tất cả thành viên nhận cập nhật
+
+**Use Cases liên quan:** Include UC_Realtime, Extend UC_AISuggest
+
+**Điều kiện tiên quyết:** Người dùng đã đăng nhập và có quyền truy cập board
+
+**Kết quả:** Card được tạo/sửa/xóa thành công, tất cả thay đổi được đồng bộ real-time
+
+---
+
+**UC_CardDetails: Chi tiết Thẻ (Markdown, cover, thành viên, hạn)**
+
+**Mô tả:** Người dùng xem chi tiết card bao gồm title, description (Markdown), ảnh bìa, danh sách thành viên, ngày bắt đầu và hạn hoàn thành, comments, và activity log.
+
+**Actor:** Owner, Member
+
+**Luồng chính:**
+1. Người dùng click vào card trên board
+2. Hệ thống mở modal chi tiết card
+3. Hiển thị thông tin:
+   - Title (có thể chỉnh sửa inline)
+   - Description với Markdown editor
+   - Ảnh bìa (có thể upload mới)
+   - Danh sách thành viên (có thể thêm/xóa)
+   - Ngày bắt đầu và hạn hoàn thành (với TimePicker)
+   - Comments section
+   - Activity log (ghi lại tất cả hoạt động)
+4. Người dùng có thể chỉnh sửa thông tin ngay trong modal
+5. Khi đóng modal, thay đổi được lưu tự động
+
+**Điều kiện tiên quyết:** Người dùng đã đăng nhập và có quyền truy cập board
+
+**Kết quả:** Chi tiết card được hiển thị, người dùng có thể xem và chỉnh sửa
+
+---
+
+**3.1.2.5. Nhóm Calendar & Events**
+
+**UC_Calendar: Xem Lịch tháng**
+
+**Mô tả:** Người dùng xem lịch tháng với tất cả sự kiện được liên kết với các boards.
+
+**Actor:** Người dùng đã đăng nhập (Authenticated User), Owner, Member
+
+**Luồng chính:**
+1. Người dùng truy cập trang lịch (`/boards/calendar`)
+2. Hệ thống lấy tất cả events từ API (chỉ events của boards mà user có quyền truy cập)
+3. Hiển thị lịch tháng với các sự kiện
+4. Mỗi sự kiện hiển thị: title, màu sắc, board liên kết
+5. Người dùng click vào ngày để xem chi tiết sự kiện
+6. Owner có thể tạo/sửa/xóa sự kiện (extend UC_ManageEvents)
+
+**Use Cases liên quan:** Extend UC_ManageEvents (chỉ Owner)
+
+**Điều kiện tiên quyết:** Người dùng đã đăng nhập
+
+**Kết quả:** Lịch tháng được hiển thị với các sự kiện
+
+---
+
+**UC_ManageEvents: Tạo / Sửa / Xóa Sự kiện, đổi màu, liên kết Board**
+
+**Mô tả:** Owner tạo sự kiện mới, cập nhật thông tin sự kiện, hoặc xóa sự kiện trong lịch.
+
+**Actor:** Owner
+
+**Luồng chính (Tạo Sự kiện):**
+1. Owner click vào ngày trên lịch hoặc nút "Thêm sự kiện"
+2. Chọn board để liên kết (chỉ hiển thị boards mà Owner quản lý)
+3. Nhập thông tin: title, description, ngày giờ bắt đầu, ngày giờ kết thúc
+4. Chọn màu sắc cho sự kiện
+5. Hệ thống tạo event mới với `boardId`
+6. Emit real-time event (include UC_Realtime)
+7. Sự kiện xuất hiện trên lịch
+
+**Luồng chính (Sửa Sự kiện):**
+1. Owner click vào sự kiện trên lịch
+2. Mở modal chi tiết sự kiện
+3. Cập nhật thông tin: title, description, ngày giờ, màu sắc, board liên kết
+4. Hệ thống cập nhật event trong database
+5. Emit real-time event (include UC_Realtime)
+
+**Luồng chính (Xóa Sự kiện):**
+1. Owner mở modal chi tiết sự kiện
+2. Click nút xóa
+3. Xác nhận hành động
+4. Hệ thống xóa event khỏi database
+5. Emit real-time event (include UC_Realtime)
+
+**Use Cases liên quan:** Include UC_Realtime, Extend UC_Calendar
+
+**Điều kiện tiên quyết:** Người dùng là Owner của board được liên kết với sự kiện
+
+**Kết quả:** Sự kiện được tạo/sửa/xóa thành công, lịch được cập nhật real-time
+
+---
+
+**3.1.2.6. Nhóm AI & Realtime**
+
+**UC_AISuggest: AI gợi ý nhiệm vụ**
+
+**Mô tả:** Người dùng sử dụng AI để gợi ý nhiệm vụ khi tạo hoặc sửa card.
+
+**Actor:** Người dùng đã đăng nhập (Authenticated User), Owner, Member
+
+**Luồng chính:**
+1. Người dùng đang tạo hoặc sửa card
+2. Click nút "AI gợi ý"
+3. Nhập ngữ cảnh hoặc mô tả nhiệm vụ
+4. Hệ thống gọi API AI để phân tích và tạo gợi ý
+5. Hiển thị danh sách gợi ý nhiệm vụ
+6. Người dùng chọn gợi ý phù hợp
+7. Tự động điền thông tin vào form card
+
+**Use Cases liên quan:** Extend UC_ManageCards (tùy chọn)
+
+**Điều kiện tiên quyết:** Người dùng đã đăng nhập và đang tạo/sửa card
+
+**Kết quả:** Gợi ý nhiệm vụ được hiển thị, người dùng có thể sử dụng để tạo card
+
+---
+
+**UC_Realtime: Cập nhật real-time (Socket.IO)**
+
+**Mô tả:** Hệ thống đồng bộ tất cả thay đổi real-time cho tất cả thành viên trong board sử dụng Socket.IO.
+
+**Actor:** Owner, Member
+
+**Luồng chính:**
+1. Người dùng tham gia board (join Socket.IO room `board:${boardId}`)
+2. Hệ thống lưu thông tin user vào socket
+3. Khi có thay đổi (tạo/sửa/xóa board, column, card, event, mời thành viên, rời board):
+   - Server emit event tương ứng (BE_BOARD_CREATED, BE_COLUMN_UPDATED, BE_CARD_MOVED, etc.)
+   - Tất cả clients trong room nhận event
+   - Frontend cập nhật Redux state và UI tự động
+4. Khi người dùng join/leave board:
+   - Server emit `BE_BOARD_USERS_ONLINE` với danh sách users online
+   - Frontend cập nhật danh sách thành viên online (include UC_OnlineUsers)
+
+**Use Cases liên quan:** Include UC_OnlineUsers, được include bởi tất cả use case quản lý
+
+**Điều kiện tiên quyết:** Người dùng đã đăng nhập và đang ở trong board
+
+**Kết quả:** Tất cả thay đổi được đồng bộ real-time cho tất cả thành viên
+
+---
+
+**UC_OnlineUsers: Hiển thị thành viên online**
+
+**Mô tả:** Hệ thống hiển thị danh sách thành viên đang online trong board.
+
+**Actor:** Owner, Member
+
+**Luồng chính:**
+1. Khi người dùng join board room, server lấy danh sách users online
+2. Emit event `BE_BOARD_USERS_ONLINE` với danh sách users
+3. Frontend hiển thị danh sách thành viên online trên UI
+4. Khi có người join/leave, danh sách được cập nhật tự động
+5. Hiển thị avatar và tên của từng thành viên online
+
+**Use Cases liên quan:** Include UC_Realtime
+
+**Điều kiện tiên quyết:** Người dùng đã đăng nhập và đang ở trong board
+
+**Kết quả:** Danh sách thành viên online được hiển thị và cập nhật real-time

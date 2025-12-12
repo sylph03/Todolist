@@ -49,6 +49,16 @@ const update = async (req, res, next) => {
       })
     }
     
+    // Emit real-time event khi board được cập nhật (title, description, backgroundColor, etc.)
+    // Chỉ emit khi có thay đổi các field khác ngoài columnOrderIds
+    const hasOtherFieldsChanged = Object.keys(req.body).some(key => key !== 'columnOrderIds')
+    if (hasOtherFieldsChanged) {
+      emitToBoard(boardId, 'BE_BOARD_UPDATED', {
+        boardId: boardId,
+        board: updatedBoard
+      })
+    }
+    
     // Có kết quả trả về phía client
     res.status(StatusCodes.OK).json(updatedBoard)
   } catch (error) { next(error) }
@@ -136,6 +146,12 @@ const deleteBoard = async (req, res, next) => {
     }
 
     const result = await boardService.deleteBoard(boardId)
+    
+    // Emit real-time event khi board bị xóa
+    emitToBoard(boardId, 'BE_BOARD_DELETED', {
+      boardId: boardId
+    })
+    
     res.status(StatusCodes.OK).json(result)
   } catch (error) { next(error) }
 }

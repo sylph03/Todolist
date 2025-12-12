@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import { socketIoInstance } from '~/socketClient'
 import { 
   updateCurrentActiveBoard, 
@@ -17,6 +18,7 @@ import { isEmpty } from 'lodash'
 // Hook để xử lý real-time updates cho di chuyển card
 export const useRealtimeCardMove = (boardId) => {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
   const board = useSelector(selectCurrentActiveBoard)
   const activeCard = useSelector(selectCurrentActiveCard)
   const currentUser = useSelector(selectCurrentUser)
@@ -228,6 +230,30 @@ export const useRealtimeCardMove = (boardId) => {
       }
     }
 
+    // Listen cho cập nhật board (sửa board)
+    const handleBoardUpdated = (data) => {
+      if (String(data.boardId) === String(boardId) && board && data.board) {
+        const newBoard = cloneDeep(board)
+        // Cập nhật các thuộc tính của board (title, description, backgroundColor, etc.)
+        // Giữ nguyên columns và các thuộc tính khác
+        Object.assign(newBoard, {
+          ...data.board,
+          columns: newBoard.columns, // Giữ nguyên columns
+          columnOrderIds: newBoard.columnOrderIds // Giữ nguyên columnOrderIds
+        })
+        
+        dispatch(updateCurrentActiveBoard(newBoard))
+      }
+    }
+
+    // Listen cho xóa board
+    const handleBoardDeleted = (data) => {
+      if (String(data.boardId) === String(boardId)) {
+        // Redirect về trang danh sách boards
+        navigate('/boards')
+      }
+    }
+
     // Register event listeners
     socketIoInstance.on('BE_CARD_MOVED_BETWEEN_COLUMNS', handleCardMovedBetweenColumns)
     socketIoInstance.on('BE_CARD_MOVED_IN_COLUMN', handleCardMovedInColumn)
@@ -238,6 +264,8 @@ export const useRealtimeCardMove = (boardId) => {
     socketIoInstance.on('BE_COLUMN_CREATED', handleColumnCreated)
     socketIoInstance.on('BE_COLUMN_UPDATED', handleColumnUpdated)
     socketIoInstance.on('BE_COLUMN_DELETED', handleColumnDeleted)
+    socketIoInstance.on('BE_BOARD_UPDATED', handleBoardUpdated)
+    socketIoInstance.on('BE_BOARD_DELETED', handleBoardDeleted)
 
     // Cleanup: leave room và remove listeners
     return () => {
@@ -251,7 +279,9 @@ export const useRealtimeCardMove = (boardId) => {
       socketIoInstance.off('BE_COLUMN_CREATED', handleColumnCreated)
       socketIoInstance.off('BE_COLUMN_UPDATED', handleColumnUpdated)
       socketIoInstance.off('BE_COLUMN_DELETED', handleColumnDeleted)
+      socketIoInstance.off('BE_BOARD_UPDATED', handleBoardUpdated)
+      socketIoInstance.off('BE_BOARD_DELETED', handleBoardDeleted)
     }
-  }, [boardId, board, activeCard, dispatch, currentUser])
+  }, [boardId, board, activeCard, dispatch, currentUser, navigate])
 }
 

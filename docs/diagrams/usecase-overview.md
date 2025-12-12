@@ -88,6 +88,7 @@ flowchart TB
   %% Include/Extend (mối quan hệ nội bộ)
   UC_CreateBoard --> UC_Realtime
   UC_Invite --> UC_Realtime
+  UC_BoardWIP --> UC_Realtime
   UC_ManageColumns --> UC_Realtime
   UC_ManageCards --> UC_Realtime
   UC_MoveCards --> UC_Realtime
@@ -103,6 +104,7 @@ flowchart TB
 - `UC_MoveCards` hỗ trợ cả Owner và Member, nhưng quản lý cột (`UC_ManageColumns`) chỉ Owner được phép.
 - Đánh dấu yêu thích board (`UC_Starred`) được lưu theo từng người dùng, áp dụng cho Owner và Member.
 - Sự kiện realtime (`UC_Realtime`) tự động thông báo Owner khi Member rời board, đồng thời cập nhật danh sách người dùng online (`UC_OnlineUsers`).
+- `UC_BoardWIP` (Cấu hình WIP) là một use case riêng biệt mặc dù về mặt kỹ thuật sử dụng cùng API cập nhật board. Nó có UI riêng (modal), logic validation riêng (kiểm tra số lượng card), và mục đích nghiệp vụ riêng (quản lý giới hạn công việc). Chỉ Owner mới được phép cấu hình WIP.
 
 Gợi ý chèn vào báo cáo: nhúng file hoặc copy đoạn code Mermaid vào công cụ hỗ trợ Mermaid; có thể chuyển sang PlantUML nếu cần.
 
