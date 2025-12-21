@@ -15,8 +15,8 @@ const getEvents = async (userId, boardId, from, to) => {
   try {
     // Nếu có boardId cụ thể, lấy events của board đó
     if (boardId) {
-      const events = await eventModel.findByBoardInRange(boardId, from, to)
-      return events
+    const events = await eventModel.findByBoardInRange(boardId, from, to)
+    return events
     }
 
     // Nếu không có boardId, lấy events của tất cả boards mà user là owner/member

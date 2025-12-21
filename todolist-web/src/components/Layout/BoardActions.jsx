@@ -180,15 +180,15 @@ const BoardActions = () => {
 
           {/* Nút Thêm cột - CHỈ OWNER MỚI ĐƯỢC THÊM */}
           {isOwner && (
-            <button
-              onClick={handleClickCreateColumn}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-200 font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95"
-              title="Thêm cột"
-              aria-label="Thêm cột"
-            >
-              <Columns2 className="w-5 h-5" />
-              <span className="hidden xl:inline text-sm">Thêm cột</span>
-            </button>
+          <button
+            onClick={handleClickCreateColumn}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-200 font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95"
+            title="Thêm cột"
+            aria-label="Thêm cột"
+          >
+            <Columns2 className="w-5 h-5" />
+            <span className="hidden xl:inline text-sm">Thêm cột</span>
+          </button>
           )}
 
           {/* Nút nhiệm vụ lưu trữ*/}
@@ -204,20 +204,20 @@ const BoardActions = () => {
 
           {/* Nút chế độ WIP - HIỂN THỊ TRẠNG THÁI THỰC TẾ - CHỈ HIỂN THỊ CHO OWNER */}
           {isOwner && (
-            <button
-              onClick={handleOpenWIPModal}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95 ${wipSettings.enabled
-                ? 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600'
-                : 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600'
-              }`}
-              title={wipSettings.enabled ? `WIP: ${wipSettings.limit} task/cột` : 'Bật chế độ giới hạn WIP'}
-              aria-label="Chế độ WIP"
-            >
-              <Settings className={`w-5 h-5 ${wipSettings.enabled ? 'text-gray-600 dark:text-gray-300' : 'text-gray-600 dark:text-gray-300'}`} />
-              <span className="hidden xl:inline text-sm font-medium">
-                {wipSettings.enabled ? `WIP : ${wipSettings.limit}` : 'WIP'}
-              </span>
-            </button>
+          <button
+            onClick={handleOpenWIPModal}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium shadow-sm transition-all duration-200 hover:shadow-md active:scale-95 ${wipSettings.enabled
+              ? 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600'
+              : 'bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600'
+            }`}
+            title={wipSettings.enabled ? `WIP: ${wipSettings.limit} task/cột` : 'Bật chế độ giới hạn WIP'}
+            aria-label="Chế độ WIP"
+          >
+            <Settings className={`w-5 h-5 ${wipSettings.enabled ? 'text-gray-600 dark:text-gray-300' : 'text-gray-600 dark:text-gray-300'}`} />
+            <span className="hidden xl:inline text-sm font-medium">
+              {wipSettings.enabled ? `WIP : ${wipSettings.limit}` : 'WIP'}
+            </span>
+          </button>
           )}
         </div>
 
