@@ -28,8 +28,10 @@ export const boardRealtimeSocket = (socket) => {
 
   // Client join vào room của board khi vào trang board
   socket.on('FE_JOIN_BOARD', (data) => {
-    const boardId = typeof data === 'string' ? data : data.boardId
-    const user = typeof data === 'string' ? null : data.user
+    const boardId = typeof data === 'string' ? data : data?.boardId
+    const user = typeof data === 'string' ? null : data?.user
+
+    if (!boardId) return
 
     socket.join(`board:${boardId}`)
     
@@ -57,7 +59,10 @@ export const boardRealtimeSocket = (socket) => {
   })
 
   // Client leave room khi rời khỏi board
-  socket.on('FE_LEAVE_BOARD', (boardId) => {
+  socket.on('FE_LEAVE_BOARD', (data) => {
+    const boardId = typeof data === 'string' ? data : data?.boardId
+    if (!boardId) return
+
     socket.leave(`board:${boardId}`)
 
     // Lấy danh sách users online sau khi leave
@@ -72,17 +77,15 @@ export const boardRealtimeSocket = (socket) => {
     console.log(`User left board: ${boardId}, Remaining online users: ${onlineUsers.length}`)
   })
 
-  // Xử lý khi socket disconnect
-  socket.on('disconnect', () => {
+  // Xử lý khi socket chuẩn bị disconnect (vẫn còn rooms ở thời điểm này)
+  socket.on('disconnecting', () => {
     // Lấy tất cả rooms mà socket này đang tham gia (trước khi socket bị remove khỏi rooms)
     const rooms = Array.from(socket.rooms).filter(room => room.startsWith('board:'))
 
     for (const room of rooms) {
       const boardId = room.replace('board:', '')
-      
-      // Socket.io tự động remove socket khỏi room khi disconnect
-      // Nên cần lấy danh sách users online sau khi socket đã bị remove
-      // Sử dụng setTimeout để đảm bảo socket đã được remove khỏi room
+
+      // Chờ socket rời room xong rồi tính online users để tránh vẫn tính cả socket đang disconnect
       setTimeout(() => {
         const onlineUsers = getOnlineUsersInBoard(boardId)
 
