@@ -2,8 +2,8 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { socketIoInstance } from '~/socketClient'
-import { 
-  updateCurrentActiveBoard, 
+import {
+  updateCurrentActiveBoard,
   updateCardInBoard,
   selectCurrentActiveBoard,
   fetchBoardDetailsAPI
@@ -14,6 +14,7 @@ import { cloneDeep } from 'lodash'
 import { mapOrder } from '~/utils/sort'
 import { generatePlaceholderCard } from '~/utils/formatters'
 import { isEmpty } from 'lodash'
+import { useRef } from 'react'
 
 // Hook để xử lý real-time updates cho di chuyển card
 export const useRealtimeCardMove = (boardId) => {
@@ -22,6 +23,17 @@ export const useRealtimeCardMove = (boardId) => {
   const board = useSelector(selectCurrentActiveBoard)
   const activeCard = useSelector(selectCurrentActiveCard)
   const currentUser = useSelector(selectCurrentUser)
+
+  const boardRef = useRef(board)
+  const activeCardRef = useRef(activeCard)
+
+  useEffect(() => {
+    boardRef.current = board
+  }, [board])
+
+  useEffect(() => {
+    activeCardRef.current = activeCard
+  }, [activeCard])
 
   useEffect(() => {
     if (!boardId || !socketIoInstance) return
@@ -42,7 +54,8 @@ export const useRealtimeCardMove = (boardId) => {
 
     // Listen cho di chuyển card giữa các column
     const handleCardMovedBetweenColumns = (data) => {
-      if (String(data.boardId) === String(boardId) && board) {
+      const latestBoard = boardRef.current
+      if (String(data.boardId) === String(boardId) && latestBoard) {
         // Refetch board để đảm bảo data đồng bộ hoàn toàn
         dispatch(fetchBoardDetailsAPI(boardId))
       }
@@ -50,15 +63,16 @@ export const useRealtimeCardMove = (boardId) => {
 
     // Listen cho di chuyển card trong cùng column
     const handleCardMovedInColumn = (data) => {
-      if (String(data.boardId) === String(boardId) && board) {
-        const newBoard = cloneDeep(board)
+      const latestBoard = boardRef.current
+      if (String(data.boardId) === String(boardId) && latestBoard) {
+        const newBoard = cloneDeep(latestBoard)
         const column = newBoard.columns.find(col => String(col._id) === String(data.columnId))
-        
+
         if (column && data.cardOrderIds) {
           // Sắp xếp lại cards theo cardOrderIds mới
           column.cards = mapOrder(column.cards, data.cardOrderIds, '_id')
           column.cardOrderIds = data.cardOrderIds
-          
+
           dispatch(updateCurrentActiveBoard(newBoard))
         }
       }
@@ -66,45 +80,47 @@ export const useRealtimeCardMove = (boardId) => {
 
     // Listen cho di chuyển column (sắp xếp lại thứ tự columns)
     const handleColumnsReordered = (data) => {
-      if (String(data.boardId) === String(boardId) && board && data.columnOrderIds) {
-        const newBoard = cloneDeep(board)
+      const latestBoard = boardRef.current
+      if (String(data.boardId) === String(boardId) && latestBoard && data.columnOrderIds) {
+        const newBoard = cloneDeep(latestBoard)
         // Sắp xếp lại columns theo columnOrderIds mới
         newBoard.columns = mapOrder(newBoard.columns, data.columnOrderIds, '_id')
         newBoard.columnOrderIds = data.columnOrderIds
-        
+
         dispatch(updateCurrentActiveBoard(newBoard))
       }
     }
 
     // Listen cho tạo card mới
     const handleCardCreated = (data) => {
-      if (String(data.boardId) === String(boardId) && board && data.card) {
-        const newBoard = cloneDeep(board)
+      const latestBoard = boardRef.current
+      if (String(data.boardId) === String(boardId) && latestBoard && data.card) {
+        const newBoard = cloneDeep(latestBoard)
         const column = newBoard.columns.find(col => String(col._id) === String(data.card.columnId))
-        
+
         if (column) {
           // Kiểm tra xem card đã tồn tại chưa (tránh duplicate khi user tự tạo)
           const cardExists = column.cards.some(card => String(card._id) === String(data.card._id))
           if (cardExists) {
             return // Card đã tồn tại, không cần thêm lại
           }
-          
+
           // Xóa placeholder card nếu có
           const hasPlaceholder = column.cards.some(card => card.FE_PlaceholderCard)
           if (hasPlaceholder) {
             column.cards = column.cards.filter(card => !card.FE_PlaceholderCard)
             column.cardOrderIds = column.cardOrderIds.filter(id => !String(id).includes('placeholder'))
           }
-          
+
           // Thêm card mới vào đầu danh sách (giống logic trong FormCreateCard)
           column.cards.unshift(data.card)
-          
+
           // Cập nhật cardOrderIds
           if (!column.cardOrderIds) {
             column.cardOrderIds = []
           }
           column.cardOrderIds.unshift(data.card._id)
-          
+
           dispatch(updateCurrentActiveBoard(newBoard))
         }
       }
@@ -112,12 +128,14 @@ export const useRealtimeCardMove = (boardId) => {
 
     // Listen cho cập nhật card (sửa card)
     const handleCardUpdated = (data) => {
-      if (String(data.boardId) === String(boardId) && board && data.card) {
+      const latestBoard = boardRef.current
+      if (String(data.boardId) === String(boardId) && latestBoard && data.card) {
         // Sử dụng action updateCardInBoard để cập nhật card trong board
         dispatch(updateCardInBoard(data.card))
-        
+
         // Cập nhật activeCard nếu card đang được mở trong modal
-        if (activeCard && String(activeCard._id) === String(data.card._id)) {
+        const latestActiveCard = activeCardRef.current
+        if (latestActiveCard && String(latestActiveCard._id) === String(data.card._id)) {
           dispatch(updateCurrentActiveCard(data.card))
         }
       }
@@ -125,15 +143,16 @@ export const useRealtimeCardMove = (boardId) => {
 
     // Listen cho xóa card
     const handleCardDeleted = (data) => {
-      if (String(data.boardId) === String(boardId) && board) {
-        const newBoard = cloneDeep(board)
+      const latestBoard = boardRef.current
+      if (String(data.boardId) === String(boardId) && latestBoard) {
+        const newBoard = cloneDeep(latestBoard)
         const column = newBoard.columns.find(col => String(col._id) === String(data.columnId))
-        
+
         if (column) {
           // Xóa card khỏi column
           column.cards = column.cards.filter(card => String(card._id) !== String(data.cardId))
           column.cardOrderIds = column.cardOrderIds.filter(id => String(id) !== String(data.cardId))
-          
+
           // Thêm placeholder card nếu column trở nên rỗng (không có active cards)
           const activeCards = column.cards.filter(card => !card.isArchived && !card.FE_PlaceholderCard)
           if (isEmpty(activeCards)) {
@@ -144,12 +163,13 @@ export const useRealtimeCardMove = (boardId) => {
               column.cardOrderIds.push(placeholderCard._id)
             }
           }
-          
+
           dispatch(updateCurrentActiveBoard(newBoard))
         }
-        
+
         // Đóng ActiveCard modal nếu card đang được mở bị xóa
-        if (activeCard && String(activeCard._id) === String(data.cardId)) {
+        const latestActiveCard = activeCardRef.current
+        if (latestActiveCard && String(latestActiveCard._id) === String(data.cardId)) {
           dispatch(hideActiveCard())
           dispatch(clearCurrentActiveCard())
         }
@@ -158,40 +178,42 @@ export const useRealtimeCardMove = (boardId) => {
 
     // Listen cho tạo column mới
     const handleColumnCreated = (data) => {
-      if (String(data.boardId) === String(boardId) && board && data.column) {
-        const newBoard = cloneDeep(board)
-        
+      const latestBoard = boardRef.current
+      if (String(data.boardId) === String(boardId) && latestBoard && data.column) {
+        const newBoard = cloneDeep(latestBoard)
+
         // Kiểm tra xem column đã tồn tại chưa (tránh duplicate khi user tự tạo)
         const columnExists = newBoard.columns.some(col => String(col._id) === String(data.column._id))
         if (columnExists) {
           return // Column đã tồn tại, không cần thêm lại
         }
-        
+
         // Thêm column mới vào board
         newBoard.columns.push(data.column)
-        
+
         // Cập nhật columnOrderIds
         if (!newBoard.columnOrderIds) {
           newBoard.columnOrderIds = []
         }
         newBoard.columnOrderIds.push(data.column._id)
-        
+
         // Thêm placeholder card vào column mới (giống logic trong FormCreateColumn)
         const placeholderCard = generatePlaceholderCard(data.column)
         const newColumnIndex = newBoard.columns.length - 1
         newBoard.columns[newColumnIndex].cards = [placeholderCard]
         newBoard.columns[newColumnIndex].cardOrderIds = [placeholderCard._id]
-        
+
         dispatch(updateCurrentActiveBoard(newBoard))
       }
     }
 
     // Listen cho cập nhật column (sửa column)
     const handleColumnUpdated = (data) => {
-      if (String(data.boardId) === String(boardId) && board && data.column) {
-        const newBoard = cloneDeep(board)
+      const latestBoard = boardRef.current
+      if (String(data.boardId) === String(boardId) && latestBoard && data.column) {
+        const newBoard = cloneDeep(latestBoard)
         const columnIndex = newBoard.columns.findIndex(col => String(col._id) === String(data.column._id))
-        
+
         if (columnIndex !== -1) {
           // Cập nhật column trong board, giữ nguyên cards và cardOrderIds
           newBoard.columns[columnIndex] = {
@@ -201,7 +223,7 @@ export const useRealtimeCardMove = (boardId) => {
             cards: newBoard.columns[columnIndex].cards,
             cardOrderIds: newBoard.columns[columnIndex].cardOrderIds
           }
-          
+
           dispatch(updateCurrentActiveBoard(newBoard))
         }
       }
@@ -209,21 +231,23 @@ export const useRealtimeCardMove = (boardId) => {
 
     // Listen cho xóa column
     const handleColumnDeleted = (data) => {
-      if (String(data.boardId) === String(boardId) && board) {
-        const newBoard = cloneDeep(board)
-        
+      const latestBoard = boardRef.current
+      if (String(data.boardId) === String(boardId) && latestBoard) {
+        const newBoard = cloneDeep(latestBoard)
+
         // Xóa column khỏi board
         newBoard.columns = newBoard.columns.filter(col => String(col._id) !== String(data.columnId))
-        
+
         // Cập nhật columnOrderIds
         if (newBoard.columnOrderIds) {
           newBoard.columnOrderIds = newBoard.columnOrderIds.filter(id => String(id) !== String(data.columnId))
         }
-        
+
         dispatch(updateCurrentActiveBoard(newBoard))
-        
+
         // Đóng ActiveCard modal nếu card đang được mở thuộc column bị xóa
-        if (activeCard && activeCard.columnId && String(activeCard.columnId) === String(data.columnId)) {
+        const latestActiveCard = activeCardRef.current
+        if (latestActiveCard && latestActiveCard.columnId && String(latestActiveCard.columnId) === String(data.columnId)) {
           dispatch(hideActiveCard())
           dispatch(clearCurrentActiveCard())
         }
@@ -232,8 +256,9 @@ export const useRealtimeCardMove = (boardId) => {
 
     // Listen cho cập nhật board (sửa board)
     const handleBoardUpdated = (data) => {
-      if (String(data.boardId) === String(boardId) && board && data.board) {
-        const newBoard = cloneDeep(board)
+      const latestBoard = boardRef.current
+      if (String(data.boardId) === String(boardId) && latestBoard && data.board) {
+        const newBoard = cloneDeep(latestBoard)
         // Cập nhật các thuộc tính của board (title, description, backgroundColor, etc.)
         // Giữ nguyên columns và các thuộc tính khác
         Object.assign(newBoard, {
@@ -241,7 +266,7 @@ export const useRealtimeCardMove = (boardId) => {
           columns: newBoard.columns, // Giữ nguyên columns
           columnOrderIds: newBoard.columnOrderIds // Giữ nguyên columnOrderIds
         })
-        
+
         dispatch(updateCurrentActiveBoard(newBoard))
       }
     }
@@ -269,7 +294,7 @@ export const useRealtimeCardMove = (boardId) => {
 
     // Cleanup: leave room và remove listeners
     return () => {
-      socketIoInstance.emit('FE_LEAVE_BOARD', boardId)
+      socketIoInstance.emit('FE_LEAVE_BOARD', { boardId })
       socketIoInstance.off('BE_CARD_MOVED_BETWEEN_COLUMNS', handleCardMovedBetweenColumns)
       socketIoInstance.off('BE_CARD_MOVED_IN_COLUMN', handleCardMovedInColumn)
       socketIoInstance.off('BE_COLUMNS_REORDERED', handleColumnsReordered)
@@ -282,6 +307,6 @@ export const useRealtimeCardMove = (boardId) => {
       socketIoInstance.off('BE_BOARD_UPDATED', handleBoardUpdated)
       socketIoInstance.off('BE_BOARD_DELETED', handleBoardDeleted)
     }
-  }, [boardId, board, activeCard, dispatch, currentUser, navigate])
+  }, [boardId, dispatch, currentUser, navigate])
 }
 
