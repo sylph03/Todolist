@@ -21,6 +21,9 @@ export const useBoardOnlineUsers = (boardId) => {
 
     socketIoInstance.on('BE_BOARD_USERS_ONLINE', handleUsersOnline)
 
+    // Request snapshot để đảm bảo lần đầu vào board luôn có dữ liệu (tránh miss event)
+    socketIoInstance.emit('FE_GET_BOARD_USERS_ONLINE', { boardId })
+
     // Cleanup
     return () => {
       socketIoInstance.off('BE_BOARD_USERS_ONLINE', handleUsersOnline)

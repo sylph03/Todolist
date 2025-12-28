@@ -26,6 +26,19 @@ export const boardRealtimeSocket = (socket) => {
     return onlineUsers
   }
 
+  // Client có thể yêu cầu snapshot danh sách users online (phòng trường hợp miss event khi mới vào board)
+  socket.on('FE_GET_BOARD_USERS_ONLINE', (data) => {
+    const boardId = typeof data === 'string' ? data : data?.boardId
+    if (!boardId) return
+
+    const onlineUsers = getOnlineUsersInBoard(boardId)
+
+    socket.emit('BE_BOARD_USERS_ONLINE', {
+      boardId,
+      onlineUsers
+    })
+  })
+
   // Client join vào room của board khi vào trang board
   socket.on('FE_JOIN_BOARD', (data) => {
     const boardId = typeof data === 'string' ? data : data?.boardId
